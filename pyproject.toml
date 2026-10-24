@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "house-account"
+version = "0.1.0"
+requires-python = ">=3.13,<3.14"
+dependencies = ["pydantic>=2.12,<3", "mcp>=1.20,<2", "icalendar>=6.3,<8", "recurring-ical-events>=3.5,<4"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.14,<1", "mypy>=1.18,<2"]
+
+[project.scripts]
+house-account = "house_account.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true
+check_untyped_defs = true

@@ -1,0 +1,5 @@
+Ingest all sources into a traceable model (P1)  boxes=33  files=9 build=7 you-see=1 verify-unit=1 verify-live=10 verify-perf=4 review-gate=0 merge=1
+Resolve identities and answer history questions (P2)  boxes=37  files=8 build=8 you-see=1 verify-unit=2 verify-live=10 verify-perf=4 review-gate=3 merge=1
+Compute defensible openings and provider rankings (P3)  boxes=29  files=5 build=7 you-see=1 verify-unit=1 verify-live=10 verify-perf=4 review-gate=0 merge=1
+Expose the tools and deliver the six-question demo (P4)  boxes=36  files=9 build=7 you-see=1 verify-unit=1 verify-live=10 verify-perf=4 review-gate=3 merge=1
+4 PR sections, 0 problems

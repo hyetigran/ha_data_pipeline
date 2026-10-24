@@ -1,0 +1,1014 @@
+{
+  "calendars": {
+    "abrams_plumbing_google_calendar.ics": {
+      "event_property_counts": {
+        "DTEND": 45,
+        "DTSTAMP": 45,
+        "DTSTART": 45,
+        "LOCATION": 28,
+        "RRULE": 2,
+        "STATUS": 45,
+        "SUMMARY": 45,
+        "TRANSP": 45,
+        "UID": 45
+      },
+      "events": 45
+    },
+    "rays_fixit_google_calendar.ics": {
+      "event_property_counts": {
+        "DTEND": 46,
+        "DTSTAMP": 46,
+        "DTSTART": 46,
+        "LOCATION": 26,
+        "RRULE": 1,
+        "STATUS": 46,
+        "SUMMARY": 46,
+        "TRANSP": 46,
+        "UID": 46
+      },
+      "events": 46
+    }
+  },
+  "counts": {
+    "bytes": 21292274,
+    "calendar_events": 91,
+    "csv_data_rows": 206,
+    "csv_exact_duplicate_rows": 8,
+    "files": 176,
+    "hcp_accounts": 15,
+    "hcp_customers": 3551,
+    "hcp_customers_unique_source_ids": 3551,
+    "hcp_estimates": 689,
+    "hcp_estimates_unique_source_ids": 689,
+    "hcp_jobs": 4633,
+    "hcp_jobs_unique_source_ids": 4630,
+    "jobber_accounts": 15,
+    "jobber_clients": 2964,
+    "jobber_jobs": 4267,
+    "jobber_properties": 2964,
+    "jobber_visits": 7658,
+    "provider_profiles": 40,
+    "street_segments": 354,
+    "workiz_accounts": 11,
+    "workiz_jobs": 2657
+  },
+  "files": [
+    {
+      "bytes": 6148,
+      "path": "data/.DS_Store",
+      "sha256": "08d7e68ed924da4c478409f115b189d96ec587f7073e03a50aadad06e7fce231"
+    },
+    {
+      "bytes": 2441,
+      "path": "data/README.md",
+      "sha256": "3c7cd395232ae51d046d949a8a0a978453d2002105f8306dbc57f7f4dc202cc0"
+    },
+    {
+      "bytes": 28691,
+      "path": "data/reference/street_segments.csv",
+      "sha256": "955006d2ec57ce1a72a58e61a2c61d1ea7cad623b3fb66c2c1bdb01e5d073c0e"
+    },
+    {
+      "bytes": 13344,
+      "path": "data/sources/calendars/abrams_plumbing_google_calendar.ics",
+      "sha256": "74f8dca718ea9f94f73bbd36b460e11de08ae4a0bea2ce00b255824016926197"
+    },
+    {
+      "bytes": 13231,
+      "path": "data/sources/calendars/rays_fixit_google_calendar.ics",
+      "sha256": "65fadeb67366a499eb99d049df5ab4c302a66e36de4b89600b768bb4def33553"
+    },
+    {
+      "bytes": 251,
+      "path": "data/sources/housecall_pro/abrams_plumbing/company.json",
+      "sha256": "e88ede794e565683ef12e74c3713e33afdb139711610d96bc2df8efae74199d3"
+    },
+    {
+      "bytes": 58429,
+      "path": "data/sources/housecall_pro/abrams_plumbing/customers_page_1.json",
+      "sha256": "a9c6910b62dea7b8f54036689902577b9e2d09d4b3867370635c2fd60e03a3ac"
+    },
+    {
+      "bytes": 8875,
+      "path": "data/sources/housecall_pro/abrams_plumbing/customers_page_2.json",
+      "sha256": "b0f6019db9b5ee9b6bf38f5185dcb444395adc3bce41b82341658786526a7b5a"
+    },
+    {
+      "bytes": 33586,
+      "path": "data/sources/housecall_pro/abrams_plumbing/estimates_page_1.json",
+      "sha256": "c81000b777965d50830134ac7577b46ad1676d6b3094e794bc0bcf98f12cc90d"
+    },
+    {
+      "bytes": 126999,
+      "path": "data/sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+      "sha256": "c4a3b1181f73eb9ed2ed1c61b491fd87c11f041c49f352c9f1494727c4dd4cea"
+    },
+    {
+      "bytes": 71725,
+      "path": "data/sources/housecall_pro/abrams_plumbing/jobs_page_2.json",
+      "sha256": "39c5b902916e5e0b67e9a9b485483d14e1ef61ddaa6c0fa0ae91714a232e0630"
+    },
+    {
+      "bytes": 246,
+      "path": "data/sources/housecall_pro/big_tex_roofing/company.json",
+      "sha256": "ed09b6b9ffbdd4fd886acb6eff245e444569c12c775b0767fd32e2db2192efca"
+    },
+    {
+      "bytes": 58566,
+      "path": "data/sources/housecall_pro/big_tex_roofing/customers_page_1.json",
+      "sha256": "387c57b55d6d24a264894939814bff74ad3cd655d922c7a3fd6200dea00127f0"
+    },
+    {
+      "bytes": 58469,
+      "path": "data/sources/housecall_pro/big_tex_roofing/customers_page_2.json",
+      "sha256": "eea341456cdd97581ada97998ef051428e2dfe186115ebfa7dce3a4f798f35b2"
+    },
+    {
+      "bytes": 11221,
+      "path": "data/sources/housecall_pro/big_tex_roofing/customers_page_3.json",
+      "sha256": "6ebd106cef0c9eff5285c7708f738cbf2e224fdc905d870eeda522145b8fae73"
+    },
+    {
+      "bytes": 97174,
+      "path": "data/sources/housecall_pro/big_tex_roofing/estimates_page_1.json",
+      "sha256": "e133c24f23f20b2ea8bad079d2734fbc16911719636f326f56c6d5c2448875b1"
+    },
+    {
+      "bytes": 127668,
+      "path": "data/sources/housecall_pro/big_tex_roofing/jobs_page_1.json",
+      "sha256": "7a2b562e52685a0d5bf25048df3a4cb01681dbd60cf71fc0ca922a1b89e7a0d4"
+    },
+    {
+      "bytes": 132659,
+      "path": "data/sources/housecall_pro/big_tex_roofing/jobs_page_2.json",
+      "sha256": "5b6a82713e6645f7ae41531cc1047a35269ed80fe19439efb546e0223b79db54"
+    },
+    {
+      "bytes": 67989,
+      "path": "data/sources/housecall_pro/big_tex_roofing/jobs_page_3.json",
+      "sha256": "8d3e5117ed7cda602a459522b1d5f3ae6f0d06b376de450fc217db9d4d33f117"
+    },
+    {
+      "bytes": 260,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/company.json",
+      "sha256": "563cb95526790d9deac1a7eab02978219b80ff9ea91e81b98c93f56a2b41c996"
+    },
+    {
+      "bytes": 58627,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/customers_page_1.json",
+      "sha256": "fe598f45ef32cd8db4bb71fd01ee9eaafb454078e376bdd62d63a1dae38b2ae9"
+    },
+    {
+      "bytes": 58375,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/customers_page_2.json",
+      "sha256": "01e3319c18aadc64f29003e9bcda7aa14790e6651bd5c973102e1ee0571ee8d8"
+    },
+    {
+      "bytes": 24635,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/customers_page_3.json",
+      "sha256": "192c03a27f961af240b827848abf7a4ce62a14c85b60a7d79cb2d23c94056068"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 127605,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/jobs_page_1.json",
+      "sha256": "880169dff791e77433bc77189bdbd7014dc237365a3750f86e55a6e0a6990943"
+    },
+    {
+      "bytes": 131916,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/jobs_page_2.json",
+      "sha256": "5a72121fbd14d8fedef8ca5ebd68d9eec88e1538827f39639f909a98979c0a52"
+    },
+    {
+      "bytes": 133779,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/jobs_page_3.json",
+      "sha256": "429df066c5c25e4a0c4a0d41f52f43fcae63a80c5981fe6de20248168ba1b00f"
+    },
+    {
+      "bytes": 39950,
+      "path": "data/sources/housecall_pro/bug_out_pest_control/jobs_page_4.json",
+      "sha256": "7344dc3b74ca8f601291ec4cefa39956683e188fa14f7e908908d413511a4fac"
+    },
+    {
+      "bytes": 259,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/company.json",
+      "sha256": "f3a77d99e4a20769baa3cd8e9f0a187c94c61b726841cb0e5955fae53d1146aa"
+    },
+    {
+      "bytes": 58591,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/customers_page_1.json",
+      "sha256": "a2348361362edbc0947f06877d2e595db569375f11c0533aef0579db7c483aab"
+    },
+    {
+      "bytes": 58850,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/customers_page_2.json",
+      "sha256": "df96a4fe7a7f40fea57dc78f16118a68ad2df6af1f6c046a2ff6296279651a6a"
+    },
+    {
+      "bytes": 58445,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/customers_page_3.json",
+      "sha256": "2628809415ceb3550adebed5e4a057a57607f4fd179e5c85752d13d5be77ead2"
+    },
+    {
+      "bytes": 58277,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/customers_page_4.json",
+      "sha256": "c67c0fdbb2c06fae4d5cc48f75411cb18b80c87336961a57ec03f4580966dd49"
+    },
+    {
+      "bytes": 18159,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/customers_page_5.json",
+      "sha256": "ab15b6e86f5e9291a4354d65e03fa9566501d57f640fdf5d977c29a9a444e847"
+    },
+    {
+      "bytes": 119855,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/estimates_page_1.json",
+      "sha256": "08eaad77692cedea00a6c8444adce03cdaf3d7acddcb5bbe2ce5d1d65a753878"
+    },
+    {
+      "bytes": 55000,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/estimates_page_2.json",
+      "sha256": "ccbcbb063b71d5145972786a71eb18a702856f606e4cbd1a5065d2cd29f4decf"
+    },
+    {
+      "bytes": 127685,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_1.json",
+      "sha256": "de16bc6f269939ba3b20887b9d2021196de0ef8fefaa79152bbe74cfb0a51c54"
+    },
+    {
+      "bytes": 128403,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_2.json",
+      "sha256": "b5eeefa17fad904128757c488a3bc1dbae848b5403a5ffdc56cc791faf0c3701"
+    },
+    {
+      "bytes": 133991,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_3.json",
+      "sha256": "a76fbec06cee539998259660054a3a52f104ca8716a1d3d18207d53c7d0dd4ea"
+    },
+    {
+      "bytes": 132552,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_4.json",
+      "sha256": "62d6e79edb32f50e081d8fd8f8b4432edec934dfc32e108c301ca310be234aed"
+    },
+    {
+      "bytes": 133005,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_5.json",
+      "sha256": "d3047a0fe21f6205ca053bbca315b25d40851920fdfe48e4570d5deccb6c5710"
+    },
+    {
+      "bytes": 48853,
+      "path": "data/sources/housecall_pro/cool_breeze_ac_heat/jobs_page_6.json",
+      "sha256": "40893c2a6fc35a224fc86c4154e7d98f8fafcdc7e58f6810ff34554ffb826b63"
+    },
+    {
+      "bytes": 258,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/company.json",
+      "sha256": "3de87c4df91a1d532df992c91618a1d61b97e052c7a61de5be01a83a900f934c"
+    },
+    {
+      "bytes": 58888,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/customers_page_1.json",
+      "sha256": "6d5fb32108407e9fd8db5c94d1f38c116e1801fe8fb228a292051fac313096a7"
+    },
+    {
+      "bytes": 59088,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/customers_page_2.json",
+      "sha256": "fee8c4eee01b30b23ed7d4dadb9eaa83f1d5ce29a1098b2a949d3a309c57901e"
+    },
+    {
+      "bytes": 6831,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/customers_page_3.json",
+      "sha256": "5bd3fafed6d2e387b47f08a692639dfd4b2d0f1b836a3ebec536cde0b12455dd"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 128071,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/jobs_page_1.json",
+      "sha256": "3be6db227a0855e852dc65a42a848cc8562bb08d8f34670b0224a61f0b1a5120"
+    },
+    {
+      "bytes": 132859,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/jobs_page_2.json",
+      "sha256": "5d308e68809b9f681e1853f0df028e4c85579f1b0e263fd29990462a20214a07"
+    },
+    {
+      "bytes": 118783,
+      "path": "data/sources/housecall_pro/dallas_appliance_doc/jobs_page_3.json",
+      "sha256": "71c2ca579fc1fe4f6c1ea530634a07e3a9648301479c2e6c82294ecf79296695"
+    },
+    {
+      "bytes": 254,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/company.json",
+      "sha256": "11baa91439eaf57e22be4355da812bd7986d845993a1f6367f3a6e44b179b5e0"
+    },
+    {
+      "bytes": 58713,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/customers_page_1.json",
+      "sha256": "ab7fbe78e0e2b46c1e835bfc52923b0bdad717fd77a648deabb943ed8c68d774"
+    },
+    {
+      "bytes": 58352,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/customers_page_2.json",
+      "sha256": "f6beab1cc3ff9008a21f37976b18ac5ee6f2b2c9a5a53457ffcbc954b95636de"
+    },
+    {
+      "bytes": 58459,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/customers_page_3.json",
+      "sha256": "a2463201292c529eec4c2c17141c57b4fce552fbbeaca6961fc22f4f4fb1e34f"
+    },
+    {
+      "bytes": 12904,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/customers_page_4.json",
+      "sha256": "ee09a8563b3b45c8ad7b03135a239ff2038e153ed8b2faf5685ad6f61a7ed900"
+    },
+    {
+      "bytes": 68108,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/estimates_page_1.json",
+      "sha256": "6f505e9a42e25247b2a94c24cbe19d21a3ac2d22c7a164760db587d7387665e8"
+    },
+    {
+      "bytes": 127190,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/jobs_page_1.json",
+      "sha256": "9aa3772c1ecf2cd6d9bf62d859b5a763a7d3b098eec847066f877b6068c2320e"
+    },
+    {
+      "bytes": 130426,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/jobs_page_2.json",
+      "sha256": "291577bcc59c78909a1abf955651e6d5bf06e1cfb40dfbdc9230e1a795c1e758"
+    },
+    {
+      "bytes": 134383,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/jobs_page_3.json",
+      "sha256": "5af5a7dda0a36a1d4b3e5c479e56f0dd2f7d06086d63432c20c612c9a7c19d04"
+    },
+    {
+      "bytes": 132495,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/jobs_page_4.json",
+      "sha256": "adfc779b62226e96b6c3b721f4033bec89da86a6bcb207913d2fb7f01d30101a"
+    },
+    {
+      "bytes": 7911,
+      "path": "data/sources/housecall_pro/dallas_drain_pros/jobs_page_5.json",
+      "sha256": "551a4fe7f1c9b5da6f8743d748b79acb744fc0511944c2b249d2fea55f9ab1fd"
+    },
+    {
+      "bytes": 248,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/company.json",
+      "sha256": "130396738f029e830beaa3a7fc4ac74229323d5d6019f353b559dd1b4b66dd1f"
+    },
+    {
+      "bytes": 58703,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/customers_page_1.json",
+      "sha256": "a41612265bef621e612d105464c21e40f6494dbf0cadf814df39ee84cf3474f7"
+    },
+    {
+      "bytes": 58904,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/customers_page_2.json",
+      "sha256": "b6192ca03825a89b8ce9c0d1f1d4e61656636816567d630d4f3875c9b3af22cc"
+    },
+    {
+      "bytes": 58656,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/customers_page_3.json",
+      "sha256": "975c6a5982addf47455a2a2c38e4eabd453a62dde28d10b48122fae7b2d9bde3"
+    },
+    {
+      "bytes": 18290,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/customers_page_4.json",
+      "sha256": "0e967c3e035d9a724bbdd320b94fa11977074fef40c90a75c700246c06dcc401"
+    },
+    {
+      "bytes": 121376,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/estimates_page_1.json",
+      "sha256": "9a27b9675c27f52e85b38fb94c90bb3dc656efbc5a9837ebf9e496d5c634aa22"
+    },
+    {
+      "bytes": 13510,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/estimates_page_2.json",
+      "sha256": "521ea354938b403d561107afefb9f259ff8104d381db15e68628b6730e2332fd"
+    },
+    {
+      "bytes": 128137,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/jobs_page_1.json",
+      "sha256": "b3f1338682fbb690e07fdd95de51e128e816870736bb7b01d923282b854fd8bf"
+    },
+    {
+      "bytes": 131341,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/jobs_page_2.json",
+      "sha256": "681f7edf7c2166f059ab6565dbde4e33f3d673c321a2575d910581348d8b98c8"
+    },
+    {
+      "bytes": 133584,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/jobs_page_3.json",
+      "sha256": "9212e27973cb287767aee713a067ba95a0e0108728fbdefb0681eb31f67c3deb"
+    },
+    {
+      "bytes": 131788,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/jobs_page_4.json",
+      "sha256": "bbca8a62024b9f090a08823c1fbbebb3ee8854f83ddfddb4d2b3cd6c2b19dc1c"
+    },
+    {
+      "bytes": 5853,
+      "path": "data/sources/housecall_pro/frost_bros_hvac/jobs_page_5.json",
+      "sha256": "546a6afbbad3106f95339fdaa6c438ffd2d5ca580d5618ebd296045e0b7bc844"
+    },
+    {
+      "bytes": 266,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/company.json",
+      "sha256": "6c488b8c6fb01c9398159d38883bfa4b2961e9e86b733b0c998426efcab4f03e"
+    },
+    {
+      "bytes": 58668,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/customers_page_1.json",
+      "sha256": "b3b8c8c2ad4a271d5f51e77c779a35d92de63570eaa9852a0999504286d010f0"
+    },
+    {
+      "bytes": 58453,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/customers_page_2.json",
+      "sha256": "b5475fa7add7458de18ad599e41821d780fb923d8aed5cd8733b906d9abc1970"
+    },
+    {
+      "bytes": 58499,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/customers_page_3.json",
+      "sha256": "a6798532caff06db89d6027fa91920ea2fdd891aaa64387e8d3881eb843c1225"
+    },
+    {
+      "bytes": 1865,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/customers_page_4.json",
+      "sha256": "3846ccc59fc435e71be603e6920e0139cad157b708d7ec952f0aac514d9f8299"
+    },
+    {
+      "bytes": 87169,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/estimates_page_1.json",
+      "sha256": "80ee31098d2873d2621527d1d47f34a8fd0dc0a8bc6f1459104a4151885f0ad1"
+    },
+    {
+      "bytes": 127678,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/jobs_page_1.json",
+      "sha256": "7d803142bf73f6fdd90c393e1d1d840601894a2dd5efd943cdb59034ce16c54d"
+    },
+    {
+      "bytes": 129289,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/jobs_page_2.json",
+      "sha256": "42116a9b89b317f9715e973468aa2932bdc98262ca94457a79a943dd2ac5c451"
+    },
+    {
+      "bytes": 135099,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/jobs_page_3.json",
+      "sha256": "2795af484ad2953fa85a8ee66e870754becd4cd5d304ded192a2e768530b552c"
+    },
+    {
+      "bytes": 120730,
+      "path": "data/sources/housecall_pro/lone_star_plumbing_co_llc/jobs_page_4.json",
+      "sha256": "2a08eb8661a5b464676b53b050551ebf6923668bb7205d6e4a5f8ecb33748152"
+    },
+    {
+      "bytes": 256,
+      "path": "data/sources/housecall_pro/m_streets_handyman/company.json",
+      "sha256": "8bdfe3a21ff1f837a9e2929c3a09b5c0cd9041dc38f893668077daa2bfe77bf2"
+    },
+    {
+      "bytes": 58636,
+      "path": "data/sources/housecall_pro/m_streets_handyman/customers_page_1.json",
+      "sha256": "4ae29e38d5cacb0be27b2846ac4b7bc7c112a13e9ff3a6a0f8ee3872a95c9be9"
+    },
+    {
+      "bytes": 26895,
+      "path": "data/sources/housecall_pro/m_streets_handyman/customers_page_2.json",
+      "sha256": "ff5778a152a505740bccf53c974ebb50acda723396c20bb87284bdab337577a1"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/m_streets_handyman/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 126573,
+      "path": "data/sources/housecall_pro/m_streets_handyman/jobs_page_1.json",
+      "sha256": "60188affe0c15b9ca30cce86b409849734625fc0926fcb622b07bb0f9ac03b97"
+    },
+    {
+      "bytes": 128598,
+      "path": "data/sources/housecall_pro/m_streets_handyman/jobs_page_2.json",
+      "sha256": "90cfdc218d2a9dc594460c2aa467f3cafd30d276ca7a453b50a78d820f80b06e"
+    },
+    {
+      "bytes": 5612,
+      "path": "data/sources/housecall_pro/m_streets_handyman/jobs_page_3.json",
+      "sha256": "8c889722571afe132c162e66f43006fe48ed9eeae8caee74876a93ca2bc50c60"
+    },
+    {
+      "bytes": 258,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/company.json",
+      "sha256": "3dd90fc141a24b2938c5ee3f9ab1e143bba54c716414c681f41bb37f6278ca81"
+    },
+    {
+      "bytes": 58847,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/customers_page_1.json",
+      "sha256": "12aa29df6f38d0568106dd1c0e0ae665884fad3f295d19ea6675c13f0de505f3"
+    },
+    {
+      "bytes": 58404,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/customers_page_2.json",
+      "sha256": "90e39b80a956fe4d4eaa2abac3e62dad07cb9f6f51acb32a2b27ded4fbc20abe"
+    },
+    {
+      "bytes": 38002,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/customers_page_3.json",
+      "sha256": "32b4fd396b9f4fe4d50e3e07070a558643ed59307a46c80afd2b1481260683a6"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 127408,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/jobs_page_1.json",
+      "sha256": "5acc00c19d9c0eb1f08a56e0fc345d4f07490d2d3f9e3660007679196a719bd7"
+    },
+    {
+      "bytes": 132713,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/jobs_page_2.json",
+      "sha256": "272d28faf7da591ee430d9b6f3d8975ad103e8c8bce8cfc572bcd79ed4892078"
+    },
+    {
+      "bytes": 133451,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/jobs_page_3.json",
+      "sha256": "59746a75b79aa67c5142a019bb53f4d0eacbe9b4797056cd0c7eca6ef084e232"
+    },
+    {
+      "bytes": 84754,
+      "path": "data/sources/housecall_pro/mr_handy_dallas_east/jobs_page_4.json",
+      "sha256": "07289544a57a9f6b4d01c91a16d756b4a882d080f24164de5a43ac15b71dee50"
+    },
+    {
+      "bytes": 256,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/company.json",
+      "sha256": "cab830fb7c1277ebed3df3e1f218e125304c3f64fbf5a9ea9fd9d5760d60d2fd"
+    },
+    {
+      "bytes": 59057,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/customers_page_1.json",
+      "sha256": "b23bd89729480c89dea8df46bbf4216a6c2e5da0f3f0f5406ce51df70726552d"
+    },
+    {
+      "bytes": 20577,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/customers_page_2.json",
+      "sha256": "de2c178cfd05c5111b2f532cfe9b3010c98d1e6fea6c45a9e4d68f25b182db07"
+    },
+    {
+      "bytes": 77772,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/estimates_page_1.json",
+      "sha256": "c9643d87b609eeaea46cf22445e834d2a79cd2a6209db2525061c7ee746acb1d"
+    },
+    {
+      "bytes": 130153,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/jobs_page_1.json",
+      "sha256": "9ad3e03bd78caad53dc2bc4825e7662eee9d878b92c233d609ac1cea4aca1c5e"
+    },
+    {
+      "bytes": 74503,
+      "path": "data/sources/housecall_pro/prime_painters_dfw/jobs_page_2.json",
+      "sha256": "611becf3a2bcfacc81ab7fd405eb7ee4e16b9cce23276ef84817b4cfbf304241"
+    },
+    {
+      "bytes": 260,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/company.json",
+      "sha256": "36e19e816a156b534c8510c90a7a39467c2cd2d66bea405033eda03c1c8a149e"
+    },
+    {
+      "bytes": 58620,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/customers_page_1.json",
+      "sha256": "999ab09af6fa3d83715c8f59af5bd0b7c522709293e2c9f9216b57bffb1a8eff"
+    },
+    {
+      "bytes": 59009,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/customers_page_2.json",
+      "sha256": "09df2e43571d476a2ac6466d4fcaca2bda9f7c30f55f16c75c9c20ecc0db9712"
+    },
+    {
+      "bytes": 29794,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/customers_page_3.json",
+      "sha256": "6cca1a6b5636d743e2e00c826b9c589db077ef80b1b053e0c374f83cda6fe374"
+    },
+    {
+      "bytes": 86436,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/estimates_page_1.json",
+      "sha256": "459f1cbd6ca7cd1bdb974f615b6f4e9446d8d9bee467f6c20098a603cf9955f1"
+    },
+    {
+      "bytes": 127671,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/jobs_page_1.json",
+      "sha256": "78b5f0f6cdd6f2b847625ad03f5914880a2a6a8c03a39afe5db2e39c0d4d983a"
+    },
+    {
+      "bytes": 134753,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/jobs_page_2.json",
+      "sha256": "39ab880d221c7d058800f090d504e00e05860e843431835f290e8abcb5e83f4f"
+    },
+    {
+      "bytes": 134859,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/jobs_page_3.json",
+      "sha256": "d9da66a755f456c0cb477c9373ccffbccd48a1ec94b3bb545a20db936d29320f"
+    },
+    {
+      "bytes": 33143,
+      "path": "data/sources/housecall_pro/spark_electric_dallas/jobs_page_4.json",
+      "sha256": "1dd48787f620d219d1da84d7bf77fbbff473db8355e9afd18752192e612bea72"
+    },
+    {
+      "bytes": 260,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/company.json",
+      "sha256": "cec1f147241a5851e61c4680fea8a175b458146728bfdbd0740866a5eb553bef"
+    },
+    {
+      "bytes": 58680,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/customers_page_1.json",
+      "sha256": "ff6def88d06511a79e90f33161d4e73577edd7812e965809c850200efd9a629f"
+    },
+    {
+      "bytes": 58867,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/customers_page_2.json",
+      "sha256": "0876e6022dec7e7340968a4c9140d06705c03293642eaaf3b98aa46590a1cdd4"
+    },
+    {
+      "bytes": 10955,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/customers_page_3.json",
+      "sha256": "1e1bfcbd3c965fbc1381781ff57ab609aa45adca983ccf1fb87ef35a8e7d791e"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 126870,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/jobs_page_1.json",
+      "sha256": "2374a87a5a91e80b1eb2fd51f03ac08dae0373b2ec04da8e187c958c1ec45b79"
+    },
+    {
+      "bytes": 132704,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/jobs_page_2.json",
+      "sha256": "893bc3ce126073c264e79d97524ab3bf1ff0bc979c5d97b5d0b89f764384c0c4"
+    },
+    {
+      "bytes": 132026,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/jobs_page_3.json",
+      "sha256": "cde821f2b66f2478241d0adb15f918b87b815dac403dd9bd150412be677f8a7a"
+    },
+    {
+      "bytes": 21730,
+      "path": "data/sources/housecall_pro/sparkle_dallas_maids/jobs_page_4.json",
+      "sha256": "4adbd28628b748207beff6fbe3f550ecf610f92b9859718545ab16e3d125f7b2"
+    },
+    {
+      "bytes": 246,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/company.json",
+      "sha256": "2cac0bb341914f2444eb2db03920c9635a16a5e1df039a80e61723d618c396f4"
+    },
+    {
+      "bytes": 58503,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/customers_page_1.json",
+      "sha256": "b583bc768269c0be8689905528eb5e699056a27c97b64eb223318b402eb5c9c4"
+    },
+    {
+      "bytes": 45372,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/customers_page_2.json",
+      "sha256": "fd6894e9ceb8f115d3eeb92b87ed6e445eefbaca8d63d891976761ecba7cfb1e"
+    },
+    {
+      "bytes": 94,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/estimates_page_1.json",
+      "sha256": "07d9511edf3844414e6257977adff693d5d260a31ba8ae96f34b664cb9427ca1"
+    },
+    {
+      "bytes": 129277,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/jobs_page_1.json",
+      "sha256": "33c8f08aa0295c72e48272d196cf447d3ee88e232becaedacdbc276dffeea3db"
+    },
+    {
+      "bytes": 133019,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/jobs_page_2.json",
+      "sha256": "e03545ae45813ae2c1d6a1fa1278fcfc4677e3be9a4944e47b7c25933b9f3a4f"
+    },
+    {
+      "bytes": 59419,
+      "path": "data/sources/housecall_pro/tidy_up_uptown/jobs_page_3.json",
+      "sha256": "02cf0ad979976be69ed143ee9e956a9c63b2bd5199b9c6b6c20acc66c0e4f204"
+    },
+    {
+      "bytes": 247,
+      "path": "data/sources/housecall_pro/volt_brothers/company.json",
+      "sha256": "86f37ecb5a5da7718ee1d988c583050187eae6072bbb702c047816537513df42"
+    },
+    {
+      "bytes": 58693,
+      "path": "data/sources/housecall_pro/volt_brothers/customers_page_1.json",
+      "sha256": "d3290d56e047ce36de1f72c1f72f405405c22aaefc8042011be5fb43eca73e72"
+    },
+    {
+      "bytes": 50417,
+      "path": "data/sources/housecall_pro/volt_brothers/customers_page_2.json",
+      "sha256": "bdeb98b54d2325b5c5703e062af5afe972d0530f2207e2f318e645940e515b36"
+    },
+    {
+      "bytes": 77679,
+      "path": "data/sources/housecall_pro/volt_brothers/estimates_page_1.json",
+      "sha256": "61408ba8c5f2783ab6fdfef60ff62220b03b98cdc723957c0aff2ef2cce4f6ee"
+    },
+    {
+      "bytes": 130485,
+      "path": "data/sources/housecall_pro/volt_brothers/jobs_page_1.json",
+      "sha256": "35fc79606b18c12dc6ff574514e60db8caeb45ea4a797310d44a44a5b8af56a5"
+    },
+    {
+      "bytes": 133058,
+      "path": "data/sources/housecall_pro/volt_brothers/jobs_page_2.json",
+      "sha256": "46999c0f8c3f841c1d6ea5ea4d4242a3f63e99de51cf236791f3327c7954f087"
+    },
+    {
+      "bytes": 57362,
+      "path": "data/sources/housecall_pro/volt_brothers/jobs_page_3.json",
+      "sha256": "d65063d602ae65697cb604198ff4f6901622dcb817076e42d0f125ad1602800f"
+    },
+    {
+      "bytes": 248013,
+      "path": "data/sources/jobber/big_d_handyman.json",
+      "sha256": "e118e30d2c6c8aed2e978c75b55277b0a2fa3fc99b1e988c3ba9c77cdf96181e"
+    },
+    {
+      "bytes": 328434,
+      "path": "data/sources/jobber/fresh_coat_lakewood.json",
+      "sha256": "130003525fe404db9b02268f053690527f40927019d4c46e6f3053c7455c1926"
+    },
+    {
+      "bytes": 596293,
+      "path": "data/sources/jobber/fresh_nest_cleaning.json",
+      "sha256": "1244827f54d166a211d0f79e0d74d04fcc8c0b06aa565efd38bf9bd35a6ba8d8"
+    },
+    {
+      "bytes": 1106112,
+      "path": "data/sources/jobber/green_acres_lawn_dallas.json",
+      "sha256": "547d23233b48ea0f02f1cf6cc35f977057ed44b45ac08a09a56ef229a0b87cee"
+    },
+    {
+      "bytes": 506623,
+      "path": "data/sources/jobber/greenville_ave_plumbing.json",
+      "sha256": "f91a63d3c1f5054ed689c089ab9f5be98758ca4b514aee693961e345b9441c18"
+    },
+    {
+      "bytes": 932315,
+      "path": "data/sources/jobber/honey_do_pros_dfw.json",
+      "sha256": "6c44a20aab22850acdfdd2eac2301a6ee389a4b17fc0fe0143f92c420e1f8391"
+    },
+    {
+      "bytes": 288203,
+      "path": "data/sources/jobber/lakewood_home_repair.json",
+      "sha256": "7d7bafccd7f77754343743b465b0eded6e8bc40b08a8ef16e0f413e76f644774"
+    },
+    {
+      "bytes": 481171,
+      "path": "data/sources/jobber/live_oak_electric.json",
+      "sha256": "8d9fdcdebc09b0d0c0d86e004e475452acdc114e53ea31c238494b286df4b38b"
+    },
+    {
+      "bytes": 702605,
+      "path": "data/sources/jobber/lone_star_termite_pest.json",
+      "sha256": "2a483480da33546bf13d41db3fd5492975cc4d2193943b680405e3c677f1ae89"
+    },
+    {
+      "bytes": 1105619,
+      "path": "data/sources/jobber/north_texas_comfort.json",
+      "sha256": "4ffefe9555ac38ebc81861622ec0a2484cb8e47eeaab0e6b568119dc764ddb3f"
+    },
+    {
+      "bytes": 477928,
+      "path": "data/sources/jobber/peak_home_services.json",
+      "sha256": "4e7056113ffa5dcb411687132661a040379320e370f212640233b0f03f9ee05a"
+    },
+    {
+      "bytes": 1028123,
+      "path": "data/sources/jobber/rapid_rooter_tx.json",
+      "sha256": "b0358085a486b7e65d776fde1a626eab40417442969d57e986fe974833de796c"
+    },
+    {
+      "bytes": 536996,
+      "path": "data/sources/jobber/swiss_ave_heating_air.json",
+      "sha256": "1c797b99c90590e196bb1baaa95be13c4a3b9280ac185677a5878dd96da0440e"
+    },
+    {
+      "bytes": 824553,
+      "path": "data/sources/jobber/two_sisters_cleaning.json",
+      "sha256": "5ef514706b19093eadbaee39c7d30654f706dc078a8366deb56cf34314df30f0"
+    },
+    {
+      "bytes": 796027,
+      "path": "data/sources/jobber/white_rock_lawn_garden.json",
+      "sha256": "62f0e5a153c2d02fe7b55db37c3ab82eda62f4e7df81271ba62a007fd6a57409"
+    },
+    {
+      "bytes": 22792,
+      "path": "data/sources/profiles/providers.json",
+      "sha256": "bbb4c6fc43a690e7b13d85fe5746978d000a2a912e5edc46cc5bd6c4f73126f4"
+    },
+    {
+      "bytes": 17884,
+      "path": "data/sources/spreadsheet/rays_fixit_job_log.csv",
+      "sha256": "b5808e078a5e314ce9539dd7fb37610a29ce7b2c16642386534e07e3853e9d1c"
+    },
+    {
+      "bytes": 150,
+      "path": "data/sources/workiz/bright_line_electric/account.json",
+      "sha256": "d2789454090802c9327656cf51f8398fcec051c979e13d885e3bf4611b88315a"
+    },
+    {
+      "bytes": 201003,
+      "path": "data/sources/workiz/bright_line_electric/jobs.json",
+      "sha256": "ff5684a2f9e838840cc8b99868ced2cd6d898edba901c107dc63897440d9e4ad"
+    },
+    {
+      "bytes": 141,
+      "path": "data/sources/workiz/casa_limpia/account.json",
+      "sha256": "a48aa3509d9c4ab308bd372cc7e71a9932dc0bf6ea20ed347bb360a59922f3fd"
+    },
+    {
+      "bytes": 209866,
+      "path": "data/sources/workiz/casa_limpia/jobs.json",
+      "sha256": "83244ef9c3c0c9d1a1a07e9206669032662de0ff21a0a5bc7df84c1500fd9c8c"
+    },
+    {
+      "bytes": 148,
+      "path": "data/sources/workiz/clear_flow_gutters/account.json",
+      "sha256": "9751fb39b7f4edeb13804b163e5663e3aecc5df464f634f0e45c38d943da77ee"
+    },
+    {
+      "bytes": 192032,
+      "path": "data/sources/workiz/clear_flow_gutters/jobs.json",
+      "sha256": "09a86f73fa5ada5e12f3e14d5ed81efea518d8170d8032cfd68e1f7ac559cbfa"
+    },
+    {
+      "bytes": 144,
+      "path": "data/sources/workiz/cut_above_lawn/account.json",
+      "sha256": "922e42f61c816981e1a3b87a3c3c150bfdbc7c6416ff9a93b48339bec793ef5d"
+    },
+    {
+      "bytes": 230880,
+      "path": "data/sources/workiz/cut_above_lawn/jobs.json",
+      "sha256": "086d1391b6343dbc6bb3cc368ba40de3b639fd0dfaba87cfb17e968de6934d26"
+    },
+    {
+      "bytes": 152,
+      "path": "data/sources/workiz/fix_it_right_appliance/account.json",
+      "sha256": "762e6c70b2127f6b9910e9df6806951e4722cddc34ac8727c688d9cf1536dcc7"
+    },
+    {
+      "bytes": 256532,
+      "path": "data/sources/workiz/fix_it_right_appliance/jobs.json",
+      "sha256": "d3ec8474186cf769035f67c6679f053e5cd56186ea291ba742331161b1780f4b"
+    },
+    {
+      "bytes": 142,
+      "path": "data/sources/workiz/lakewood_air/account.json",
+      "sha256": "ec99f3b47c1d263a2d8ed1a6a24c5558b0b7a78d86cc1282a1740074786cc21e"
+    },
+    {
+      "bytes": 254909,
+      "path": "data/sources/workiz/lakewood_air/jobs.json",
+      "sha256": "51ae4eebb1866789638dda13afe5eee0420b92ef556987d349af66b59b46a383"
+    },
+    {
+      "bytes": 148,
+      "path": "data/sources/workiz/lone_star_plumbing/account.json",
+      "sha256": "37e37a8dbb778627dc893d26f8742a5bbacb59cc3271b3bebecbf7b972b5ab6c"
+    },
+    {
+      "bytes": 88216,
+      "path": "data/sources/workiz/lone_star_plumbing/jobs.json",
+      "sha256": "81713e8c5a8706843f32be69cbd5b4f7ee2cbcd047f767277d28008579da54de"
+    },
+    {
+      "bytes": 156,
+      "path": "data/sources/workiz/overhead_hero_garage_doors/account.json",
+      "sha256": "1d325e6b92142bc066b19e227b5629b3eb0cd0075f7f3e4531c12f0790f8c3ed"
+    },
+    {
+      "bytes": 237425,
+      "path": "data/sources/workiz/overhead_hero_garage_doors/jobs.json",
+      "sha256": "66156d6a8d6fcb93c21463ae28f0a9bdb7ed56e04302e34b2c241363335f1a85"
+    },
+    {
+      "bytes": 153,
+      "path": "data/sources/workiz/tejas_rooter_plumbing/account.json",
+      "sha256": "c42cc5813d952fc1b28a22c212dc9f56589ab117de37d808f1cca60d5762b9c1"
+    },
+    {
+      "bytes": 264904,
+      "path": "data/sources/workiz/tejas_rooter_plumbing/jobs.json",
+      "sha256": "6a1c5ac0403f7eae90b8a4c55930efcdf9dc8097b76129c3a0d95560c2edb16b"
+    },
+    {
+      "bytes": 145,
+      "path": "data/sources/workiz/uptown_odd_jobs/account.json",
+      "sha256": "1ecc0bb1c3ec6e2515c460460442daa5245819a4a17b2cb1137c265ae6e0d323"
+    },
+    {
+      "bytes": 166249,
+      "path": "data/sources/workiz/uptown_odd_jobs/jobs.json",
+      "sha256": "a0970ea358f89ed936b9294d48b270cb3df7212fe201496b20e13c76ad5577a4"
+    },
+    {
+      "bytes": 149,
+      "path": "data/sources/workiz/white_rock_handyman/account.json",
+      "sha256": "3bfbc57698e0ed0c81e8fac56ebfa120c796ee28f4a7217b6f59b33fbbbd2b04"
+    },
+    {
+      "bytes": 148373,
+      "path": "data/sources/workiz/white_rock_handyman/jobs.json",
+      "sha256": "45c9e9f32313d9c9fc55f0a73d4a44a6d91c67a10c8926fe6b30c587ce5a2caa"
+    }
+  ],
+  "profile_hours_shapes": {
+    "dict": 14,
+    "str": 26
+  },
+  "reference_postal_codes": [
+    "75041",
+    "75080",
+    "75204",
+    "75206",
+    "75214",
+    "75218",
+    "75219",
+    "75223",
+    "75230"
+  ],
+  "repeated_source_ids": [
+    {
+      "account": "cool_breeze_ac_heat",
+      "identical_payloads": true,
+      "kind": "jobs",
+      "occurrences": 2,
+      "source_id": "job_89aa5c0d7cca095b84a7c103fed3c766"
+    },
+    {
+      "account": "dallas_drain_pros",
+      "identical_payloads": true,
+      "kind": "jobs",
+      "occurrences": 2,
+      "source_id": "job_3e98a060396234860c1a16c1426dbba5"
+    },
+    {
+      "account": "lone_star_plumbing_co_llc",
+      "identical_payloads": true,
+      "kind": "jobs",
+      "occurrences": 2,
+      "source_id": "job_451e92f9526c1dd5877e91282de451a6"
+    }
+  ],
+  "statuses": {
+    "hcp_estimates": {
+      "complete rated": 356,
+      "complete unrated": 202,
+      "scheduled": 131
+    },
+    "hcp_jobs": {
+      "complete rated": 1377,
+      "complete unrated": 1382,
+      "needs scheduling": 122,
+      "pro canceled": 148,
+      "scheduled": 1464,
+      "user canceled": 140
+    },
+    "jobber_jobs": {
+      "action_required": 78,
+      "active": 59,
+      "archived": 2511,
+      "requires_invoicing": 46,
+      "today": 81,
+      "unscheduled": 36,
+      "upcoming": 1456
+    },
+    "jobber_visits": {
+      "CANCELLED": 374,
+      "COMPLETED": 5429,
+      "OVERDUE": 82,
+      "TODAY": 94,
+      "UNSCHEDULED": 36,
+      "UPCOMING": 1643
+    },
+    "workiz_jobs": {
+      "Canceled": 152,
+      "Done": 1712,
+      "Done Pending Approval": 7,
+      "Pending": 763,
+      "Submitted": 23
+    }
+  }
+}
