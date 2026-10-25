@@ -17,9 +17,9 @@ Use `house-account query openings <provider>`, `query available 75214`, and `que
 
 ## Verification
 
-Run `PYTHONPATH=src .venv/bin/python scripts/verify_p3.py --data data --output artifacts/P3/maintenance --parent artifacts/P3/parent-source` from the repository root. The script imports into temporary state if `--database` is omitted. An existing disposable database may be supplied and is copied before verification. Do not supply the working review ledger.
+Run `UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py availability` from the repository root. The helper imports into isolated state, archives P2R commit `c6c151ee3e95706ad178d2d661fc791f6106f616` into scratch, and delegates ten lanes to `scripts/verify_p3.py`. The Git object must exist locally; a missing baseline blocks verification.
 
-The ten lanes include real-pack CLI queries and synthetic isolated fixtures. The parent comparison requires an archived P2R checkout, currently `artifacts/P3/parent-source` from commit `c6c151e`. Missing baseline evidence is a failed prerequisite, not a passing regression check. Read every lane receipt and the final cleanup result. Preserve evidence outside temporary state.
+The lanes include real-pack CLI queries and synthetic isolated fixtures. The delegated runner copies the disposable database before verification. Read every lane receipt and `p3/live-summary.json` in the unique evidence directory printed by the helper. Require ten passing lanes, unchanged source files and database facts, nested scratch cleanup, and `scratch_removed: true` in the helper's `result.json`. Evidence survives cleanup.
 
 ## Limitations
 

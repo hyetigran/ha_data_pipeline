@@ -29,6 +29,8 @@ Preconditions: Launch and doctor pass with the unchanged supplied pack and an em
 
 ## Gotchas
 
+- Provider history defaults to three candidate openings that each fit two hours, within November 2 through December 3, 2026 (exclusive), at Chicago midnight. See [Availability and rankings](availability.md) for configurable searches.
+
 - Radius CLI uses a fixed half-mile radius and the November 2, 2024 through November 2, 2026 window. Block CLI uses November 2 through November 16, 2026. Boundaries are Chicago midnight and the end is exclusive.
 - Trade groups overlap. The sum of 969 is a fixture assertion, not a count of globally unique jobs.
 - Approximate street coordinates and uncertain identities limit coverage. Absence does not establish that a provider lacks experience.

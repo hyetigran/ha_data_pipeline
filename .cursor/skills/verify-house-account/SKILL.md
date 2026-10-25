@@ -28,7 +28,7 @@ These are noninteractive CLI processes. No server, port, authentication, or PTY 
 
 Run the doctor command above before driving. It checks Python 3.13, confirms the CLI import resolves to this checkout, and validates the pack manifest. Expect `status: ready`, a module path in this checkout, and an input-file count. The original supplied pack contains 176 files.
 
-The helper runs doctor before each direct CLI command and each delegated P1 lane. P1 lanes may internally issue multiple imports against the same isolated fixture. On any unexpected failure, doctor again before retrying, inspect the retained error, and start a fresh helper run. A healthy doctor does not prove that input contents satisfy the adapters. The real import must also succeed.
+The helper runs doctor before each direct CLI command and each delegated P1 lane or P3 runner. Delegated runners may internally issue multiple imports against the same isolated fixture. On any unexpected failure, doctor again before retrying, inspect the retained error, and start a fresh helper run. A healthy doctor does not prove that input contents satisfy the adapters. The real import must also succeed.
 
 ## Drive
 
@@ -39,15 +39,16 @@ UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-hou
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py history
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py review
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py migration
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py availability
 ```
 
 Each journey checks the real import report, stored source-table counts, reconciliation output, schema version 2, transactional publication, owner-only file permissions, and SQLite integrity and foreign keys.
 
-The P1 journeys reuse `scripts/verify.py` lanes 1, 2 through 7, 8, and 10. Lane 9 uses internal fault injection and remains supplemental. The history journey drives all four public query commands and compares fixed pack answers. `scripts/verify_p2_independent.py` adds source-fact checks but does not replace CLI proof. The review journey edits only disposable human-decision fields and copied source data. The migration journey verifies the legacy backup can restore all original logical facts.
+The P1 journeys reuse `scripts/verify.py` lanes 1, 2 through 7, 8, and 10. Lane 9 uses internal fault injection and remains supplemental. The history journey drives all four public query commands and compares fixed pack answers. `scripts/verify_p2_independent.py` adds source-fact checks but does not replace CLI proof. The review journey edits only disposable human-decision fields and copied source data. The migration journey verifies the legacy backup can restore all original logical facts. The availability journey archives P2R commit `c6c151ee3e95706ad178d2d661fc791f6106f616` from local Git history and runs all ten P3 lanes under the same timeout and cleanup boundary. Missing baseline history blocks that journey.
 
 ## Evidence
 
-Each journey prints a unique directory under `artifacts/verification/<feature>-<random>/`. Keep that directory after cleanup. `result.json` records the feature, commands, exit codes, assertions, doctor output, aggregate counts, status, and scratch cleanup. Per-action stdout and stderr, the import report, and P1 lane reports remain beside it.
+Each journey prints a unique directory under `artifacts/verification/<feature>-<random>/`. Keep that directory after cleanup. `result.json` records the feature, commands, exit codes, assertions, doctor output, aggregate counts, status, and scratch cleanup. Per-action stdout and stderr, the import report, and P1 lane reports remain beside it. Availability retains its ten lane receipts and `live-summary.json` in the `p3/` subdirectory.
 
 Exercise the public user path and verify both the action and persisted result. Read SQLite through an explicit read transaction for unchanged-state checks. A main-file hash can miss committed WAL contents. The helper's logical digest includes schema, data, and user_version. Use it for comparing the same database around rejected or preview actions, not for canonical equivalence across independently rebuilt databases.
 
@@ -63,6 +64,6 @@ Require `scratch_removed: true` in result.json and check the evidence files stil
 
 ## Helpers
 
-The executable `scripts/verify.py` in this skill accepts `doctor`, `import`, `inspect`, `replacement`, `history`, `review`, and `migration`. Invoke it through uv as shown above. It owns the disposable state and evidence. Existing repository scripts supply unchanged P1 lanes and independent P2 assertions.
+The executable `scripts/verify.py` in this skill accepts `doctor`, `import`, `inspect`, `replacement`, `history`, `review`, `migration`, and `availability`. Invoke it through uv as shown above. It owns the disposable state and evidence. Existing repository scripts supply unchanged P1 lanes and independent P2 assertions.
 
 Verification-skill maintenance edits only this skill directory. Report product defects without changing application code or external verification scripts. Before a PR, confirm its base includes the product implementation exercised by the run. A local uncommitted P2 implementation cannot be represented as verified behavior on a P1-only remote base. Preserve proven skill changes locally and report the shipping blocker if the base is unavailable.

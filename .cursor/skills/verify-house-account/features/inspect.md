@@ -26,4 +26,4 @@ Preconditions: Launch and doctor pass with the supplied pack, which contains nes
 - A completed estimate appointment does not establish completed service work.
 - Amount comparisons inspect private raw records in memory; do not export those records as evidence.
 - Missing feature examples in an updated pack are failed prerequisites; record the reason rather than weakening the journey.
-- Recurrence definitions are retained, but availability computation is not implemented.
+- Recurrence definitions are retained as source evidence. P3 derives candidate openings from those definitions; see [Availability and rankings](availability.md).
