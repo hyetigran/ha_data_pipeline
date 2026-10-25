@@ -12,7 +12,7 @@ Read a snapshot to understand service work, estimate appointments, ambiguous fie
 
 ## How to get to it (user POV)
 
-Import with `house-account ingest`, then open the database with a read-only SQLite client. Inspect `jobs`, `estimates`, `visits`, `occurrences`, `issues`, `source_records`, and `entity_evidence`. There is no inspection CLI subcommand or UI yet.
+Import with `house-account ingest`, then open the database with a read-only SQLite client. Inspect `jobs`, `estimates`, `visits`, `occurrences`, `issues`, `source_records`, and `entity_evidence`. For canonical history, use the query commands in [Canonical history queries](history.md). Raw source evidence remains a read-only SQLite workflow.
 
 ## Driving it with verify.py
 
