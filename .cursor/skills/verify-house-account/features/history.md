@@ -8,7 +8,7 @@ Query a property's completed work, nearby provider experience, upcoming block vi
 - `history-property` separates four confirmed Belmont jobs from other or uncertain jobs.
 - `history-radius` returns the established provider and trade counts within half a mile.
 - `history-block` returns four active Live Oak visits and keeps uncertain candidates separate.
-- `history-provider` returns 262 completed Lone Star jobs and states that openings await P3.
+- `history-provider` returns 262 completed Lone Star jobs and three chronological candidate openings with explicit availability status.
 - `history-privacy` checks forbidden private field names, email markers, and source-path markers in query output.
 
 ## How to get to it (user POV)

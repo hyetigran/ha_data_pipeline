@@ -182,7 +182,8 @@ def main():
                 assert answers['block']['uncertain_candidates']
                 assert sum(row['distinct_jobs'] for row in answers['radius']['results']) == 969
                 assert answers['provider']['results']['completed_distinct_jobs'] == 262
-                assert answers['provider']['results']['opening_status'] == 'not_implemented_until_P3'
+                assert answers['provider']['results']['opening_status'] in {'known', 'partial'}
+                assert len(answers['provider']['results']['openings']) == 3
                 import runpy
                 reference = runpy.run_path(str(ROOT / 'scripts/verify_p2_independent.py'))
                 for answer in answers.values():

@@ -2,7 +2,7 @@
 
 This log records design decisions and their implementation status. The execution records identify which acceptance checks have passed.
 
-P1 and P2 were implemented on October 24, 2026. Evidence and limitations are recorded in `docs/p1-execution.md` and `docs/p2-execution.md`. The current authorization stops before P3 and excludes publication and merge.
+P1, P2, and P2R are implemented and merged. Their execution reports retain the evidence and phase-specific authorization limits that applied at the time. D015 records the current authorization to implement and verify P3, including stale documentation fixes. Stop before P4. Publication and merge require a separate request.
 
 ## D001. Defer travel-aware scheduling
 
@@ -201,3 +201,16 @@ The subsequent explicit P2R request authorizes implementing D006–D013 without 
 The local review ledger remains authoritative and separate from the SQLite commit. Rule version `reconciliation-v2` revalidates old approvals. No real deferred correction was approved for testing. Unknown units remain unknown; complete unknown-unit address assertions can match each other but never automatically match known units. Completed-visit counts require independent visit-completion evidence; job-level completion remains visible separately. Exact-date history windows require Chicago-midnight boundaries rather than guessing inclusion of date-only facts in partial days.
 
 Full local snapshots remain the implementation boundary. This does not implement continuous source sync, availability, travel, remote deployment or MCP serving. No publication or merge is authorized by this entry.
+
+
+## D015. Implement P3 on the merged P2R model
+
+On October 24, 2026 the operator authorized P3 implementation and verification in Poteto Mode, including stale documentation fixes. The baseline is merged `main` at `c6c151e`. This request supersedes the earlier stop-before-P3 boundary. It does not authorize P4, publication, or merge.
+
+P3 derives candidate openings from declared working hours minus active job visits, scheduled estimate appointments, and blocking calendar events. It adds deterministic provider rankings with eligibility, evidence, confidence, and duration assumptions. Missing hours, incomplete intervals, conflicting evidence, and insufficient schedule coverage must remain explicit uncertainty. Capacity remains conservative at provider level. Travel remains unmodeled under D001. Use November 2, 2026 in America/Chicago as the reproducible reference date.
+
+D013's small-initial-design scope still applies. Use local supplied files, persistent SQLite, the P2R identity registry and canonical facts, and the existing CLI. Preserve source evidence, review semantics, and history behavior. Production connectors, queues, incremental sync, worker-capacity modeling, and travel optimization remain deferred. P4 owns MCP serving and the connected-agent demo.
+
+The [P3 plan](project-plan.md#compute-defensible-openings-and-provider-rankings-p3) defines unit, live, performance, and independent-review checks. This entry records authorization and scope, not a completed implementation or verification result.
+
+P3 implementation and verification are now recorded in [the P3 execution record](p3-execution.md). Current evidence includes 95 passing tests, ten passing CLI lanes, independent review, and bounded performance checks. No P4 implementation or production-sync claim follows from this completion.

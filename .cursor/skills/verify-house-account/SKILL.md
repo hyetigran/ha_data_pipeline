@@ -1,11 +1,11 @@
 ---
 name: verify-house-account
-description: Verify House Account P1 ingestion and P2 reconciliation, history queries, local review, and schema migration through real CLI commands with isolated state and retained evidence.
+description: Verify House Account P1 ingestion and P2 reconciliation, history queries, local review, schema migration, and P3 availability and rankings through real CLI commands with isolated state and retained evidence.
 ---
 
 # Verify House Account
 
-Use the [feature map](features/README.md) to select coverage. The application exposes `ingest`, four `query` commands, and `review export`, `validate`, and `apply`. Read-only SQLite inspection supplies a second view of persisted facts. P3 availability and P4 MCP serving remain unimplemented.
+Use the [feature map](features/README.md) to select coverage. The application exposes `ingest`, seven `query` commands, and `review export`, `validate`, and `apply`. Read-only SQLite inspection supplies a second view of persisted facts. P3 adds `query openings`, `query available`, and `query recommend`. P4 MCP serving remains unimplemented.
 
 ## Launch
 
@@ -65,4 +65,4 @@ Require `scratch_removed: true` in result.json and check the evidence files stil
 
 The executable `scripts/verify.py` in this skill accepts `doctor`, `import`, `inspect`, `replacement`, `history`, `review`, and `migration`. Invoke it through uv as shown above. It owns the disposable state and evidence. Existing repository scripts supply unchanged P1 lanes and independent P2 assertions.
 
-Maintenance edits only this skill directory. Report product defects without changing application code or external verification scripts. Before a PR, confirm its base includes the product implementation exercised by the run. A local uncommitted P2 implementation cannot be represented as verified behavior on a P1-only remote base. Preserve proven skill changes locally and report the shipping blocker if the base is unavailable.
+Verification-skill maintenance edits only this skill directory. Report product defects without changing application code or external verification scripts. Before a PR, confirm its base includes the product implementation exercised by the run. A local uncommitted P2 implementation cannot be represented as verified behavior on a P1-only remote base. Preserve proven skill changes locally and report the shipping blocker if the base is unavailable.

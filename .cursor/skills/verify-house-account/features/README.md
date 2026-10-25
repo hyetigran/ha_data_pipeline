@@ -9,6 +9,8 @@ Use [Launch and Doctor](../SKILL.md) with Python 3.13, locked dependencies, and 
 - [Reconciliation review](review.md) covers export, validation, previews, decisions, repetition, supersession, and stale evidence.
 - [Migrate and restore a legacy snapshot](migration.md) covers schema-v2 upgrade and backup restoration with the frozen private baseline.
 
-Run all six journeys for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path. P3 availability and P4 MCP serving remain outside this map until implemented.
+- [Availability and rankings](availability.md) covers candidate openings, eligibility, calendar rules, uncertainty, and ranking explanations through the P3 CLI.
+
+Run the six P1/P2 journeys and the P3 journey for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path. P4 MCP serving remains outside this map until implemented.
 
 The CLI defaults point at working database and review paths. The helper overrides these paths or runs existing P1 scripts from scratch. Keep command transcripts, exit codes, resulting state, and cleanup receipts. Run notes and private evidence remain uncommitted.
