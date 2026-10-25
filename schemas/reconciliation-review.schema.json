@@ -1,0 +1,250 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "enum": [
+            "merge",
+            "correct"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "entity": {
+          "enum": [
+            "provider",
+            "property",
+            "job"
+          ],
+          "title": "Entity",
+          "type": "string"
+        },
+        "targets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Targets",
+          "type": "array"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "enum": [
+                "address",
+                "start_utc",
+                "end_utc"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "original": {
+          "default": null,
+          "title": "Original"
+        },
+        "proposed": {
+          "default": null,
+          "title": "Proposed"
+        }
+      },
+      "required": [
+        "operation",
+        "entity",
+        "targets"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "default": "defer",
+          "enum": [
+            "approve",
+            "reject",
+            "defer"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "decided_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decided At"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "supersedes_decision_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes Decision Id"
+        }
+      },
+      "title": "Decision",
+      "type": "object"
+    },
+    "Proposal": {
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": {
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "evidence_version": {
+          "title": "Evidence Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "provider_match",
+            "property_match",
+            "job_match",
+            "field_correction"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "observations": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Observations",
+          "type": "object"
+        },
+        "rule_version": {
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "proposed_action": {
+          "$ref": "#/$defs/Action"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "conflicts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflicts",
+          "type": "array"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "human": {
+          "$ref": "#/$defs/Decision"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "evidence_version",
+        "kind",
+        "source_refs",
+        "source_hashes",
+        "rule_version",
+        "proposed_action",
+        "evidence",
+        "conflicts",
+        "confidence"
+      ],
+      "title": "Proposal",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "proposals": {
+      "items": {
+        "$ref": "#/$defs/Proposal"
+      },
+      "title": "Proposals",
+      "type": "array"
+    },
+    "stale_proposals": {
+      "items": {
+        "$ref": "#/$defs/Proposal"
+      },
+      "title": "Stale Proposals",
+      "type": "array"
+    }
+  },
+  "required": [
+    "proposals"
+  ],
+  "title": "ReviewFile",
+  "type": "object"
+}

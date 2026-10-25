@@ -13,11 +13,27 @@ from pathlib import Path
 from typing import Any
 
 from .model import Observation, canonical_json, digest
+from .publication import SCHEMA_VERSION, publish, schema_version
+from .registry import seed_registry
+from .source_models import MODELS
 
 TABLES = {
     'provider': 'providers', 'customer': 'customers', 'property': 'properties',
     'job': 'jobs', 'estimate': 'estimates', 'visit': 'visits',
     'calendar_block': 'calendar_blocks', 'profile': 'profiles', 'street_segment': 'street_segments',
+}
+
+
+SOURCE_FIELDS = {
+    'provider': ('display_name', 'trade'),
+    'customer': ('provider_id', 'display_name'),
+    'property': ('provider_id', 'customer_id', 'house_number', 'street', 'unit', 'city', 'state', 'postal_code'),
+    'job': ('provider_id', 'property_id', 'customer_id', 'trade', 'service', 'status', 'source_status', 'amount_minor', 'currency', 'source_status_updated_at'),
+    'estimate': ('provider_id', 'property_id', 'customer_id', 'trade', 'service', 'status', 'source_status', 'amount_minor', 'currency', 'source_status_updated_at'),
+    'visit': ('provider_id', 'property_id', 'customer_id', 'job_id', 'estimate_id', 'status', 'source_status', 'start_utc', 'end_utc', 'timezone_origin', 'appointment_kind', 'source_completed_at'),
+    'calendar_block': ('provider_id', 'status', 'source_status', 'start_utc', 'end_utc', 'timezone_origin', 'uid', 'start_local', 'end_local', 'all_day', 'end_exclusive', 'rrule', 'recurrence_id', 'transparency'),
+    'profile': ('provider_id', 'display_name'),
+    'street_segment': ('street_name', 'street_type', 'city', 'state', 'zip', 'from_number', 'to_number', 'start_lat', 'end_lat', 'start_lon', 'end_lon'),
 }
 
 
@@ -29,6 +45,7 @@ def connect_readonly(path: Path) -> sqlite3.Connection:
     connection = sqlite3.connect(path.resolve().as_uri() + '?mode=ro', uri=True)
     connection.execute('PRAGMA foreign_keys=ON')
     connection.execute('PRAGMA query_only=ON')
+    connection.execute('BEGIN')
     return connection
 
 
@@ -72,25 +89,72 @@ def schema(connection: sqlite3.Connection) -> None:
         record_id TEXT NOT NULL REFERENCES source_records(id), code TEXT NOT NULL,
         field TEXT NOT NULL, detail TEXT NOT NULL);
     ''')
+    connection.execute(f'PRAGMA user_version={SCHEMA_VERSION}')
+    references = {'provider_id':'providers', 'property_id':'properties', 'customer_id':'customers',
+                  'job_id':'jobs', 'estimate_id':'estimates'}
     for kind, table in TABLES.items():
-        constraints = ''
+        definitions = ['id TEXT PRIMARY KEY NOT NULL REFERENCES source_records(id)']
+        for field in SOURCE_FIELDS[kind]:
+            column_type = ('INTEGER' if field in ('amount_minor', 'house_number', 'from_number', 'to_number', 'all_day', 'end_exclusive') else 'REAL' if field in ('start_lat', 'end_lat', 'start_lon', 'end_lon') else 'TEXT')
+            definition = f'{field} {column_type}'
+            if field in references:
+                definition += f' REFERENCES {references[field]}(id) DEFERRABLE INITIALLY DEFERRED'
+            definitions.append(definition)
+        definitions.append('attributes_json TEXT NOT NULL')
         if kind == 'visit':
-            constraints = ", CHECK((appointment_kind='job' AND job_id IS NOT NULL AND estimate_id IS NULL) OR (appointment_kind='estimate' AND estimate_id IS NOT NULL AND job_id IS NULL))"
-        connection.execute(f'''CREATE TABLE {table}(
-            id TEXT PRIMARY KEY REFERENCES source_records(id),
-            provider_id TEXT REFERENCES providers(id) DEFERRABLE INITIALLY DEFERRED,
-            property_id TEXT REFERENCES properties(id) DEFERRABLE INITIALLY DEFERRED,
-            customer_id TEXT REFERENCES customers(id) DEFERRABLE INITIALLY DEFERRED,
-            job_id TEXT REFERENCES jobs(id) DEFERRABLE INITIALLY DEFERRED,
-            estimate_id TEXT REFERENCES estimates(id) DEFERRABLE INITIALLY DEFERRED,
-            display_name TEXT, trade TEXT, service TEXT, status TEXT, source_status TEXT,
-            amount_minor INTEGER, currency TEXT, start_utc TEXT, end_utc TEXT,
-            timezone_origin TEXT, appointment_kind TEXT, attributes_json TEXT NOT NULL
-            {constraints})''')
-        for field in ('provider_id', 'property_id', 'trade', 'status', 'start_utc'):
-            connection.execute(f'CREATE INDEX {table}_{field} ON {table}({field})')
+            definitions.append("CHECK((appointment_kind='job' AND job_id IS NOT NULL AND estimate_id IS NULL) OR (appointment_kind='estimate' AND estimate_id IS NOT NULL AND job_id IS NULL))")
+        connection.execute(f'CREATE TABLE {table}(' + ','.join(definitions) + ') STRICT')
+        for field in ('provider_id', 'property_id', 'status', 'start_utc'):
+            if field in SOURCE_FIELDS[kind]:
+                connection.execute(f'CREATE INDEX {table}_{field} ON {table}({field})')
+    connection.execute('''CREATE TABLE provider_hour_declarations(
+        id TEXT PRIMARY KEY NOT NULL, source_profile_id TEXT NOT NULL REFERENCES profiles(id),
+        provider_id TEXT NOT NULL REFERENCES providers(id), weekday INTEGER NOT NULL CHECK(weekday BETWEEN 0 AND 6),
+        local_start TEXT, local_end TEXT, timezone_name TEXT NOT NULL,
+        declaration_state TEXT NOT NULL CHECK(declaration_state IN ('known','closed','unknown')),
+        emergency_only INTEGER NOT NULL CHECK(emergency_only IN (0,1)),
+        effective_from TEXT, effective_before TEXT,
+        CHECK((declaration_state='known' AND local_start IS NOT NULL AND local_end IS NOT NULL AND local_start<local_end)
+            OR (declaration_state<>'known' AND local_start IS NULL AND local_end IS NULL))) STRICT''')
     connection.execute('CREATE INDEX source_lookup ON source_records(source,account,kind)')
     connection.execute('CREATE INDEX issue_code ON issues(code)')
+
+
+def source_values(observation: Observation, values: dict[str, Any]) -> dict[str, Any]:
+    result = {key: values.get(key) for key in SOURCE_FIELDS[observation.kind]}
+    attributes = observation.normalized.attributes
+    if observation.kind == 'property':
+        from .addresses import normalize
+        address = normalize(attributes.get('address', {}), [])
+        result.update(house_number=address.number, street=address.street or None,
+                      unit=address.unit or None, city=address.city or None,
+                      state=address.state or None, postal_code=address.postal_code or None)
+    elif observation.kind == 'street_segment':
+        result.update({key: attributes.get(key) for key in SOURCE_FIELDS['street_segment']})
+    elif observation.kind == 'calendar_block':
+        recurrence = str(attributes.get('recurrence_id') or '')
+        suffix = ':' + recurrence
+        result['uid'] = observation.key.removesuffix(suffix)
+        result.update({key: attributes.get(key) for key in ('start_local', 'end_local', 'all_day', 'end_exclusive', 'rrule', 'recurrence_id', 'transparency')})
+    elif observation.kind in ('job', 'estimate'):
+        result['source_status_updated_at'] = observation.raw.get('LastStatusUpdate')
+    elif observation.kind == 'visit':
+        work_timestamps = attributes.get('work_timestamps') or {}
+        result['source_completed_at'] = attributes.get('completed_at') or work_timestamps.get('completed_at')
+    return MODELS[observation.kind].model_validate(result).model_dump()
+
+
+def write_hours(connection: sqlite3.Connection, observation: Observation) -> None:
+    hours = observation.normalized.attributes.get('working_hours') or {}
+    weekdays = hours.get('weekdays') or {}
+    for weekday, name in enumerate(('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun')):
+        spans = weekdays.get(name)
+        state = 'unknown' if spans is None else 'known' if spans else 'closed'
+        for index, span in enumerate(spans or [(None, None)]):
+            connection.execute('INSERT INTO provider_hour_declarations VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                (digest([observation.id, name, index]), observation.id, observation.normalized.provider_id,
+                 weekday, span[0], span[1], hours.get('timezone', 'America/Chicago'), state,
+                 int(bool(hours.get('emergency_only'))), None, None))
 
 
 def validate_observation(observation: Observation) -> None:
@@ -110,13 +174,16 @@ def validate_observation(observation: Observation) -> None:
 
 
 def write_snapshot(observations: Iterable[Observation], database: Path,
-                   files: list[dict[str, Any]], *, fail_after: int | None = None) -> dict[str, Any]:
+                   files: list[dict[str, Any]], *, fail_after: int | None = None,
+                   projector: Callable[[sqlite3.Connection], dict[str, Any]] | None = None,
+                   lock_held: bool = False, identity_source: Path | None = None) -> dict[str, Any]:
     database = database.resolve()
     database.parent.mkdir(parents=True, exist_ok=True)
     lock_path = database.with_suffix(database.suffix + '.lock')
     lock_fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
     try:
-        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if not lock_held:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError as exc:
         os.close(lock_fd)
         raise ImportFailure('another importer holds the database lock') from exc
@@ -132,6 +199,13 @@ def write_snapshot(observations: Iterable[Observation], database: Path,
     try:
         schema(connection)
         connection.execute('BEGIN')
+        prior = identity_source or database
+        if prior.exists():
+            with connect_readonly(prior) as previous:
+                schema_version(previous)
+                seed_registry(connection, previous)
+        else:
+            seed_registry(connection, None)
         connection.executemany('INSERT INTO input_files VALUES(:path,:bytes,:sha256,:role)', files)
         connection.execute('INSERT INTO snapshot VALUES(?,?,?)', (digest([manifest_hash, ingested_at]), ingested_at, manifest_hash))
         for number, observation in enumerate(observations, 1):
@@ -153,10 +227,16 @@ def write_snapshot(observations: Iterable[Observation], database: Path,
                                    (key, observation.source, observation.account, observation.kind,
                                     observation.key, content_hash, observation.snapshot_at, ingested_at,
                                     canonical_json(observation.raw)))
-                entity = observation.normalized.model_dump(exclude={'kind', 'attributes'})
+                values = observation.normalized.model_dump(exclude={'kind', 'attributes'})
+                unexpected = {key for key,value in values.items() if value is not None and key not in SOURCE_FIELDS[observation.kind]}
+                if unexpected:
+                    raise ImportFailure('entity has fields outside its source schema')
+                entity = source_values(observation, values)
                 entity['attributes_json'] = canonical_json(observation.normalized.attributes)
                 columns = ','.join(['id', *entity])
                 connection.execute(f'INSERT INTO {TABLES[observation.kind]}({columns}) VALUES({",".join("?" for _ in range(len(entity)+1))})', [key, *entity.values()])
+                if observation.kind == 'profile':
+                    write_hours(connection, observation)
                 connection.execute('INSERT INTO entity_evidence VALUES(?,?,?,?)',
                                    (key, key, observation.rule, 'high' if not observation.issues else 'low'))
                 connection.executemany('INSERT INTO issues VALUES(?,?,?,?)',
@@ -167,6 +247,7 @@ def write_snapshot(observations: Iterable[Observation], database: Path,
             kind_counts[disposition] += 1
             if fail_after is not None and number >= fail_after:
                 raise ImportFailure('injected import failure')
+        projection = projector(connection) if projector else None
         if connection.execute('PRAGMA foreign_key_check').fetchone():
             raise ImportFailure('foreign key validation failed')
         source_files = connection.execute("SELECT count(*) FROM input_files f WHERE role='source' AND NOT EXISTS(SELECT 1 FROM occurrences o WHERE o.file=f.path)").fetchone()[0]
@@ -175,29 +256,25 @@ def write_snapshot(observations: Iterable[Observation], database: Path,
         if connection.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
             raise ImportFailure('SQLite integrity validation failed')
         counts_by_table = {table: connection.execute(f'SELECT count(*) FROM {table}').fetchone()[0] for table in TABLES.values()}
-        report = {
-            'schema_version': 1, 'status': 'success', 'ingested_at': ingested_at,
+        counts_by_table['provider_hour_declarations'] = connection.execute('SELECT count(*) FROM provider_hour_declarations').fetchone()[0]
+        report: dict[str, Any] = {
+            'schema_version': SCHEMA_VERSION, 'status': 'success', 'ingested_at': ingested_at,
             'manifest_hash': manifest_hash, 'files': files,
             'sources': {source: {field: values[field] for field in ('seen', 'accepted', 'duplicate', 'unresolved', 'rejected')} for source, values in sorted(counters.items())},
             'by_source_kind': {key: {field: values[field] for field in ('seen', 'accepted', 'duplicate', 'unresolved', 'rejected')} for key, values in sorted(kinds.items())},
             'entities': counts_by_table, 'source_records': len(hashes),
             'occurrences': sum(value['seen'] for value in counters.values()),
             'issues': dict(connection.execute('SELECT code,count(*) FROM issues GROUP BY code')),
-            'limitations': ['Source-local identities only; P2 reconciliation is not implemented.', 'Calendar recurrence definitions are retained; openings are not calculated.', 'Existing readers retain the previous snapshot until reconnect.'],
+            'limitations': ['Source-local identities only; P2 reconciliation is not implemented.', 'Calendar recurrence definitions are retained; openings are not calculated.', 'Readers retain a consistent publication until their read transaction ends.'],
         }
+        if projection is not None:
+            report['reconciliation'] = projection
+            report['limitations'][0] = 'Canonical reconciliation is conservative; unresolved matches remain separate.'
         connection.commit()
         connection.close()
         with temporary.open('rb') as handle:
             os.fsync(handle.fileno())
-        os.replace(temporary, database)
-        try:
-            directory_fd = os.open(database.parent, os.O_RDONLY)
-            try:
-                os.fsync(directory_fd)
-            finally:
-                os.close(directory_fd)
-        except OSError:
-            report['warnings'] = ['Snapshot published, but directory durability could not be confirmed.']
+        report.update(publish(temporary, database))
         return report
     finally:
         connection.close()

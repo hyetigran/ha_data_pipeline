@@ -1,17 +1,17 @@
 # Build the home services MCP server plan
 
 Deliver a local, read-only MCP server that answers the six homeowner questions with traceable evidence and explicit uncertainty.
-Use four dependent changes, P1 through P4, over two working days.
+The original challenge uses P1 through P4. Insert the minimal P2R schema redesign after existing P2 and before P3; re-estimate remaining effort rather than treating the original two-day schedule as a fresh completion promise.
 Keep jobs separate from visits. Compute openings from working hours, occupied visits, and calendar blocks.
 Treat the data pack as the only source of customer facts.
-The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion is implemented. P2 through P4 remain unimplemented.
-This document records the project plan. P1 execution results are in [the execution report](p1-execution.md). Later-stage paths and commands remain proposed.
+The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion and P2 reconciliation, history queries, and local review are implemented. P2R, P3 and P4 remain unimplemented.
+This document records the project plan. P1 results are in [the P1 execution report](p1-execution.md). P2 results and documented verification adaptations are in [the P2 execution report](p2-execution.md). P2R, P3 and P4 paths and commands remain proposed. The accepted schema/sync interview changes describe a target design, not the running database. See [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## How to read this
 
 One box is one unit of work. Every box names the evidence that checks it. Check a box only when its evidence exists. Keep logs under `artifacts/P1/` through `artifacts/P4/`.
 
-Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P3, and P4 form one dependent stack. The operator owns landing. Planning does not authorize implementation, publication, scheduling, or merging.
+Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P2R, P3, and P4 form one dependent sequence; existing P1/P2 reports remain historical evidence. The operator owns landing. Planning does not authorize implementation, publication, scheduling, or merging.
 
 Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
@@ -21,7 +21,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 ### Arm the program
 
-- [x] The operator authorized P1 only. Record the request in `docs/decisions.md`. Stop before P2 and do not publish or merge.
+- [x] The operator authorized P1, then P2 in a separate request. Record the requests in `docs/decisions.md`. Stop before P3 and do not publish or merge.
 - [x] Inspect the supplied pack. Save counts, status vocabularies, pagination checks, and all 176 file hashes in `docs/data-pack-inventory.json`. Reproduce with `python3 scripts/inspect_data_pack.py`.
 - [ ] Re-run the inventory at P1 start and compare hashes before using the recorded findings. Save date-range and reference-integrity checks in `artifacts/P1/inventory.json`.
 - [ ] Establish a local Git baseline and record its SHA. Configure a remote only when the operator supplies a destination.
@@ -32,7 +32,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 ### Spawn owners
 
-- [ ] Assign P1 first, P2 after P1, P3 after P2, and P4 after P3. Save the owner and parent SHA in `docs/decisions.md`.
+- [ ] Assign P1 first, P2 after P1, P2R after P2, P3 after the P2R gate, and P4 after P3. Save the owner and parent SHA in `docs/decisions.md`.
 - [ ] Keep one writer on shared schema and dependency files. A later owner starts from its parent's verified result.
 - [ ] Keep P1 in ingestion and storage, P2 in identity and queries, P3 in scheduling, and P4 in MCP and delivery. Record cross-stage edits before making them.
 - [ ] Treat P2 and P4 as interaction review-gated. Keep every PR unmerged until the operator lands the stack.
@@ -127,68 +127,119 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 **Files.**
 
-- [ ] Create `src/house_account/identity.py`.
-- [ ] Create `src/house_account/addresses.py`.
-- [ ] Create `src/house_account/queries.py`.
-- [ ] Create `src/house_account/privacy.py`.
-- [ ] Create `tests/test_identity.py`.
-- [ ] Create `src/house_account/review.py`, `schemas/reconciliation-review.schema.json`, and `tests/test_review.py`.
-- [ ] Generate local `review/reconciliation.json` and `review/decisions.jsonl` during execution. Exclude these private files from version control. Keep sanitized fixtures in tests.
-- [ ] Create `tests/test_queries.py`.
+- [x] Create `src/house_account/identity.py`.
+- [x] Create `src/house_account/addresses.py`.
+- [x] Create `src/house_account/queries.py`.
+- [x] Create `src/house_account/privacy.py`.
+- [x] Create `tests/test_identity.py`.
+- [x] Create `src/house_account/review.py`, `schemas/reconciliation-review.schema.json`, and `tests/test_review.py`.
+- [x] Generate local `review/reconciliation.json` and `review/decisions.jsonl` during execution. Exclude these private files from version control. Keep sanitized fixtures in tests.
+- [x] Create `tests/test_queries.py`.
 
 **Build.**
 
-- [ ] Normalize addresses against the supplied street reference. Preserve apartment or unit identity. Store original spelling and geocode precision. Save the result in the P2 change and its verification log.
-- [ ] Resolve provider aliases using source links and corroborating identifiers. Record candidate matches, evidence, decisions, and unresolved conflicts. Save the result in the P2 change and its verification log.
-- [ ] Auto-merge only deterministic high-confidence matches. Keep fuzzy candidates separate. Do not merge on name alone, postal code alone, or proximity alone. Save the result in the P2 change and its verification log.
-- [ ] Implement the local proposal, validation, and decision-application workflow in Appendix I. Require human decisions for ambiguous matches and inferred factual corrections. Save dry-run and application receipts in `artifacts/P2/review/`.
-- [ ] Deduplicate jobs conservatively using provider, property, service, source links, and time evidence. Keep separate recurring visits and disputed dates. Save the result in the P2 change and its verification log.
-- [ ] Implement history by radius, block schedule, provider summary, and exact-property history. Count distinct jobs for work history and visits for occupied time. Save the result in the P2 change and its verification log.
-- [ ] Apply the public projection before serialization. Exclude raw text, names, phones, email addresses, personal event titles, and internal source paths. Save the result in the P2 change and its verification log.
-- [ ] Add fixture-based independent expected answers for questions 1, 3, 4, and 5. Record coverage gaps for missing coordinates or uncertain matches. Save the result in the P2 change and its verification log.
+- [x] Normalize addresses against the supplied street reference. Preserve apartment or unit identity. Store original spelling and geocode precision. Save the result in the P2 change and its verification log.
+- [x] Resolve provider aliases using source links and corroborating identifiers. Record candidate matches, evidence, decisions, and unresolved conflicts. Save the result in the P2 change and its verification log.
+- [x] Auto-merge only deterministic high-confidence matches. Keep fuzzy candidates separate. Do not merge on name alone, postal code alone, or proximity alone. Save the result in the P2 change and its verification log.
+- [x] Implement the local proposal, validation, and decision-application workflow in Appendix I. Require human decisions for ambiguous matches and inferred factual corrections. Save dry-run and application receipts in `artifacts/P2/review/`.
+- [x] Deduplicate jobs conservatively using provider, property, service, source links, and time evidence. Keep separate recurring visits and disputed dates. Save the result in the P2 change and its verification log.
+- [x] Implement history by radius, block schedule, provider summary, and exact-property history. Count distinct jobs for work history and visits for occupied time. Save the result in the P2 change and its verification log.
+- [x] Apply the public projection before serialization. Exclude raw text, names, phones, email addresses, personal event titles, and internal source paths. Save the result in the P2 change and its verification log.
+- [x] Add fixture-based independent expected answers for questions 1, 3, 4, and 5. Record coverage gaps for missing coordinates or uncertain matches. Save the result in the P2 change and its verification log.
 
 **You see.**
 
-- [ ] Address variants resolve to the same home only when their unit identities agree. Questions 1, 3, and 5 return evidence-backed results with no homeowner contact data. Save `artifacts/P2/summary.json`.
+- [x] Address variants resolve to the same home only when their unit identities agree. Questions 1, 3, and 5 return evidence-backed results with no homeowner contact data. Save `artifacts/P2/summary.json`.
 
 **Verify, unit.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] tests/test_identity.py and tests/test_queries.py cover alias matches, unit boundaries, half-mile edges, distinct jobs, uncertain dates, and redaction. Run `uv run pytest tests/test_identity.py tests/test_queries.py`. Save `artifacts/P2/unit.log`.
-- [ ] Run `uv run pytest tests/test_review.py`. Cover approve, reject, defer, stale evidence, conflicting approvals, repeated application, supersession, rollback after validation failure, and reconstruction after database rebuild. Save `artifacts/P2/review-tests.log`.
+- [x] tests/test_identity.py and tests/test_queries.py cover alias matches, unit boundaries, half-mile edges, distinct jobs, uncertain dates, and redaction. Run `uv run pytest tests/test_identity.py tests/test_queries.py`. Save `artifacts/P2/unit.log`.
+- [x] Run `uv run pytest tests/test_review.py`. Cover approve, reject, defer, stale evidence, conflicting approvals, repeated application, supersession, rollback after validation failure, and reconstruction after database rebuild. Save `artifacts/P2/review-tests.log`.
 
 **Verify, live.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked. Ten lanes on `inherit-parent` at the PR head, in batches within available concurrency.
 
-- [ ] Lane 1. Regression lane against trunk. Re-import the same fixture and query its history at both revisions. Save `artifacts/P2/lane-1.json` and a supplementary terminal screenshot when available. Pass when P1 counts remain stable and head adds correct property history.
-- [ ] Lane 2. Query question 1 at the exact half-mile boundary. Save `artifacts/P2/lane-2.json` and a supplementary terminal screenshot when available. Pass when completed distinct jobs inside the radius appear under the correct trades.
-- [ ] Lane 3. Query an apartment written as Apt 4 and #4. Save `artifacts/P2/lane-3.json` and a supplementary terminal screenshot when available. Pass when both identify the same unit.
-- [ ] Lane 4. Query unit 4 beside unit 5. Save `artifacts/P2/lane-4.json` and a supplementary terminal screenshot when available. Pass when their histories remain distinct.
-- [ ] Lane 5. Query the Big D Handyman and Lakewood Home Repair candidate alias pair after corroborating their shared business phone. Save `artifacts/P2/lane-5.json` and a supplementary terminal screenshot when available. Pass when corroborated aliases combine with evidence.
-- [ ] Lane 6. Reject and defer ambiguous provider proposals, then export and import the same evidence again. Save `artifacts/P2/lane-6.json` and a supplementary terminal screenshot when available. Pass when candidates remain separate, the decisions persist, and unchanged rejected proposals are not presented as new.
-- [ ] Lane 7. Query the 4500 block schedule. Save `artifacts/P2/lane-7.json` and a supplementary terminal screenshot when available. Pass when only matching street and block visits in the window appear.
-- [ ] Lane 8. Query exact home history. Save `artifacts/P2/lane-8.json` and a supplementary terminal screenshot when available. Pass when only the requested property appears and no contact information leaves.
-- [ ] Lane 9. Review the observed wrong-year and transposed-number proposals. Dry-run, approve, apply twice, supersede an approval with defer, then test a stale input hash. Save `artifacts/P2/lane-9.json` and a supplementary terminal screenshot when available. Pass when only approved current proposals change derived data, repeated application is idempotent, supersession restores the unresolved state, and stale approvals cannot apply.
-- [ ] Lane 10. Inspect every query response recursively. Save `artifacts/P2/lane-10.json` and a supplementary terminal screenshot when available. Pass when raw PII and personal calendar details are absent.
+- [x] Lane 1. Regression lane against trunk. Re-import the same fixture and query its history at both revisions. Save `artifacts/P2/lane-1.json` and a supplementary terminal screenshot when available. Pass when P1 counts remain stable and head adds correct property history.
+- [x] Lane 2. Query question 1 at the exact half-mile boundary. Save `artifacts/P2/lane-2.json` and a supplementary terminal screenshot when available. Pass when completed distinct jobs inside the radius appear under the correct trades.
+- [x] Lane 3. Query an apartment written as Apt 4 and #4. Save `artifacts/P2/lane-3.json` and a supplementary terminal screenshot when available. Pass when both identify the same unit.
+- [x] Lane 4. Query unit 4 beside unit 5. Save `artifacts/P2/lane-4.json` and a supplementary terminal screenshot when available. Pass when their histories remain distinct.
+- [x] Lane 5. Query the Big D Handyman and Lakewood Home Repair candidate alias pair after corroborating their shared business phone. Save `artifacts/P2/lane-5.json` and a supplementary terminal screenshot when available. Pass when corroborated aliases combine with evidence.
+- [x] Lane 6. Reject and defer ambiguous provider proposals, then export and import the same evidence again. Save `artifacts/P2/lane-6.json` and a supplementary terminal screenshot when available. Pass when candidates remain separate, the decisions persist, and unchanged rejected proposals are not presented as new.
+- [x] Lane 7. Query the 4500 block schedule. Save `artifacts/P2/lane-7.json` and a supplementary terminal screenshot when available. Pass when only matching street and block visits in the window appear.
+- [x] Lane 8. Query exact home history. Save `artifacts/P2/lane-8.json` and a supplementary terminal screenshot when available. Pass when only the requested property appears and no contact information leaves.
+- [x] Lane 9. Review the observed wrong-year and transposed-number proposals. Dry-run, approve, apply twice, supersede an approval with defer, then test a stale input hash. Save `artifacts/P2/lane-9.json` and a supplementary terminal screenshot when available. Pass when only approved current proposals change derived data, repeated application is idempotent, supersession restores the unresolved state, and stale approvals cannot apply.
+- [x] Lane 10. Inspect every query response recursively. Save `artifacts/P2/lane-10.json` and a supplementary terminal screenshot when available. Pass when raw PII and personal calendar details are absent.
 
 **Verify, perf.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] Metric. Measure warm history-query p95 wall time over 30 requests per query plus full import time. Record fixture hashes and machine details.
-- [ ] Probe. Run `uv run python scripts/benchmark.py --stage P2` at the parent and head, alternating runs after one warmup. Exclude agent-model latency from tool timings.
-- [ ] Baseline. Record parent measurements first. When parent lacks the operation, mark the baseline unavailable and measure the new work plus its complete user-visible operation on head.
-- [ ] Rule. Fail if a comparable head p95 exceeds the parent by more than 25 percent. Also fail if head exceeds the proposed budgets of 500 milliseconds per query, 60 seconds per import, and 512 MiB peak memory. These are target budgets, not measured claims. Do not compute ratios for unlike operations.
+- [x] Metric. Measure warm history-query p95 wall time over 30 requests per query plus full import time. Record fixture hashes and machine details.
+- [x] Probe. Run `uv run python scripts/benchmark_p2.py` after one warmup. The parent lacks P2 queries and reconciliation; record its P1 baseline separately without comparing unlike operations. Exclude agent-model latency from tool timings.
+- [x] Baseline. Record parent measurements first. When parent lacks the operation, mark the baseline unavailable and measure the new work plus its complete user-visible operation on head.
+- [x] Rule. Fail if a comparable head p95 exceeds the parent by more than 25 percent. Also fail if head exceeds the proposed budgets of 500 milliseconds per query, 60 seconds per import, and 512 MiB peak memory. These are target budgets, not measured claims. Do not compute ratios for unlike operations.
 
 **Review gate.** The operator reviews the local reconciliation interaction before merge.
 
-- [ ] Post terminal screenshots of a proposal and its dry-run impact report.
-- [ ] Record a short video of approve, reject, defer, and supersession against sanitized fixtures.
-- [ ] Give the operator the screenshots, video, and verification receipts. Keep the PR unmerged.
+- [x] Save labeled rendered previews of a sanitized proposal and dry-run receipt. Native terminal capture was unavailable; do not describe these as native screenshots.
+- [x] Save a short rendered playback of approve, reject, defer, and supersession against sanitized fixtures. Record real CLI verification separately.
+- [x] Give the operator the screenshots, video, and verification receipts. Keep the PR unmerged.
+
+- [ ] Operator review of the local interaction remains required before any future merge. No approval is requested during this implementation handoff.
 
 **Merge.**
 
-- [ ] Record a clean verdict for the exact P2 head, parent SHA, and review dispositions. Append to the verified stack. The operator lands it.
+- [x] Record the verified file-hash manifest and parent SHA for this uncommitted P2 change. Skip publication and merge under the operator instruction.
+
+## Minimal schema redesign before P3 (P2R)
+
+**Status.** Implemented under the subsequent explicit P2R authorization; final verification is recorded in [the execution record](p2r-execution.md). Q1–Q29 and the reduced-scope direction remain recorded in D006–D013 and ADRs 0001–0013. Historical P1/P2 results describe the old implementation. P3, publication and merge remain excluded.
+
+**Scope.** Keep Python, SQLite, local supplied files, the existing CLI and local review-file workflow. Use entity-appropriate source tables and relational canonical facts. Preserve raw observations and selected field lineage; JSON remains appropriate for original payloads and variable evidence. No ORM migration, hosted database, live CRM connectors, queues, sync daemon, general event platform or new UI is required. The [architecture](../ARCHITECTURE.md), [schema layout](schema-redesign.md), [column contract](schema-columns-draft.md) and [sync requirements](sync-readiness.md) supply the design detail.
+
+Implement these four dependent units in order. Each unit must have its evidence before proceeding; keep all P3 calculation out of P2R.
+
+### R1. Freeze the baseline and create the entity-specific schema
+
+- [x] Capture current source hashes, database schema version, canonical IDs/membership, review ledger revision, and P2 query outputs in `artifacts/P2R/baseline/`. Preserve a restorable database backup; do not modify the supplied pack or approve pending proposals.
+- [x] Define versioned SQL DDL and typed entity models. Replace generic source columns with entity-appropriate fields. Canonical providers/properties/jobs/estimates/visits use SQL facts and foreign keys; aliases, trades, exclusions, declared ZIPs and job/estimate services use related tables.
+- [x] Add the accepted lifecycle/appointment vocabularies, property/unit evidence states, temporal value/state/precision columns and exact minor-unit money. Distinguish null from zero and unknown units from confirmed no unit. Avoid requiring source facts that the pack does not supply.
+- [x] Keep visits linked to exactly one job or estimate; derive provider/property through that parent. Require providers on jobs/estimates, permit explicitly unresolved properties, and enforce completion-to-job/visit consistency.
+- [x] Define only the supporting identity, source-link and lineage tables required by these facts. Use real relational references and controlled field identifiers rather than unconstrained strings wherever integrity is required. Keep normalized source assertions distinct from selected canonical values.
+
+**Evidence.** Build a disposable database; inspect DDL/FKs and test accepted/rejected rows for meaningful invariants. Record the schema contract and migration version. R1 does not overwrite the active database.
+
+### R2. Reconcile facts and completion evidence into the new schema
+
+- [x] Adapt each source mapping and canonical projection to R1. Retain original status/update timestamps, source scope and all occurrence evidence. Keep field-specific selection rules, exact normalization and human review boundaries.
+- [x] Preserve overall job lifecycle separately from `service_completions`. Fresh Nest job #1034 must remain active while its 46 completed visits provide history; its two upcoming visits must remain scheduled. Pending approval and completed estimates must not become confirmed performed work.
+- [x] Reconcile repeated completion evidence without inflating counts. Expose distinct jobs and completed visits in the requested window; retain job-level completion evidence when visits cannot be established. Attribute specific services only with supporting evidence and disclose overlapping trade groups.
+- [x] Map observed services into controlled categories and safe descriptions. Cover real omissions such as gate repair, TV mounting and furniture assembly without inventing diagnoses or replacement work. Unknown work stays explicitly unmapped; raw free text remains private.
+- [x] Retain ambiguity rather than guessing: Nov 1 DST, disputed year, unknown unit, missing address, unknown CSV date/duration and conflicting amounts. Preserve inferred ZIP/geocode lineage and approximate precision.
+
+**Evidence.** Focused fixture tests plus pack-derived assertions for the recurring job, DST example, aliases, units, estimates and the two deferred correction candidates. Record intentional differences from baseline, including changes caused by stricter property matching or service attribution. Do not force historical counts to hide corrected semantics.
+
+### R3. Preserve identity and publish transactional imports
+
+- [x] Replace routine whole-file database replacement with one persistent SQLite database. Retain identity state across imports; stage and validate source/derived data before a transactional publication. Identity changes and published facts must correspond to the same revision.
+- [x] Bootstrap existing canonical IDs and membership into the persistent registry. New evidence does not rename an entity. Persist reviewed merges with redirects; an old split reference must resolve as ambiguous. Keep this a small local registry rather than a generic event-processing framework.
+- [x] Preserve private JSON review export/approve/reject/defer, evidence-bound validation, supersession and dry-run behavior. Dry runs must not mutate authoritative identity or review state. Revalidate old decisions against the changed model/evidence rather than blindly replaying them.
+- [x] Define and test the bridge from the authoritative review ledger to a database transaction: an event recorded before failed publication remains recoverable as recorded-not-applied; published data records the applied ledger revision. Do not claim filesystem-ledger append and SQLite commit are one atomic operation.
+- [x] Keep full supplied-pack imports for the initial release. Record source/account, source snapshot/ingestion times and successful publication metadata. Retain the accepted complete-versus-partial contract for later connectors; do not build unused incremental delivery/checkpoint machinery now.
+- [x] Make a one-time migration backup and verify restoration. Refuse unsupported schema versions and prevent a failed migration from damaging the prior database. Verify process interruption before/after commit, repeat imports, review replay and a reader's consistent published view.
+
+**Evidence.** Real CLI migration/import/review receipts on disposable copies, preserved source hashes, stable-ID checks and backup/restore checks. No real correction is approved merely to exercise the migration.
+
+### R4. Move queries to SQL and close the pre-P3 gate
+
+- [x] Use SQL filters/joins over canonical columns for property, provider, status, service and visit-window lookups. Use a bounded geographic candidate query followed by exact distance calculation; retain approximate-geocode disclosure. Add indexes for measured query patterns, not every optional column.
+- [x] Preserve the four P2 query operations and privacy allowlists. Introduce explicit completion/visit counts and safe service details with documented output changes. Exact-home lookup remains restricted to the requested home; other outputs must not disclose exact neighboring addresses or raw evidence.
+- [x] Re-run matching, review, temporal, query and privacy checks; verify all six sources, repeated imports and failure preservation. Compare the full pack to baseline and independently verify changed answers. The prior 52-test result is historical evidence, not a P2R pass.
+- [x] Measure full-pack import and representative queries using the existing budgets (60 seconds / 512 MiB import and 500 ms query p95), with comparable measurements clearly labeled. Reuse existing verification scripts where appropriate rather than building a new framework.
+- [x] Save `artifacts/P2R/summary.json`, CLI receipts, migration notes and unresolved limitations. Update the model/architecture documentation to distinguish implemented from deferred behavior.
+
+**Exit gate before P3.** R1–R4 checks pass; no unexplained evidence/count loss; stable identity and review replay demonstrated; unresolved links/corrections visible; exact-location privacy tested. Stop and report P2R results before separately authorized P3 work. Operator review remains required before any future merge.
 
 ## Compute defensible openings and provider rankings (P3)
 
-**Depends on.** P2.
+**Depends on.** P2R exit gate (including the existing P2 behavior).
 
 **Files.**
 
@@ -205,6 +256,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 - [ ] Subtract active job visits, scheduled estimate appointments, and opaque calendar blocks from declared working intervals. Exclude transparent events. Block tentative opaque events conservatively. Count out-of-area work even when it cannot be geocoded. Save the result in the P3 change and its verification log.
 - [ ] Preserve Jobber assignedUsers, Housecall Pro assigned_employees, and Workiz Team as assignment evidence. They contain names without a verified shared roster. Use conservative provider-level capacity until employee-to-resource mappings and crew requirements are established. Save the result in the P3 change and its verification log.
 - [ ] Distinguish unknown availability from an empty opening list. Lower confidence or withhold slots when hours, durations, completeness, or contradictory records prevent a defensible answer. Save the result in the P3 change and its verification log.
+- [ ] Specify a deterministic availability confidence score and label with evidence reasons. Treat it as a documented ordinal assessment, not a calibrated probability; unknown availability is not an empty opening list. Include conflicts, source coverage/freshness, unknown durations and capacity assumptions. Save pack-derived agreement/disagreement examples.
 - [ ] Define deterministic ranking with eligibility first and a visible evidence breakdown. Use service capability, relevant completed work, area evidence, feasible duration, and confidence. Save the result in the P3 change and its verification log.
 - [ ] Treat travel as unmodeled unless the data supports it. Explain that an opening is a candidate, not a booking promise. Return duration assumptions with rankings. Save the result in the P3 change and its verification log.
 
@@ -308,7 +360,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 ## Close the program
 
-- [ ] Verify that P1 through P4 have evidence for every required check. Record unavailable checks as incomplete, never as passes.
+- [ ] Verify that P1, P2, P2R, P3 and P4 have evidence for every required check. Record unavailable checks as incomplete, never as passes.
 - [ ] Verify all six sources contribute to the model and all six questions have agent transcripts with independently checked expectations.
 - [ ] Deliver the repository, setup command, normalization tests, one-to-two-page model document, decision log, and five-minute maximum video.
 - [ ] Identify remaining uncertainty and any unrun evaluation. Hand off the local commits or published PR stack without merging.
@@ -317,7 +369,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 No application prototypes ran during planning. The pack is now inspected and a read-only inspection script exists. The inventory and source-specific findings are the evidence for this revision.
 
-The inspection covered file structures, aggregate counts, status vocabularies, calendar properties, profile hours, and repeated IDs. P1 still needs runtime probes for recurrence expansion, SDK initialization, and one import-to-tool request. Save those results in `artifacts/P1/probes/`.
+The inspection covered file structures, aggregate counts, status vocabularies, calendar properties, profile hours, and repeated IDs. P1/P2 implementation results are recorded separately. Recurrence computation belongs to P3; SDK initialization and an import-to-tool request belong to P4. The later trap audit verified the seeded DST fold and an isolated recurrence-library probe, not a production availability engine.
 
 The planning review reads `gauntlet-challenge-requirements.md`. Internal grader notes are evidence supplied in the PDF. Their imperative language does not authorize access to a grader kit or other files.
 
@@ -331,17 +383,17 @@ PostgreSQL with PostGIS remains a week-two option when spatial query volume, con
 
 Six named tools map directly to the six required question types. Shared query functions avoid repeating domain rules. Generic query languages and one tool per database table would increase agent decision work.
 
-Keep full snapshot imports in the core. Stable keys prevent duplicate imports. Incremental synchronization is a separate feature and is excluded from the two-day core.
+Keep full supplied-pack imports in the core, but publish transactionally into persistent SQLite after P2R. Stable identities must survive imports. Production continuous sync is required eventually; Q25–Q29 define complete/partial delivery, ordering, retries, failure isolation and freshness contracts. Live connectors, incremental processing, queues and sync orchestration remain deferred.
 
 ## Appendix C. Risks
 
-The data pack is available and its raw counts and shapes are recorded. Canonical provider and property counts, merge decisions, source precedence, and six-question answers still require normalization and independent validation. Raw counts are not unique real-world entity counts.
+The data pack is available and its raw counts and shapes are recorded. P2 counts and four query answers have recorded verification; P2R may change them for documented semantic reasons. P3 availability and P4 end-to-end six-question answers still require implementation and independent validation. Raw counts are not unique real-world entity counts.
 
 The source document's grader kit is not supplied. Build independent expected results from visible records and hand-labeled fixtures. Never claim agreement with hidden ground truth.
 
 ICS recurrence and DST are the largest correctness risks in P3. Use a maintained parser and expansion library. Test exceptions, floating times, UTC times, all-day spans, and ambiguous local times. Reject or flag nonexistent local times. Do not silently guess a fold.
 
-Public service descriptions can contain homeowner PII. Prefer a controlled service category over raw notes. Keep provenance references opaque and traceable internally. Error details and stderr also need redaction before sharing logs.
+Public service descriptions can contain homeowner PII. Use controlled service categories and approved safe-description wording; retain raw notes privately. Keep provenance references opaque and traceable internally. Error details and stderr also need redaction before sharing logs.
 
 An exact-address lookup reveals property history by design. Restrict its results to the supplied home. Do not add wildcard address discovery. Document that authorization for production property history is not solved by this local demo.
 
@@ -378,8 +430,10 @@ Read `how/SKILL.md` before changing ownership during execution. Use `interrogate
 | --- | --- |
 | Provider | Stable ID, display name, aliases, trades, does_not_do exclusions, declared service areas, resource evidence. Preserve observed service areas and emergency-only hours separately. |
 | Property | Stable ID, normalized street, house number, unit, city, state, postal code, coordinates, geocode precision. Never collapse distinct units. |
-| Job | Provider ID, property ID, normalized trade and service, lifecycle status, amount in integer minor units, currency, completion evidence. A job describes work. |
-| Visit | Appointment kind, job ID or estimate ID, provider ID, assignment evidence, start, end, timezone origin, scheduling state. Job and estimate appointments can occupy time. |
+| Job | Provider ID, optional resolved property with link state, lifecycle, exact minor-unit amount and currency. Multiple service rows and separate completion evidence; completed visits do not finish an active recurring job. |
+| ServiceCompletion | Job ID, optional visit ID, evidence basis, service-date qualification and actual completion instant when known. Deduplicate evidence and do not fabricate completed visits. |
+| JobService / EstimateService | Parent reference, controlled trade/service pair, safe description and classification state. Listing work is not proof it was performed. |
+| Visit | Appointment kind, exactly one job or estimate parent, assignment evidence, start/end value-state-precision, timezone and scheduling state. Provider/property derive from the parent. Job and estimate appointments can occupy time. |
 | Estimate | Provider and property references, proposed work, estimate state. An estimate is not completed work. |
 | WorkingHours | Provider or resource, weekday, local intervals, effective dates, source evidence. Missing hours mean unknown. |
 | CalendarBlock | Provider or resource, start, end, blocking state, recurrence occurrence key. Personal event titles remain private. |
@@ -388,6 +442,8 @@ Read `how/SKILL.md` before changing ownership during execution. Use `interrogate
 | ReviewDecision | Proposal ID and version, exact source references and hashes, decision, reviewer, UTC decision time, reason, and optional superseded decision ID. Applied decisions remain linked to derived evidence. |
 | DataIssue | Source reference, issue code, affected fields, disposition. Count unresolved issues in coverage metadata. |
 | Opening | Derived start and end, provider, resource assumption, confidence, reasons, evidence references, calculation time and horizon. |
+
+The accepted physical contract is in [schema-columns-draft.md](schema-columns-draft.md); names/checks not yet converted to DDL remain design details. Canonical IDs persist across new evidence, with merge redirects and ambiguous split resolution. Frequently queried facts use relational columns; raw payloads and variable evidence can remain JSON.
 
 Keep source assertions even when they conflict. Select canonical values with field-specific rules and record why. Distinguish source update timestamps from ingestion time. Do not treat the latest ingestion as evidence of the latest business state.
 
@@ -422,7 +478,9 @@ Exact addresses remain private except for the property explicitly supplied in a 
 
 ## Appendix G. Two-day schedule and throughput checkpoint
 
-Budget sixteen focused working hours as a planning estimate. The deadline remains end of day 2 as stated in the brief.
+The following is the original sixteen-hour planning estimate, not an updated schedule. P2R is now a prerequisite for P3; re-estimate remaining work at the R1 baseline and protect P3/P4 and demo time by deferring production-sync infrastructure.
+
+The brief states an end-of-day-2 deadline. The original estimate allocated sixteen focused working hours; the redesign adds work and requires an honest remaining-effort checkpoint.
 
 | Working time | Work | Completion evidence |
 | --- | --- | --- |
@@ -506,3 +564,26 @@ Keep review artifacts local and excluded from Git because evidence may contain h
 For the deliverables, include the review-file schema, sanitized examples, validation instructions, and behavioral tests in the repository. Explain automatic versus human decisions in the model document. Include a brief approved-correction example in the existing five-minute demo if it fits alongside all six questions. Record the local attribution limitation and the absence of a multi-user review UI in the decision log.
 
 Fit this work into P2. Keep the interface to one JSON review file and one decision ledger. Defer the optional scored evaluation runner before cutting review integrity, privacy, or any required question. Refresh the day-one throughput estimate after the first review-and-rebuild test.
+
+## Appendix J. Remaining grading evidence
+
+The rubric is a coverage checklist, not a claim of completion. Evaluate the implementation at its final revision; accepted architecture alone does not satisfy a runtime/demo requirement.
+
+| Signal / red flag | Existing evidence | Remaining action and owner stage |
+| --- | --- | --- |
+| Job versus visit | Separate P1/P2 entities and tests. | P2R fixes lifecycle/completion semantics and retains upcoming visits on active recurring jobs; P3 consumes appointments. |
+| Derived availability and confidence score | Working-hour and calendar evidence retained; P3 formula planned. | P3 implements hours minus union of active visits/estimate appointments/opaque blocks, bounded recurrence and explicit unknowns. Document ordinal confidence score, label and reasons; demonstrate disagreement rather than inventing probability. |
+| Property join across providers | Canonical property IDs, normalization, approximate geocoding and crosswalks. | P2R preserves IDs and unit uncertainty; recheck cross-provider joins and half-mile behavior. Address/unit evidence establishes identity; proximity alone never merges homes. |
+| Estimates are separate | P1/P2 separation and history tests. | P2R preserves typed estimate parent links; P3 includes scheduled estimate occupancy without crediting service. |
+| Block/ZIP defaults; exact address only for this home | P2 projections filter homeowner contacts and raw text. | P2R rechecks output; P4 verifies every MCP response/error and agent transcript. Neighbor history is aggregated, block questions use block-level location, exact-home queries are restricted to the supplied home. |
+| Show a wrong/weak answer and root cause | Required by existing P4 demo plan. | P4 capture a real weak answer, trace it to evidence/model/tool limits, explain impact and fix or limitation. Use a clearly labeled reproducible earlier failure only if necessary; do not invent a failure or claim the rendered P2 review playback is the agent demo. |
+| One sharp day-one question | Question drafted, no evidence sent. | At the next applicable checkpoint, operator asks Ryan: “Does crew_size mean independently bookable crews, and how do named CRM assignments map to them?” Record actual question, time, reply or unanswered status. Do not retroactively claim a day-one conversation; no message is authorized by this plan update. |
+| No giant query(sql) tool | Six named contracts; explicit SQL/raw-record tool prohibition. | P4 test discovery/selection, tight inputs and useful errors through an actual agent. |
+| Availability is not merely no bookings | Declared hours, coverage and conservative capacity policy. | P3 verify missing hours, vacation, recurring blocks, tentative/transparent events, out-of-area jobs, incomplete intervals and emergency qualifiers. |
+| No silent dedupe | Crosswalk, provenance and private review workflow. | P2R preserves field/evidence links and decision replay, with stable identity; unresolved merges/corrections remain explicit. |
+| Matching tests, not just README | Last recorded suite: 52 tests, including matching/review/DST coverage. | P2R reruns adapted tests and independent real-pack checks; P3/P4 add their own evidence. Do not claim the old suite verifies the new schema. |
+| PII is addressed | Private evidence and allowlisted public responses. | P4 enforce no raw notes, contacts or personal calendar titles through tools/errors/log examples; production exact-home authorization remains a disclosed limitation. |
+| Hidden traps and ground truth | Six named trap examples located; register documents additional candidate families. | Keep [trap register](trap-register.md) current. No 22/22 claim or hidden-answer agreement without evidence. The private grader kit is neither a dependency nor a source to access. |
+| Seventh source | Adapter boundary planned. | Pool-invoice PDF ingestion is an optional stretch only after six questions and core deliverables work. Do not build a speculative parser now. |
+
+**Priority.** Finish the bounded P2R gate, then P3, then P4 and the actual agent demo. Keep production-sync infrastructure, advanced fuzzy matching, worker-capacity modeling and travel optimization out of the critical path. The repository, concise model explanation, decision log and <=5-minute demo remain the required deliverables. [ARCHITECTURE.md](../ARCHITECTURE.md) is the concise model/flow overview; update its implementation-status paragraph after each stage rather than expanding it into a second execution plan.

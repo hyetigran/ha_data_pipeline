@@ -40,3 +40,7 @@ Recommended handling is to retain `5832` as the original observation, record `58
 Run `python3 scripts/verify_trap_candidates.py`. The script checks the exact date fields, neighboring serials, spreadsheet rows, and cross-source contact agreement. It prints no customer contact details and does not modify the pack.
 
 The investigation scanned CRM date fields for out-of-range years and year disagreements. It compared Housecall Pro job addresses against customer address IDs and Workiz addresses within ClientId groups without finding this transposition there. A cross-source contact comparison located the spreadsheet candidate. This is a targeted investigation, not an exhaustive discovery of every seeded trap.
+
+## Broader audit follow-up
+
+The subsequent [trap register](trap-register.md) covers all six named examples from the user-supplied “22 seeded traps” excerpt, including a verified November 1 DST-fold job, plus other observed pitfalls across all six sources. It distinguishes evidence, implemented behavior, and remaining work. The register is not a verified crosswalk to the hidden 22-item seed manifest.

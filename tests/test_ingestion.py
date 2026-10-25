@@ -146,7 +146,7 @@ def test_report_failure_after_success_is_explicit(tmp_path, monkeypatch, capsys)
 
     from house_account import cli
 
-    monkeypatch.setattr(cli, 'ingest', lambda *args: {'status': 'success'})
+    monkeypatch.setattr(cli, 'ingest', lambda *args, **kwargs: {'status': 'success'})
 
     def fail_report(*args):
         raise OSError('cannot write')
