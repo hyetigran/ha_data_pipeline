@@ -57,9 +57,15 @@ def main() -> int:
     review.add_argument('--database',type=Path,default=Path('var/house_account.sqlite'))
     review.add_argument('--dry-run',action='store_true')
     query = subcommands.add_parser('query')
-    query.add_argument('kind',choices=['property','radius','block','provider'])
+    query.add_argument('kind',choices=['property','radius','block','provider','openings','available','recommend'])
     query.add_argument('value')
     query.add_argument('--database',type=Path,default=Path('var/house_account.sqlite'))
+    query.add_argument('--start')
+    query.add_argument('--end')
+    query.add_argument('--duration-minutes',type=int)
+    query.add_argument('--limit',type=int)
+    query.add_argument('--trade')
+    query.add_argument('--service')
     arguments = parser.parse_args()
     try:
         if arguments.command == 'review':
@@ -81,6 +87,21 @@ def main() -> int:
                 property_history,
                 provider_summary,
             )
+            if arguments.kind not in {'openings','available','recommend'} and any(getattr(arguments,key) is not None for key in ('start','end','duration_minutes','limit','trade','service')):
+                raise ValueError('availability options require an availability query')
+            if arguments.trade is not None and arguments.kind!='available' or arguments.service is not None and arguments.kind!='recommend':
+                raise ValueError('trade and service options require matching query kind')
+            if arguments.kind in {'openings','available','recommend'}:
+                from .availability import available_providers, next_openings
+                from .ranking import recommend_providers
+                options = {key:getattr(arguments,key) for key in ('start','end','duration_minutes','limit') if getattr(arguments,key) is not None}
+                if arguments.kind=='available' and arguments.trade is not None:
+                    options['trade']=arguments.trade
+                if arguments.kind=='recommend' and arguments.service is not None:
+                    options['service']=arguments.service
+                operation: Any = {'openings':next_openings,'available':available_providers,'recommend':recommend_providers}[arguments.kind]
+                print(json.dumps(operation(arguments.database,arguments.value,**options),sort_keys=True))
+                return 0
             functions = {'property':property_history,'radius':history_radius,'block':block_schedule,'provider':provider_summary}
             print(json.dumps(functions[arguments.kind](arguments.database,arguments.value),sort_keys=True))
             return 0
@@ -103,7 +124,7 @@ def main() -> int:
             print(json.dumps({'status':'recorded_not_applied','message':'Decisions recorded; previous snapshot preserved. Rebuild to recover.'}),file=sys.stderr)
             return 1
         print(json.dumps({'status': 'failed', 'error_type': type(exc).__name__,
-                          'message': 'Import failed; source data and any previous snapshot are preserved.'}), file=sys.stderr)
+                          'message': 'Query failed; check the provider, supported service, dates, duration and horizon.' if arguments.command=='query' else 'Import failed; source data and any previous snapshot are preserved.'}), file=sys.stderr)
         return 1
 
 
