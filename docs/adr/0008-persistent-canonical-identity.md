@@ -1,11 +1,13 @@
-# Preserve canonical IDs as evidence changes
+# Persistent canonical identities
 
-Accepted as Q11 in the October 24, 2026 schema interview. Canonical IDs persist when new evidence joins an entity. A merge retains one ID and records a redirect from retired IDs. A split makes an old reference ambiguous rather than silently choosing one resulting entity.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This supersedes D005's member-set-derived identity behavior as the target design, not as a description of the current implementation. Stable agent references require durable identity bookkeeping across rebuilds instead of deriving identity solely from current membership. The registry's storage, merge/split event representation, atomic publication and recovery rules remain to be designed.
+## Decision and reason
 
-This decision is not yet implemented. Existing IDs must be considered during migration rather than silently discarded.
+Agent references need to survive changes in supporting evidence. Q11 replaces IDs derived only from the current member set with a persistent identity registry.
 
-Q23's proposed separate durable identity store was not accepted. The storage arrangement remains open. SQLite durability is not the issue: replacing an entire generated database without preserving authoritative state is an application-design concern. A single persistent SQLite database retaining identity tables while replacing derived data transactionally is an alternative under discussion, not an approved change.
+New matching evidence retains an existing identity. A merge selects a surviving ID and redirects retired IDs. A split can make an old reference ambiguous rather than silently choosing one resulting entity.
 
-Revised Q23 was subsequently accepted: one persistent SQLite database with transactional imports retains authoritative identity state. See ADR 0012. The earlier separate-store proposal remains unaccepted; exact identity publication/recovery rules are still design work.
+The first Q23 proposal placed identity state in a separate durable store. The operator did not accept that arrangement. Revised Q23 selected one persistent SQLite database with transactional imports, recorded in [ADR 0012](0012-use-persistent-sqlite-with-transactional-imports.md).
+
+The problem was whole-file replacement losing authoritative state, not a lack of SQLite durability. Migration preserves existing references and explicit resolution behavior.

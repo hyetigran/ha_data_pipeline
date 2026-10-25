@@ -1,18 +1,18 @@
 # House Account verification map
 
-Use [Launch and Doctor](../SKILL.md) with Python 3.13, locked dependencies, and the private supplied pack. Every feature uses disposable database and ledger paths. Evidence survives under `artifacts/verification/`.
+The verification helper covers eight features through disposable databases and ledgers. Each run retains evidence under `artifacts/verification/`. [Verify House Account](../SKILL.md) contains setup, commands, and cleanup requirements.
 
-- [Import and reporting](import.md) covers source accounting and canonical reconciliation during import.
-- [Inspect source evidence](inspect.md) covers source-local visits, estimates, duplicates, unresolved values, and provenance.
-- [Replace and recover](replacement.md) covers repeat import, read-transaction revisions, failed input, and failed report publication.
-- [Canonical history queries](history.md) covers property, radius, block, and provider commands and their privacy boundary.
-- [Reconciliation review](review.md) covers export, validation, previews, decisions, repetition, supersession, and stale evidence.
-- [Migrate and restore a legacy snapshot](migration.md) covers schema-v2 upgrade and backup restoration with the frozen private baseline.
+| Feature | Coverage | Additional prerequisite |
+| --- | --- | --- |
+| [Import](import.md) | Accounting, reports, reconciliation, and schema publication | None |
+| [Inspect](inspect.md) | Visits, estimates, duplicates, unresolved values, and provenance | None |
+| [Replacement](replacement.md) | Repeat import, reader revisions, and publication failures | None |
+| [History](history.md) | Property, radius, block, provider, and privacy checks | None |
+| [Review](review.md) | Export, validation, previews, decisions, repetition, supersession, and stale evidence | None |
+| [Migration](migration.md) | Schema-v2 upgrade and restoration | Private frozen P2 database |
+| [Availability](availability.md) | Openings, calendars, uncertainty, eligibility, and ranking | Local P2R Git object |
+| [MCP](mcp.md) | Discovery, six calls, safe errors, unchanged state, and shutdown | None |
 
-- [Availability and rankings](availability.md) covers candidate openings, eligibility, calendar rules, uncertainty, and ranking explanations through the P3 CLI.
+Every feature requires Python 3.13, locked dependencies, and the supplied private pack. Missing prerequisites block the affected journey. Passing another journey does not cover that path.
 
-- [Local MCP tools](mcp.md) covers discovery, all six tool calls, safe errors, read-only state and shutdown.
-
-Run the six P1/P2 journeys, the P3 journey, and the MCP journey for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path.
-
-The CLI defaults point at working database and review paths. The helper overrides these paths or runs existing P1 scripts from scratch. Keep command transcripts, exit codes, resulting state, and cleanup receipts. Run notes and private evidence remain uncommitted.
+The helper overrides working database and review paths. Receipts contain commands, exit codes, resulting state, and cleanup results. Private evidence and run notes remain uncommitted.

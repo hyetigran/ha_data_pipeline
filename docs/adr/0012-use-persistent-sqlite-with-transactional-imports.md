@@ -1,7 +1,11 @@
-# Keep a persistent SQLite database with transactional imports
+# Persistent SQLite and transactional imports
 
-Accepted as revised Q23 on October 24, 2026. Retain SQLite and one persistent database rather than replacing the entire database file on every import. Preserve identity bookkeeping across imports; stage and validate new data, then transactionally publish the derived state together with relevant identity changes. Failed imports must preserve the last successfully published state.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This supersedes whole-file replacement as the target import architecture, not the current implementation. SQLite durability is not the reason for this redesign; authoritative identity preservation and coordinated publication are. Crash-recovery verification and backup/restore procedures are required. Local review-file authority and reconciliation with database publication still need a detailed recovery contract. No migration has been performed.
+## Decision and reason
 
-The operator also identified continuous source ingestion and syncing as a production requirement. A persistent database is necessary infrastructure for the proposed approach, not a completed sync implementation. Source revision retention, delivery retries, checkpointing, out-of-order updates, disappearance/deletion semantics and freshness remain to be designed.
+Whole-file replacement made durable identity state harder to preserve. Revised Q23 retains one SQLite database and publishes derived facts and relevant identity changes in one transaction.
+
+Imports stage and validate a candidate before publication. A failed build preserves the last successful snapshot. Backup restoration and interruption tests verify recovery. The local review ledger remains authoritative outside the database commit, so recorded decisions can require replay after a publication failure.
+
+This change solves identity preservation and coordinated publication. It does not implement continuous synchronization. Source ordering, retries, checkpoints, deletion, and freshness require separate production contracts.

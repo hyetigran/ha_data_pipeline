@@ -1,9 +1,11 @@
-# Retain source-normalized entities alongside canonical entities
+# Source observations and canonical facts
 
-Accepted in the October 24, 2026 schema interview. Keep original source records, normalized source entities, and reconciled canonical entities as separate representations. Entity-appropriate fields replace the generic shared column shape; frequently queried facts and relationships belong in regular SQL columns, while raw payloads and variable evidence metadata may remain JSON.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This accepts additional schema maintenance so conflicting source assertions remain inspectable before and after reconciliation. Removing the normalized source layer was considered but rejected for this design. The exact tables, constraints and migration procedure remain open.
+## Decision and reason
 
-This is an accepted design decision, not an implemented change.
+Original records, normalized source entities, and canonical entities remain separate. Each source entity has appropriate fields. Frequently queried facts use SQL columns. Raw payloads and variable evidence can remain JSON.
 
-The operator accepted Q14: canonical jobs and estimates require a provider but may have an unresolved property reference. Missing, unresolved and conflicting property evidence must be explicit; do not create a fabricated placeholder property. Preserve the original address and disclose incomplete coverage when exact-property queries exclude unresolved work. This is an accepted design rule, not an implemented change.
+The extra schema work preserves conflicting assertions before and after reconciliation. Removing the normalized source layer would make those differences harder to inspect.
+
+Q14 requires a provider for each canonical job or estimate but permits an unresolved property link. Missing, unresolved, and conflicting property evidence remain explicit. The system retains the original address instead of creating a placeholder home. Exact-property results disclose incomplete coverage when unresolved work is excluded.

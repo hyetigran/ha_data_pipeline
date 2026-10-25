@@ -1,5 +1,9 @@
-# Store searchable provider facts in related tables
+# Related provider facts
 
-Accepted as Q8 in the October 24, 2026 schema interview. Provider aliases, trades, exclusions and service areas belong in related tables rather than JSON lists. Declared service coverage remains separate from observed work history. This adds relationships and joins but supports lookup, filtering and constraints without conflating declarations with demonstrated experience.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-Table names, keys and derivation of observed coverage remain part of the physical design. This decision is not yet implemented.
+## Decision and reason
+
+Provider aliases, trades, exclusions, and declared service areas use related tables rather than JSON lists. Declared coverage stays separate from observed completed work.
+
+The additional joins support filtering and constraints. They also prevent a provider's claim of coverage from being presented as evidence of past service in that area. Q8 established this choice.

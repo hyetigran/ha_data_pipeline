@@ -1,4 +1,4 @@
-# Investigate the wrong-year and transposed-number candidates
+# Wrong-year and transposed-number evidence
 
 Inspected October 24, 2026. Both suspected anomalies have strong supporting evidence in the supplied pack. The conflicts are verified. Their intended corrections remain inferences because the hidden grader crosswalk is unavailable. No source records were edited.
 
@@ -18,13 +18,13 @@ The scheduled interval is after the November 2, 2026 challenge snapshot, even th
 
 A calendar-year mismatch alone is not enough. The scan also found legitimate December 31 appointments with completion or status updates on January 1. These must not be flagged by a simplistic unequal-year rule.
 
-Recommended handling is to retain the original timestamps and raise a temporal inconsistency issue. Record the 2025 interval as a high-confidence correction candidate with its evidence. Do not silently rewrite the source or treat the future interval as an ordinary active booking. If the correction is not accepted under an audited rule, withhold a precise historical service date and disclose the uncertainty. LastStatusUpdate is supporting evidence, not an exact completion timestamp.
+The importer retains the original timestamps and reports a temporal inconsistency. The review proposal pairs both endpoints of the inferred 2025 interval. Until approval, the service date remains uncertain. `LastStatusUpdate` supports the inference but does not establish an exact completion timestamp.
 
 ## Transposed-number candidate in Ray's spreadsheet
 
 Physical row 175 contains an August 14, 2026, 09:00 TV-mount entry at `5832 belmont ave`.
 
-Physical rows 88 and 89 contain an October 3, 2025 drywall-patch entry at `5823 Belmont Ave`. Rows 88 and 89 are exact duplicates and count as one observation. The customer label and normalized phone match row 175.
+Physical rows 88 and 89 contain an October 3, 2025 drywall-patch entry at `5823 Belmont Ave`. Rows 88 and 89 are separate observations of one source record. The customer label and normalized phone match row 175.
 
 The same normalized phone also appears in two independent source accounts whose property address is `5823 Belmont Ave`:
 
@@ -33,14 +33,14 @@ The same normalized phone also appears in two independent source accounts whose 
 
 The last two house-number digits are swapped. The repeated address, same spreadsheet customer label, and shared contact evidence make `5823` a high-confidence correction candidate. Contact identity alone cannot prove property identity because one customer can have multiple properties. The different service and date also mean the TV-mount entry is not a duplicate of the drywall-patch job.
 
-Recommended handling is to retain `5832` as the original observation, record `5823` as a proposed corrected property link, and attach the corroborating evidence. Do not introduce a general digit-swap auto-merge rule. Until resolved, keep this entry out of confirmed exact-property history or return it separately as uncertain. The unpaid marker does not establish whether the work was completed.
+The importer retains `5832`, and the review proposal records `5823` with its supporting evidence. A general digit-swap rule would merge unrelated properties. Until approval, this entry cannot establish confirmed history at `5823`. The unpaid marker does not establish whether the work was completed.
 
-## Reproduce the evidence checks
+## Investigation method
 
-Run `python3 scripts/verify_trap_candidates.py`. The script checks the exact date fields, neighboring serials, spreadsheet rows, and cross-source contact agreement. It prints no customer contact details and does not modify the pack.
+`scripts/verify_trap_candidates.py` checks the date fields, neighboring serials, spreadsheet rows, and cross-source contact agreement. It prints no contact details and does not modify the pack. The [verification guide](verify-local-system.md#check-the-data-trap-evidence) contains reproduction commands.
 
 The investigation scanned CRM date fields for out-of-range years and year disagreements. It compared Housecall Pro job addresses against customer address IDs and Workiz addresses within ClientId groups without finding this transposition there. A cross-source contact comparison located the spreadsheet candidate. This is a targeted investigation, not an exhaustive discovery of every seeded trap.
 
 ## Broader audit follow-up
 
-The subsequent [trap register](trap-register.md) covers all six named examples from the user-supplied “22 seeded traps” excerpt, including a verified November 1 DST-fold job, plus other observed pitfalls across all six sources. It distinguishes evidence, implemented behavior, and remaining work. The register is not a verified crosswalk to the hidden 22-item seed manifest.
+The subsequent [trap register](trap-register.md) covers all six named examples from the user-supplied "22 seeded traps" excerpt, including a verified November 1 DST-fold job, plus other observed pitfalls across all six sources. It distinguishes evidence, implemented behavior, and remaining work. The register is not a verified crosswalk to the hidden 22-item seed manifest.

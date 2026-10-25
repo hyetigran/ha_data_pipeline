@@ -1,7 +1,13 @@
-# Store service completion evidence separately from lifecycle
+# Separate service completion evidence
 
-Accepted as Q12 in the October 24, 2026 schema interview. A dedicated `service_completions` table records confirmed service evidence linked to a job and optionally a specific visit. It records the basis for completion and the precision/uncertainty of its service date; it does not require the job's lifecycle to be finished and never fabricates completed visits from job-level evidence.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This adds a relationship rather than overloading job status or one completion timestamp. Multiple sources supporting the same completion must remain evidence for that completion, not inflate completed-visit counts. Detailed uniqueness and evidence aggregation rules remain to be specified. No implementation has changed.
+## Decision and reason
 
-Q20 accepted: multiple observations supporting one completion do not inflate completed-visit counts. Credit a particular service only with supporting attribution evidence; otherwise retain completion at job level with service attribution unknown. Distinct job and visit counts remain separate; trade groups may overlap, so sums across groups are not presented as an overall distinct count.
+Job lifecycle cannot describe every instance of performed work. Q12 introduces `service_completions` linked to a job and, when supported, a particular visit.
+
+A completion records its evidence basis and service-date qualification. The job can remain active. Job-level evidence does not fabricate a completed visit.
+
+Q20 requires corroborating observations to support one completion rather than inflate visit counts. A service receives credit only when evidence attributes that work to the completion. Otherwise, job-level completion remains available with unknown service attribution.
+
+Distinct jobs and completed visits remain separate counts. Trade groups can overlap, so their sum is not a global distinct-job count.

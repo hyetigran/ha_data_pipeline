@@ -1,11 +1,13 @@
-# Separate job lifecycle from completed service evidence
+# Job lifecycle and completed service evidence
 
-Accepted in the October 24, 2026 schema interview. A job's lifecycle and its eligibility for service history are separate facts: a recurring job can remain active while completed visits establish past service. This replaces the current inference that any completed visit makes the canonical job completed; history counting and source-specific lifecycle mappings remain to be decided.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-Fresh Nest Cleaning Jobber job #1034 is active with 46 completed, five cancelled and two upcoming visits. Preserving lifecycle avoids describing unfinished recurring work as finished while retaining legitimate history.
+## Decision and reason
 
-This is an accepted design decision, not an implemented change.
+A recurring job can remain active after several completed visits. Treating any completed visit as a completed job would misstate the remaining work.
 
-The operator subsequently accepted exposing both distinct-job and completed-visit counts within the requested window. Do not fabricate completed visits from job-level completion evidence. Lifecycle uses explicit source-specific mappings with original status retained; Jobber active remains active, archived does not automatically mean successfully completed, and insufficient or contradictory evidence remains unknown or flagged as conflicting.
+The accepted design separates job lifecycle from service completion. Fresh Nest Cleaning job #1034 illustrates the need. Its active job has 46 completed visits, five cancelled visits, and two upcoming visits.
 
-Q15 subsequently accepted separate controlled vocabularies: job lifecycle `open`, `active`, `pending_approval`, `completed`, `cancelled`, `unknown`; visit scheduling state `scheduled`, `in_progress`, `completed`, `cancelled`, `overdue`, `unscheduled`, `superseded`, `unknown`; estimate state `open`, `scheduled`, `in_progress`, `completed`, `cancelled`, `unknown`. Source mappings in the column draft preserve original status and do not promote archived jobs, pending approvals or completed estimates into unsupported completed service. Cross-source conflict selection is still open.
+History reports distinct jobs and completed visits separately within the requested window. Job-level completion evidence does not create fictional completed visits. Source-specific lifecycle mappings preserve original statuses. Archived work, pending approvals, and completed estimates do not automatically establish completed service.
+
+Q15 defines separate controlled vocabularies for job lifecycle, visit scheduling state, and estimate state. The [column design record](../schema-columns-draft.md) retains those values.

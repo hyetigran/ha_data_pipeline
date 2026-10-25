@@ -1,227 +1,157 @@
-# Project decision log
+# Project decisions
 
-This log records design decisions and their implementation status. The execution records identify which acceptance checks have passed.
+This record explains the choices behind the local application. Entries D001 through D013 describe decisions made on October 24, 2026. Later entries record implementation scope.
 
-P1, P2, P2R, and P3 are implemented and merged. Historical entries retain the phase-specific authorization limits that applied at the time. D016 records the current P4 authorization and Codex demo choice. P4 must remain unmerged for operator review.
+P1, P2, P2R, P3, and P4 are implemented and merged. Earlier restrictions describe authorization at the time of each decision. They do not override later requests. Execution records contain the measured results.
 
-## D001. Defer travel-aware scheduling
+## D001. Calendar availability without travel estimates
 
-Recorded October 24, 2026. Accepted for the two-day challenge scope.
+The local release calculates openings from declared hours minus occupied and uncertain intervals. Travel remains unmodeled.
 
-Calculate candidate openings from declared working hours minus occupied appointments and blocking calendar events. Do not subtract estimated commute time or claim that a calendar gap guarantees a feasible appointment.
+The street reference covers nine postal codes and supports approximate coordinates. Scheduled work also occurs outside that area. The pack has no routing network or travel-time matrix. Straight-line distance cannot establish driving time between appointments.
 
-The supplied street reference supports approximate coordinates within nine target postal codes. Scheduled work also occurs outside that coverage. The pack supplies no routing network or travel-time matrix. Straight-line proximity for the half-mile history question does not establish driving time between appointments.
+A fixed buffer would be an assumption. The initial model therefore discloses the missing travel calculation instead of inventing one. Responses describe openings as candidates under a stated duration. Out-of-area work still consumes time.
 
-A two-hour gap between existing jobs may not fit two hours of work plus travel. Both travel from the preceding appointment to the requested property and travel to the following appointment matter. A fixed buffer would be an assumption rather than a measured journey time, so the initial calculation does not silently add one.
+Route-aware scheduling would need broader location coverage, routing evidence, and resource assignments. Travel before and after an appointment would both matter. A later configurable buffer would need an explicit assumption label.
 
-The tool responses, model document, and demo must disclose that travel is unmodeled. Opening confidence must not imply that geographic feasibility has been established. Rankings must describe opening suitability as calendar fit under the stated duration assumption.
+## D002. Local review of ambiguous matches and corrections
 
-Acceptance conditions for implementation:
+Deterministic normalization runs automatically. Ambiguous identities and inferred corrections become proposals in `review/reconciliation.json`. Each explicit decision records the reviewer, UTC decision time, and reason.
 
-- Return an explicit travel-unmodeled limitation with availability and recommendation responses.
-- Keep out-of-area appointments in occupied time even when their coordinates are unavailable.
-- Verify that the connected agent describes openings as candidates rather than guaranteed bookings.
-- Keep geographic-radius calculations separate from travel-time claims.
+A JSON file fits the local challenge without a separate review application. New proposals default to defer. A high-confidence correction still needs approval. The wrong-year and transposed-number cases remain unresolved unless a human approves them.
 
-Revisit this decision after the core works. A configurable travel buffer is a possible intermediate improvement, provided responses identify the buffer as an assumption. Route-aware scheduling requires broader location coverage, a routing source, and resource assignments. Evaluate travel on both sides of a proposed appointment before claiming feasibility.
+Approval binds to the exact action, source hashes, and rule version. Rejection suppresses an identical proposal from the new-review count. Deferral keeps the proposal unresolved. Export preserves existing human edits.
 
-This decision addresses the availability-reasoning rubric by making an explicit scope tradeoff and exposing its limitations. It does not establish that calendar-only availability earns full credit.
+The append-only ledger retains decisions and supersession history. Rebuilding from originals and effective decisions reverses earlier derived changes. Changed evidence invalidates dependent approvals. Paired timestamp corrections remain jointly approved or jointly unapplied.
 
-Evidence comes from [the supplied data README](../data/README.md), [the inspection findings](data-pack-inspection.md), and the user's discussion of commute handling. The [project plan](project-plan.md) includes this limitation in P3.
+Validation rejects stale or incompatible decisions before publication. Apply records decisions before publishing the database. A failure between those steps reports `recorded_not_applied` and recovery replays the same ledger.
 
-## D002. Review ambiguous reconciliation through a local file
+Attribution is self-declared. This workflow is not authenticated multi-user approval or tamper-proof audit storage. The [review guide](review-reconciliation.md) describes operation.
 
-Recorded October 24, 2026. Accepted by the user's request to add human review to the plan. P2 implements this workflow. No specific correction or merge is approved by this decision.
+## D003. Local MCP over stdio
 
-Keep deterministic normalization automatic. Export ambiguous identity matches and inferred factual corrections to `review/reconciliation.json`. A human approves, rejects, or defers each proposal with reviewer attribution, a decision timestamp, and a reason. New proposals default to defer.
+The selected client launches the Python MCP server locally. Protocol traffic uses stdin and stdout. Controlled diagnostics use stderr.
 
-Choose a JSON file with schema validation because the challenge excludes a user interface and has a two-day implementation budget. The file supports explicit decisions without adding a web application. Local maintenance may update derived data, while every MCP tool remains read-only and original sources remain intact.
+The challenge requires local startup and an agent demonstration, not a public endpoint. Hosting would add authentication, transport, storage, and operations work beyond that deliverable.
 
-Approval applies only to the exact proposed action and evidence version. Reject leaves the proposal unapplied and suppresses identical repeated suggestions. Defer keeps it unresolved. High-confidence correction candidates still require approval. In particular, the wrong-year job and transposed house number remain proposals until reviewed.
+Startup can prepare missing derived state before serving. Tool calls use read-only connections and cannot import data or apply review decisions. P4 verified Codex initialization, tool discovery, all six questions, fresh startup, and shutdown.
 
-Store decisions in an append-only local ledger and link applied results to decision IDs. Rebuild canonical snapshots from immutable observations plus effective decisions. Source-record hashes and rule versions make stale approvals detectable. Superseding decisions reverse earlier derived changes through reconstruction rather than destructive edits to source records.
+Remote deployment still requires authentication, authorization, persistent storage, process management, and monitoring. Changing the transport alone does not provide those controls.
 
-Validate the entire decision set and show a dry-run impact report before publication. Conflicting or stale approvals cannot partially mutate the active snapshot. Record the ledger revision in the database so interrupted application can resume idempotently. Preserve the previous successful snapshot when a build fails.
+## D004. SQLite for the measured local workload
 
-Acceptance conditions for implementation:
+SQLite stores source evidence, canonical facts, identities, and applied decision references. The application needs no separate database service. Relational constraints fit the provider, property, job, visit, and evidence relationships.
 
-- Approve, reject, and defer produce the documented distinct outcomes.
-- Exporting proposals never overwrites a human's existing decisions.
-- Identical imports preserve decisions and repeated application has no extra effect.
-- Changed evidence invalidates only affected approvals and requires fresh review.
-- Conflicting decisions fail validation without partial canonical changes.
-- A superseding decision reverses a merge or correction while retaining audit history.
-- Rebuilding the database reproduces the effective decisions from the local ledger.
-- The wrong-year and transposed-number examples remain unresolved until explicitly approved.
-- Review files and the ledger remain outside version control and MCP responses do not expose their private evidence.
+One maintenance writer validates a candidate before publication. Readers use consistent transactions. The original pack and review ledger remain rebuild inputs.
 
-The tradeoff is manual review effort and self-declared reviewer attribution. This is not a multi-user approval system or a tamper-proof audit service. At larger scale, add authenticated reviewers, a review queue, concurrent-edit controls, and durable audit storage. Keep that work outside the two-day core.
+Provider count alone does not establish a database limit. Record volume, recurrence, concurrent readers, refresh frequency, and spatial queries determine the workload. Full rebuilds or application scans could become limiting costs before SQLite itself does.
 
-This decision supports the matching rubric through explicit merge methods and uncertainty, and the provenance rubric through attributable decisions. The repository supplies tests and sanitized examples. The model document explains the policy. The demo can show one reviewed correction within its existing time limit.
+PostgreSQL or PostGIS remains an option when measurements or deployment requirements justify it. Any storage change must preserve canonical IDs, source references, decision history, constraints, and answer semantics.
 
-The workflow contract and planned commands are in Appendix I of [the project plan](project-plan.md). Concrete initial candidates are documented in [the trap investigation](trap-investigation.md).
+## D005. Canonical facts with preserved observations
 
-## D003. Run the MCP server locally over stdio
+P2 added canonical tables and a source crosswalk while retaining P1 observations. Queries selected public fields from those canonical facts.
 
-Recorded October 24, 2026. Accepted for the challenge scope. Connection to the selected demo client remains unverified.
+Provider matching requires a shared business phone plus corroborating trade evidence. Name similarity creates a candidate, not an automatic merge. Address normalization preserves units and infers missing locality only from one supported street segment.
 
-Run the Python application as a local MCP server launched by an agent client that supports stdio. The application loads the local data snapshot and exposes the six read-only tools. Protocol messages use stdin and stdout. Diagnostic logs use stderr with privacy filtering.
+Cross-source jobs remain separate or reviewable without an immutable shared identifier. The conservative rule generated no job candidates in the supplied pack. That result does not establish that every hidden duplicate was found.
 
-The challenge requires one-command local operation and a connected-agent demo. It does not require a public endpoint. A hosted service would add deployment, authentication, transport, and persistent-storage work without being necessary for those deliverables.
+Completion evidence remains distinct from date evidence. Jobber completed visits and Housecall Pro completion timestamps support history. Workiz `Done` supports job completion with a qualified scheduled service date. A status update is not an exact service date. CSV payment does not prove completion.
 
-Keep the data pack, generated SQLite snapshot, and review artifacts on the same machine for the demo. Startup may prepare derived data through the maintenance path before serving. Tool calls themselves use a read-only connection and cannot initiate ingestion or review actions.
+Public output keeps business labels, controlled service facts, bounded evidence references, and limitations. Homeowner contacts, raw notes, private review evidence, and source paths remain excluded.
 
-Acceptance conditions for implementation:
+P2 originally derived IDs from member sets and scanned canonical documents. P2R superseded those choices with persistent identities and relational queries. [The P2 record](p2-execution.md) preserves the earlier verification results.
 
-- Select a demo client with local stdio support and prove initialization, tool discovery, a tool call, and clean shutdown early.
-- Document client configuration, prerequisites, filesystem paths, and the one-command startup procedure.
-- Start successfully from a fresh checkout with the supplied data and documented prerequisites.
-- Keep diagnostic output out of protocol stdout and keep source files unchanged during tool calls.
-- Record all six required questions through the actual connected agent for the final demo.
+## D006. Lifecycle, SQL constraints, and service detail
 
-The limitation is local access. This arrangement does not provide a remotely accessible partner service. Revisit it when remote clients are required. Evaluate the SDK's supported HTTP transport, authentication and authorization, persistent storage, process lifecycle, and operational monitoring before hosting. Do not assume switching transport alone makes the service production-ready.
+The first schema decisions separate lifecycle from completion, enforce core relationships in SQL, and retain useful service descriptions without exposing notes.
 
-This decision supports reproducible repository setup and the demo deliverable. Evidence comes from the local-run and demo requirements in [the brief](../gauntlet-challenge-requirements.md) and the planned P4 workflow.
+Q4 through Q7 add separate job and visit counts, source-specific lifecycle mappings, source and canonical layers, and descriptions built from recognized facts. Unknown or conflicting evidence remains explicit.
 
-## D004. Use SQLite for the initial local workload
+[ADRs 0001 through 0004](schema-redesign.md) explain the accepted tradeoffs. These decisions authorized design at that stage, not an immediate migration.
 
-Recorded October 24, 2026. Accepted as the initial storage choice. Local P1 and P2 measurements are recorded in their execution reports. Suitability for a larger workload remains unmeasured.
+## D007. Relationships, uncertainty, lineage, and identity
 
-Store the canonical model, source evidence, and applied review-decision references in SQLite. The application accesses a local database file, so the challenge does not need a separately operated database service. Keep the original source pack and review ledger as rebuild inputs.
+Q8 through Q11 select related tables for provider facts, explicit temporal uncertainty, field-level lineage, and persistent canonical IDs.
 
-Choose this arrangement for the local, read-heavy challenge workload and two-day budget. Relational constraints and joins fit providers, properties, jobs, visits, and provenance. PostgreSQL would require additional setup for the current deliverable. A document store would not eliminate the need to reconcile identities and relationships.
+Declared service areas remain separate from observed work. Schedule time, completion time, and status-update time remain separate facts. Merges preserve redirects, and splits can leave old references ambiguous.
 
-Build and validate replacement snapshots through one maintenance writer. Publish only successful snapshots. Give the MCP server read-only access. Specify and test when running readers adopt a new snapshot so queries do not silently mix revisions. P1 and P2 verification exercise this publication behavior, including failed builds and review replay.
+These choices superseded P2's member-set identity design. Their implementation followed in P2R.
 
-Acceptance conditions for implementation:
+## D008. Completions, visit parents, and unresolved properties
 
-- Verify foreign keys, source-key uniqueness, repeat-import behavior, and evidence links.
-- Test failed refreshes, snapshot adoption, and reconstruction from original observations and effective review decisions.
-- Measure import duration, memory, query latency, and refresh behavior on the actual pack.
-- Record the machine, data size, indexes, and workload with performance results.
-- Keep queries parameterized and connection handling inside the storage boundary without building a speculative multi-database abstraction.
+Q12 through Q14 establish `service_completions`, one parent per visit, and explicit unresolved property links.
 
-Do not claim SQLite stops working at 10,000 providers or that PostgreSQL automatically solves scale. Provider count alone does not describe job volume, recurrence expansion, concurrent clients, write frequency, or spatial-query demand. Our current full-rebuild strategy and application scans may become the limiting factors before database capacity does.
+A visit inherits its provider and property from one job or estimate. Jobs and estimates require a provider but can lack a resolved property. Missing address evidence does not create a placeholder home.
 
-Revisit storage when measurements show that import or query budgets cannot be met with appropriate indexes and bounded work, or when deployment requires concurrent writers, multiple application hosts, stronger operational recovery, or server-side spatial indexing. Evaluate PostgreSQL and, if spatial queries justify it, PostGIS against that workload. Fix avoidable application costs before attributing every slowdown to SQLite.
+[ADRs 0009 and 0010](schema-redesign.md) and [ADR 0004](adr/0004-retain-source-normalized-and-canonical-layers.md) record the reasons.
 
-A migration must preserve canonical IDs, source references, decision history, and query behavior. Validate constraints and compare the six required answers on the same snapshot before switching storage. Distributed hosting and a database migration remain outside the two-day core.
+## D009. Controlled values and column semantics
 
-This decision supplies the rationale for the model document and the decision log's required discussion of 10,000 providers and week-two work. The [inventory](data-pack-inventory.json) establishes the current pack size. It is not a database benchmark.
+Q15 through Q19 define the following accepted semantics.
 
-## D005. Materialize canonical facts while retaining source observations
+- Job lifecycle, visit scheduling state, and estimate state have separate vocabularies. Original source statuses remain available.
+- Each scheduled endpoint has a UTC value, local date, evidence state, precision, and timezone. Contradictory combinations are invalid.
+- Jobs and estimates can have several controlled services. Classification is `mapped`, `unmapped`, or `conflicting`.
+- Property links are `resolved`, `missing`, `unresolved`, or `conflicting`. Unit states are `known`, `none`, `unknown`, or `conflicting`.
+- Money uses nullable exact minor units, separately supported currency, and `known`, `missing`, or `disputed` state. Missing is not zero.
 
-Recorded October 24, 2026 during P2 implementation. The implementation preserves every P1 source-local row and adds canonical tables and a source crosswalk in the same atomic SQLite snapshot. Queries use canonical facts and an allowlisted public projection. Supersession rebuilds from original observations and effective decisions.
+The [column design record](schema-columns-draft.md) contains the accepted values. Those values do not authorize summing conflicting totals or inventing time values.
 
-Providers match automatically on a shared business phone plus corroborating trade evidence. Name or filename similarity creates a review proposal. Exact normalized addresses preserve units and can infer missing locality only from a unique supplied street segment. Property conflicts remain reviewable. Cross-source jobs without an immutable shared identifier remain separate or become review candidates even when provider, property, service category, and time agree. There are no such generated job candidates in the current pack under the conservative rule. This is not evidence that the hidden grader has no additional duplicate jobs.
+## D010. Attribution, selection rules, and storage alternatives
 
-Completion and date evidence are separate. Jobber completed visits and Housecall Pro completion timestamps support history. Workiz Done status supports completion, while its scheduled interval supplies an approximate service date. A status-update timestamp does not become an exact service date. Contradictory dates remain uncertain. CSV payment does not prove completion.
+Q20 through Q22 and Q24 require deduplicated completion evidence, supported service attribution, conservative property matching, field-specific selection, and separate hours and calendar definitions.
 
-Public answers retain business labels, controlled service categories, opaque evidence IDs, and limitations. They omit homeowner contacts, raw notes, review evidence, and internal source paths. Exact-property answers separate confirmed completed jobs from other observations. Approximate street interpolation supports radius history but makes no driving-distance claim.
+Unknown units do not automatically match known units. A completed job does not prove that every listed service happened. Source priority and arrival time do not universally resolve conflicts.
 
-The tradeoff is conservative under-merging and manual review work. Canonical IDs reproduce for identical member sets and decisions, but a merge or split can change an ID. The current query implementation scans canonical documents; larger workloads need measured indexing and query changes before a database migration.
+Working-hour declarations retain local time, effective dates, and emergency qualifiers. Calendar definitions retain recurrence, exclusive ends, status, transparency, and provenance.
 
-Verification and remaining limitations are recorded in [the P2 execution record](p2-execution.md). This decision does not approve any real correction or identity proposal.
+The first Q23 proposal used a separate identity store. The operator did not accept it. SQLite supports durable transactions. The concern was preserving authoritative identity state while replacing derived data.
 
-P2 confidence labels are rule-based categories, not calibrated probabilities. Paired year corrections must be approved or superseded together. Approving only one endpoint is incompatible with the correction and fails before ledger changes.
+## D011. Persistent SQLite and the production sync requirement
 
-## D006. Schema interview: lifecycle, constraints and service detail
+Revised Q23 selected one persistent SQLite database. Imports stage and validate data, then publish facts and identity changes transactionally. Failed builds preserve prior state. Recovery verification includes backup restoration and interruption tests.
 
-On October 24, 2026 the operator accepted the first three schema interview recommendations: separate job lifecycle from completed service evidence; enforce core relationships and controlled canonical values in SQL; and combine service categories with privacy-safe descriptions. See [ADR 0001](adr/0001-separate-job-lifecycle-from-service-history.md), [ADR 0002](adr/0002-enforce-core-domain-invariants-in-sql.md), [ADR 0003](adr/0003-preserve-safe-service-detail.md), and the [domain glossary](../CONTEXT.md).
+The operator also required continuous source synchronization for production. That requirement did not authorize live CRM integration during the local challenge. [The synchronization record](sync-readiness.md) separates implemented full imports from future contracts.
 
-These are accepted design directions, not completed implementation. Counting grain, physical tables, lifecycle mappings and description policy remain open. The interview does not authorize schema migration or P3 implementation; the existing implementation and its earlier verification receipts remain unchanged.
+## D012. Delivery scope and completeness
 
-The operator also accepted interview Q4–Q7: expose distinct-job and completed-visit counts separately within the requested window without inventing visits; map lifecycle explicitly per source and retain unknown/conflicting evidence; retain original, source-normalized and canonical representations with entity-appropriate columns; and generate public service descriptions only from recognized facts and approved wording, flagging unmapped services. ADRs 0001 and 0003 are updated; [ADR 0004](adr/0004-retain-source-normalized-and-canonical-layers.md) records the layer/storage tradeoff. Physical schema and migration details remain under discussion.
+Q25 distinguishes complete snapshots from partial changes. A delivery identifies its source account, collection, scope, and completeness evidence.
 
-## D007. Schema interview: relationships, uncertainty, lineage and persistent identity
+Only verified complete coverage can establish disappearance within that scope. A partial batch does not delete omitted records. Absence from a weekly schedule can mean an appointment moved outside the week. It does not establish cancellation or deletion.
 
-On October 24, 2026 the operator accepted Q8–Q11: related tables for aliases/trades/exclusions/service areas with declared and observed coverage kept separate; explicit temporal evidence states and distinct schedule/completion/status-update facts; field-level lineage for transformed or contested values; and canonical IDs that survive new evidence, with merge redirects and ambiguous split references.
+[ADR 0013](adr/0013-distinguish-complete-and-partial-source-deliveries.md) records this production requirement. It does not define an implemented runtime payload.
 
-See [ADR 0005](adr/0005-relational-provider-facts.md), [ADR 0006](adr/0006-represent-temporal-uncertainty-explicitly.md), [ADR 0007](adr/0007-retain-field-level-lineage.md), and [ADR 0008](adr/0008-persistent-canonical-identity.md). ADR 0008 replaces member-set-derived IDs as the intended design. D005 and the P2 report still describe the existing implementation; no migration or identity rewrite has occurred.
+## D013. Small initial implementation and deferred sync work
 
-The [proposed table layout](schema-redesign.md) is the next interview artifact. Its unaccepted choices remain proposals. P3 implementation remains out of scope.
+Q26 through Q29 require source-supported ordering, idempotent retries, consistent publication and applied checkpoints, account-level failure isolation, and per-stream freshness reporting.
 
-## D008. Schema interview: completion evidence, visit parents and unresolved properties
+The operator then limited further speculative design. The initial implementation would cover the accepted domain model, persistent identity, transactional full imports, and existing review behavior. Routine details would be resolved through implementation and tests.
 
-On October 24, 2026 the operator accepted Q12–Q14: a separate `service_completions` table with job and optional visit linkage; visits belong to exactly one job or estimate and inherit provider/property from that parent; jobs and estimates require a provider while allowing an explicitly unresolved property link without a placeholder property.
+Live connectors, polling, webhooks, queues, incremental changes, retry orchestration, and refresh targets remain deferred. The local importer does not claim those capabilities.
 
-See [ADR 0009](adr/0009-separate-service-completion-evidence.md), [ADR 0010](adr/0010-inherit-visit-provider-and-property.md), and the Q14 addition to [ADR 0004](adr/0004-retain-source-normalized-and-canonical-layers.md). New physical columns and controlled values in [the column draft](schema-columns-draft.md) are proposals for the next round, not additional accepted decisions. No SQL, live database, review approval or P3 behavior changed.
+## D014. P2R implementation scope
 
-## D009. Schema interview: accepted column semantics and controlled values
+The P2R request authorized the accepted local schema changes without starting P3. Schema version `2` implements typed source assertions, relational canonical facts, separate lifecycle and completion evidence, persistent identities, and transactional publication.
 
-On October 24, 2026 the operator accepted Q15–Q19:
+The ledger remains authoritative outside the SQLite commit. Rule version `reconciliation-v2` revalidates older decisions. Test approvals use disposable state. No real pending correction was approved to improve a demonstration.
 
-- Separate controlled job lifecycle, visit scheduling and estimate state vocabularies with original source statuses retained. Archived alone is not finished work; pending approval is not confirmed completion; completed estimates are not service completions.
-- Each scheduled endpoint has a selected UTC value, independently established local date, evidence state and precision; timezone interpretation is explicit and contradictory combinations are rejected.
-- Related job/estimate service rows permit multiple services, with controlled trade/service pairs, safe descriptions and mapped/unmapped/conflicting classification.
-- Property-link states are resolved/missing/unresolved/conflicting; unit states are known/none/unknown/conflicting. A resolved link requires a property ID; no-unit requires affirmative evidence, not merely blank input.
-- Money uses nullable exact minor units, separately evidenced currency and known/missing/disputed state. Missing is not zero; conflicting source totals are not summed merely because they refer to the same job.
+Unknown units remain unknown. Complete unknown-unit addresses can match each other but do not automatically match known units. Date-only history uses whole Chicago calendar dates. The [P2R execution record](p2r-execution.md) records verification and intended answer changes.
 
-The accepted value lists are in [the column draft](schema-columns-draft.md). ADRs 0001 and 0006 are updated and [ADR 0011](adr/0011-allow-multiple-services-per-job.md) records service cardinality. Remaining decisions are completion attribution/deduplication, property match keys, cross-source conflict selection, lineage integrity, durable identity bookkeeping, source-normalized column definitions, hours/calendar representation, and migration. No runtime or database change occurred.
+## D015. P3 availability and rankings
 
-## D010. Schema interview: evidence attribution and selection; identity storage still open
+The P3 request authorized implementation on merged P2R at `c6c151e`. P3 adds candidate openings and deterministic rankings over the existing facts.
 
-On October 24, 2026 the operator accepted Q20–Q22 and Q24, but did not accept Q23's storage arrangement:
+Missing hours, uncertain intervals, and limited coverage remain visible. Capacity stays conservative, and travel remains unmodeled. November 2, 2026 in `America/Chicago` is the fixed challenge reference date.
 
-- Reconcile supporting observations into completion evidence without inflating completed visits. Attribute completed service categories only when supported; otherwise retain job-level evidence with unknown service attribution. Report distinct jobs/visits separately and explain overlapping trade groups.
-- Unknown-unit assertions do not automatically merge with known units. Preserve unresolved identity candidates and use unique supported reference inference for missing locality; avoid broad uniqueness constraints that collapse uncertain properties.
-- Select canonical values using field-specific rules and exact valid human corrections, not one globally preferred source or latest ingestion time. Retain unresolved contradictions. Declared and observed coverage are distinct facts.
-- Represent working-hour declarations separately from calendar event definitions. Preserve local time/timezone, effective dates and emergency qualifiers for hours; preserve calendar UID, date/time form, exclusive end, recurrence, status, transparency and provenance. P3 calculation remains excluded.
+The original request excluded P4 and publication. Later authorization merged P3 in PR #3 at `313847d`. [The P3 execution record](p3-execution.md) contains its evidence.
 
-Q23 remains open. The user questioned SQLite durability. Clarification: SQLite supports durable transactional storage; the current replace-the-whole-file rebuild policy is the reason authoritative identity state needs preservation. Separating identity storage into another file is one option, not a requirement of SQLite. A single persistent SQLite database with transactional replacement of derived data is another candidate, pending agreement. No engine migration, rebuild redesign or registry storage choice has been approved.
+## D016. P4 MCP delivery and the Codex demo
 
-## D011. Persistent SQLite accepted; continuous sync is a production requirement
+The P4 request selected Codex and authorized six bounded read-only stdio tools, verification, and documentation fixes. Its baseline was merged P3 at `313847db86a994095face0818c685ced5c56779e`.
 
-On October 24, 2026 the operator accepted revised Q23: retain one persistent SQLite database, stage and validate imports, and transactionally publish derived data/identity changes while retaining last-successful-state behavior. See [ADR 0012](adr/0012-use-persistent-sqlite-with-transactional-imports.md). Backup/restore and crash-recovery verification are part of that design. This supersedes the intended whole-file replacement architecture; existing code is unchanged.
+Typed public responses preserve completion attribution, coverage, uncertainty, and bounded evidence. Each call reads one snapshot. Neighborhood answers use aggregates or blocks. Exact-home history applies to the supplied home. Private contacts, notes, titles, and review evidence remain local.
 
-The operator additionally stated that production must support continuous data-source ingestion and syncing. Record this as a design requirement, not a claim that the current full-pack importer supports incremental or live ingestion. The challenge's file-only input scope, stop-before-P3 boundary and lack of authorization for live CRM integration remain unchanged. The [sync-readiness note](sync-readiness.md) distinguishes current behavior from proposed production work.
+The actual Codex capture covers all six questions. The four-minute video replays captured interaction and includes an earlier weak answer. It is not a live screen recording.
 
-## D012. Source delivery completeness and scope
-
-On October 24, 2026 the operator accepted Q25. Deliveries identify source/account, scope and complete-snapshot versus partial-change semantics. Only verified complete coverage can establish disappearance within that scope; partial deliveries do not delete omitted records. Scoped disappearance, explicit deletion and cancellation remain distinct, and history is preserved. See [ADR 0013](adr/0013-distinguish-complete-and-partial-source-deliveries.md).
-
-The conversation's weekly schedule example is illustrative: absence can mean an appointment moved outside the week, not deletion. Runtime payload formats, checkpoint storage, retries, update ordering and failure/freshness policy remain design work. No code or live data changed.
-
-## D013. Sync principles accepted; prioritize a small initial design
-
-On October 24, 2026 the operator accepted Q26–Q29: source-supported update ordering rather than arrival order; idempotent retries with applied checkpoint/publication consistency; source/account batch failure isolation preserving prior successful data; and per-source coverage/freshness reporting. These are target contracts, not implemented capabilities.
-
-The operator also directed us to avoid spending more design effort on edge cases or overengineering the initial system. Keep the accepted domain semantics, but stop expanding the interview into speculative infrastructure. Deliver the smallest schema redesign that supports the supplied pack and leaves clear extension points for production syncing. Routine implementation details should be resolved through a concrete design and tests rather than another broad question round.
-
-Immediate scope: entity-appropriate relational columns and relationships; separate lifecycle/completion facts; controlled services and safe descriptions; explicit uncertainty/provenance; persistent identity and transactional imports; preservation of existing review and query behavior except explicitly accepted semantic corrections. Continue using local supplied files and the existing CLI. P3 remains excluded.
-
-Production-sync follow-up: live connectors, polling/webhooks, durable delivery queues, full incremental change processing, account-level retry orchestration and refresh/staleness policies. Capture the accepted delivery/checkpoint/freshness contracts in the design, but do not build an unused general-purpose sync framework now. The current importer must not be advertised as supporting those features. Existing accepted identity/review guarantees are not silently relaxed.
-
-No runtime edits, migration, publication or implementation authorization resulted from this discussion.
-
-## D014. P2R implementation of the accepted schema decisions
-
-The subsequent explicit P2R request authorizes implementing D006–D013 without starting P3. Schema version 2 now uses typed source assertions, relational canonical facts, separate lifecycle/completion evidence, persistent identities and transactional SQLite publication. The earlier interview entries and ADR statements saying “not implemented” describe their decision-time state; see [the P2R execution record](p2r-execution.md) for current verification and [migration notes](p2r-migration.md) for recovery.
-
-The local review ledger remains authoritative and separate from the SQLite commit. Rule version `reconciliation-v2` revalidates old approvals. No real deferred correction was approved for testing. Unknown units remain unknown; complete unknown-unit address assertions can match each other but never automatically match known units. Completed-visit counts require independent visit-completion evidence; job-level completion remains visible separately. Exact-date history windows require Chicago-midnight boundaries rather than guessing inclusion of date-only facts in partial days.
-
-Full local snapshots remain the implementation boundary. This does not implement continuous source sync, availability, travel, remote deployment or MCP serving. No publication or merge is authorized by this entry.
-
-
-## D015. Implement P3 on the merged P2R model
-
-On October 24, 2026 the operator authorized P3 implementation and verification in Poteto Mode, including stale documentation fixes. The baseline is merged `main` at `c6c151e`. This request supersedes the earlier stop-before-P3 boundary. It does not authorize P4, publication, or merge.
-
-P3 derives candidate openings from declared working hours minus active job visits, scheduled estimate appointments, and blocking calendar events. It adds deterministic provider rankings with eligibility, evidence, confidence, and duration assumptions. Missing hours, incomplete intervals, conflicting evidence, and insufficient schedule coverage must remain explicit uncertainty. Capacity remains conservative at provider level. Travel remains unmodeled under D001. Use November 2, 2026 in America/Chicago as the reproducible reference date.
-
-D013's small-initial-design scope still applies. Use local supplied files, persistent SQLite, the P2R identity registry and canonical facts, and the existing CLI. Preserve source evidence, review semantics, and history behavior. Production connectors, queues, incremental sync, worker-capacity modeling, and travel optimization remain deferred. P4 owns MCP serving and the connected-agent demo.
-
-The [P3 plan](project-plan.md#compute-defensible-openings-and-provider-rankings-p3) defines unit, live, performance, and independent-review checks. This entry records authorization and scope, not a completed implementation or verification result.
-
-P3 implementation and verification are now recorded in [the P3 execution record](p3-execution.md). Current evidence includes 95 passing tests, ten passing CLI lanes, independent review, and bounded performance checks. No P4 implementation or production-sync claim follows from this completion.
-
-
-## D016. Implement local MCP delivery and demonstrate it through Codex
-
-The operator authorized P4 implementation and verification, including stale documentation fixes, and selected Codex as the connected demo client. The baseline is merged P3 at `313847db86a994095face0818c685ced5c56779e`. Leave the result unmerged for operator review of the actual agent interaction.
-
-Expose six bounded read-only tools over the existing canonical facts, history, availability, and ranking rules. Use local stdio, typed public responses, one consistent read transaction per call, safe errors, and explicit result limits. Startup may import missing derived state through maintenance before serving; tool calls cannot ingest, apply review decisions, run arbitrary SQL, or access arbitrary files.
-
-Preserve the grill-me decisions. Jobs, visits, estimates, and completed work remain distinct. Exact-home answers are limited to the supplied home; neighborhood answers use aggregates or block-level locations. Raw notes, contacts, personal calendar titles, and private review evidence remain local. Confidence is ordinal, travel is unmodeled, and provider capacity remains conservative. Continuous production sync, hosting, worker scheduling, travel optimization, and the seventh-source stretch remain deferred.
-
-Codex must actually discover and call the server to answer all six questions. Protocol tests alone do not establish this. Retain the real transcript, disclose a weak answer and its cause, and prepare the at-most-five-minute demo for operator review. Implementation and local verification are recorded in [the P4 execution record](p4-execution.md). The Codex demo is a labeled four-minute transcript replay with full verbatim answers alongside it. Operator interaction review and merge remain pending.
+The initial request kept P4 unmerged for review. Later authorization required maintenance verification before merge. That pass corrected only the verification skill and passed all eight journeys. PR #4 then merged as `ea66e76`. [The P4 execution record](p4-execution.md) records the implementation and review limits.

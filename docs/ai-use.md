@@ -1,7 +1,9 @@
 # AI assistance and human review
 
-Codex assisted with architecture exploration, implementation, test creation, documentation, and independent review. Parallel agents compared two P4 designs. The selected design reuses the existing domain queries and adds explicit typed public projections rather than a second query engine.
+Codex assisted with architecture comparison, implementation, tests, documentation, and independent review. The P4 design comparison favored existing domain queries with explicit public response models. It avoided a second query engine.
 
-AI-generated code is checked with unit tests, real stdio MCP calls, source/data invariants, and an actual Codex interaction. A scripted protocol client is not presented as an agent demo. The retained transcript records the tools Codex actually chose and their returned evidence. The demo discusses a real weak answer or a documented data limitation without inventing a failure.
+Verification combines unit tests, real CLI commands, stdio MCP calls, and an actual Codex capture. The capture preserves the tools Codex selected and the evidence it received. Protocol success alone does not prove that the agent's answer is correct.
 
-The operator controls review decisions and the final P4 merge. No real ambiguous identity or factual correction is approved merely to improve demo answers. Private data, databases, review documents, and local verification evidence remain excluded from Git. The exact verification results and remaining gaps are recorded in the P4 execution report.
+An early demo treated resource listing as sufficient tool use. The revised runner requires a successful call to the expected domain tool. The original weak answer remains in the captured evidence. The [P4 execution record](p4-execution.md) describes the failure and correction.
+
+Human review controls real reconciliation decisions. Test approvals use disposable state. Private data, databases, ledgers, and captured answers remain outside Git. The operator authorized the P4 merge after verification, and PR #4 is merged.

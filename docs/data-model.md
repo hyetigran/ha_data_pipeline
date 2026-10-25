@@ -1,35 +1,57 @@
 # Home services data model
 
-The local application answers service-history, schedule, and provider-selection questions from six supplied sources. It retains original observations, reconciles supported identities and facts, and exposes a bounded public view through six read-only MCP tools. SQLite holds one persistent published snapshot. The source pack and review ledger remain private rebuild inputs.
+House Account keeps source observations separate from the facts used to answer service questions. That separation preserves evidence when sources disagree or a human later corrects a match.
 
-## Observations and canonical facts
+The local model covers six supplied sources and the street reference. One persistent SQLite database holds the published facts. The private source pack and review ledger remain rebuild inputs.
 
-Source records have source/account keys, content hashes, ingestion timestamps, original payloads, and occurrence locations. Entity-specific source tables retain normalized provider, property, job, estimate, visit, profile, and calendar assertions. Exact duplicate pages preserve occurrence accounting without duplicating the normalized entity. Conflicting assertions remain evidence rather than disappearing during normalization.
+## Observations, identities, and facts
 
-Canonical providers have related trades, exclusions, aliases, declared service areas, and working-hour declarations. Observed service areas come from completed work and remain distinct from declared coverage. Persistent identity records preserve IDs as evidence grows. Approved merges retain redirects; split references can be ambiguous. Similar names alone do not establish that two businesses are one provider.
+Source records retain account-scoped keys, content hashes, source times, ingestion times, original payloads, and occurrence locations. Typed source tables hold normalized assertions. Exact repeats keep their occurrence evidence without duplicating the normalized entity.
 
-Canonical properties preserve address and unit uncertainty. Exact address evidence establishes identity; nearby coordinates do not merge homes. Street segments support approximate interpolation for radius history. Missing or coarse coordinates reduce coverage and never imply a verified travel time.
+Canonical providers have related aliases, trades, exclusions, declared areas, and working-hour declarations. Observed areas come from completed work. A declared service area does not prove past work there.
 
-Jobs, estimates, and visits are separate. A visit belongs to exactly one job or estimate and inherits its provider and property. Job lifecycle describes the workflow, while service completions establish performed work. Completed estimates are not completed service. A paid invoice or scheduled appointment alone does not establish service completion. Answers distinguish distinct completed jobs from independently supported completed visits.
+Identity rules require supporting evidence. Similar names alone do not merge businesses. Persistent IDs survive new matching evidence. Merges retain redirects, and splits can leave earlier references ambiguous.
 
-Jobs and estimates can have multiple controlled services. Completion-service links identify which services a completion supports. Public descriptions come from recognized facts and approved wording, never copied private notes. Unknown services and conflicting dates remain explicit. Field lineage links selected values to source observations, rules, and effective review decisions.
+Properties preserve address and unit uncertainty. Nearby coordinates do not establish the same home. Street-segment interpolation gives approximate locations for radius queries. Missing coordinates reduce coverage and do not imply a travel time.
 
-## Time and availability
+## Work and completion evidence
 
-Timestamp evidence separates selected UTC instants, local dates, precision, and uncertainty. Dallas presentation uses America/Chicago. Windows include the start and exclude the end. Date-only history requires whole local dates; an ingestion timestamp does not become a service date. The challenge uses November 2, 2026 as its reproducible reference date, separate from actual ingestion time.
+Jobs, estimates, and visits describe different facts. A visit belongs to exactly one job or estimate and derives its provider and property from that parent.
 
-Candidate openings subtract occupied job visits, scheduled estimate appointments, and blocking calendar occurrences from declared routine hours. Recurrence expansion is bounded. Cancelled and transparent events do not block time; opaque tentative holds and vacations do. Out-of-area appointments still occupy time. Missing hours and uncertain intervals do not become free time.
+Job lifecycle describes the overall workflow. Service completions establish performed work. A recurring job can remain active after completed visits. An estimate, payment, or scheduled appointment alone does not prove service completion.
 
-Capacity is conservative at provider level. Crew size does not prove independently bookable workers, and travel is unmodeled. An opening is a calendar candidate, not a booking guarantee. Rankings require capability, area evidence, and a sufficient candidate opening before scoring completed experience, area evidence, calendar fit, and ordinal confidence. Duration comes from an explicit request, supported historical scheduled durations, or a disclosed four-hour demo assumption.
+Jobs and estimates can list several services. Completion-service links record which work the evidence supports. Distinct completed jobs and independently completed visits remain separate counts. Trade groups can overlap.
 
-## Publication, review, and privacy
+Public descriptions use recognized service facts and approved wording. Raw notes remain private. Unclassified work and uncertain dates remain explicit. Field lineage links selected facts to source observations, rules, and effective review decisions.
 
-One maintenance writer stages and validates a rebuild, then publishes facts and identity state transactionally. Failed builds preserve the prior snapshot. Readers pin a consistent revision. The private append-only review ledger records approve, reject, defer, and superseding decisions. Approvals bind to exact evidence and rule versions. Rebuilding replays effective decisions; no demo automatically approves a real correction.
+## Time and candidate openings
 
-MCP calls read published state. They cannot import data, approve reviews, execute arbitrary SQL, or read arbitrary files. Public answers expose business identities, controlled service facts, bounded evidence references, source categories, coverage, and limitations. Neighborhood answers use aggregates or block-level locations. Exact-home lookup is restricted to the requested home. Homeowner contacts, raw notes, private calendar titles, and review evidence stay local. Local exact-home lookup is not a production authorization system.
+Time evidence separates a selected UTC instant, local date, precision, and uncertainty. Dallas presentation uses `America/Chicago`. A date-only fact does not become an invented midnight appointment.
 
-## Tradeoffs and next work
+The challenge reference date is November 2, 2026. It is independent of actual ingestion time. Query windows include their start and exclude their end. Source coverage limits what the model can establish beyond that window.
 
-SQLite avoids a separate database service for the supplied local workload. Performance at 10,000 providers depends on visits, recurrence density, query patterns, concurrency, and refresh volume. Measure those before choosing a new engine. PostgreSQL or PostGIS may become useful for concurrent writers, multiple hosts, or substantial spatial workloads; they do not replace identity or evidence policy.
+Candidate openings subtract active visits, scheduled estimates, blocking calendar occurrences, and uncertain time from declared routine hours. Recurrence expands within a bounded horizon. Cancelled and transparent events do not block time. Opaque tentative holds, vacations, and out-of-area work do.
 
-Continuous sync remains a production requirement, not an implemented capability. Future deliveries must distinguish complete snapshots from partial updates, preserve source-supported ordering, apply retries idempotently, isolate account failures, and report per-source freshness. Week-two work starts with representative workload measurements and those delivery contracts, followed by authenticated exact-home access and better resource/travel evidence. Live connectors, a generalized sync framework, and a seventh-source PDF parser are outside this local release.
+Capacity stays conservative at provider level. Crew size does not establish independently bookable workers. Travel is unmodeled, so an opening is a calendar candidate rather than a booking guarantee.
+
+Ranking first requires capability, area evidence, and a sufficient opening. It then scores relevant completed work, area evidence, opening fit, and ordinal confidence. Duration comes from the request, supported historical scheduled durations, or a disclosed four-hour demo assumption.
+
+## Publication and review
+
+One maintenance writer builds and validates a candidate before publishing facts and identity state in one transaction. Failed builds preserve the prior snapshot. Readers retain one revision per read transaction.
+
+The private append-only ledger records approve, reject, defer, and superseding decisions. Approvals bind to evidence and rule versions. Rebuilds replay effective decisions. Verification uses disposable approvals rather than changing real unresolved cases.
+
+## Privacy boundary
+
+MCP tools read published facts. They cannot import data, approve decisions, execute SQL, or read arbitrary files. Responses contain business identities, controlled service facts, bounded evidence references, coverage, and limitations.
+
+Neighborhood answers use aggregates or block locations. Exact-home history applies only to the requested home. Homeowner contacts, raw notes, personal calendar titles, and review evidence remain local.
+
+This local boundary limits disclosure but does not authenticate property ownership. Remote access control remains future work.
+
+## Scale and deferred work
+
+SQLite avoids a separate service for the measured local workload. Larger deployments depend on visits, recurrence density, query patterns, concurrency, and refresh volume. Provider count alone cannot select a database engine.
+
+Production synchronization still needs scoped deliveries, source-supported ordering, idempotent retries, account-level failure isolation, and freshness reporting. Full-pack imports do not establish those capabilities. Remote authorization, live connectors, incremental updates, worker scheduling, and travel optimization remain deferred.

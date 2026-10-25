@@ -1,24 +1,8 @@
 # P2 execution record
 
-P2 implements canonical identities, four history/query operations, and local human review. P3 availability, rankings, and MCP serving are excluded. No commit, publication, or merge was performed for P2. The active review ledger contains no approved real-world decisions.
+This record describes the original P2 run. P2 added canonical identities, four history queries, and local human review. Availability and MCP serving came in later phases. The run did not publish code or approve real review decisions. [Delivery status](project-plan.md) records subsequent merges.
 
-## Work checklist
 
-- [x] `how` over the affected subsystem.
-- [x] `architect` for parallel design exploration.
-- [x] Write the throughput checkpoint as four todo items.
-- [x] Delegate code-writing to a subagent.
-- [x] Verify on the matching surface.
-- [x] Rebase into small, ordered commits. Stack follow-ups. Skip commits because this handoff is the local working tree.
-- [x] If the design is contested, `interrogate` before shipping. Skip because the independent design judge and both candidates agreed on the synthesized design.
-- [x] Run **Opening a PR**. Skip publication under the user's explicit instruction.
-
-## Throughput checkpoint
-
-- Blocking first steps. Read P1 boundaries, the review contract, and actual source shapes before choosing reconciliation interfaces.
-- Independent workstreams. Two read-only designs preceded one implementation owner. Independent source-answer derivation and correctness reviews ran separately.
-- Shared mutable state. One owner initially changed the coupled schema, review, and query code. Later fixes had explicit file ownership. Verification used separate temporary databases and ledgers.
-- Smallest safe decomposition. Reconciliation and review publication share invariants, so one owner implemented both. The lead owned acceptance checks and documentation. Performance measurements ran separately from full verification workloads.
 
 ## Architecture and policy
 
@@ -38,9 +22,9 @@ Jobber completed visits and Housecall Pro completion timestamps establish histor
 
 ## Review workflow
 
-The commands are documented in [README](../README.md), with a generated [JSON schema](../schemas/reconciliation-review.schema.json). Export preserves edits and includes original observations, proposed actions, source hashes, confidence reasons, and conflicts. Files are private and owner-readable/writable. Review evidence never appears in public query responses.
+The commands are documented in [Review reconciliation decisions](review-reconciliation.md), with a generated [JSON schema](../schemas/reconciliation-review.schema.json). Export preserves edits and includes original observations, proposed actions, source hashes, confidence reasons, and conflicts. Files are private and owner-readable/writable. Review evidence never appears in public query responses.
 
-Validation and dry-run build a prospective snapshot from current sources. They reject forged proposals, stale evidence, invalid intervals, and incompatible effective decisions before recording anything. Apply holds the database and ledger locks, durably appends decisions, and atomically publishes the validated snapshot. A failure after append reports `recorded_not_applied`; rebuild replays the ledger. A post-publication directory sync failure reports a durability warning rather than claiming rollback.
+Validation and dry-run build a prospective snapshot from current sources. They reject forged proposals, stale evidence, invalid intervals, and incompatible effective decisions before recording anything. Apply holds the database and ledger locks, durably appends decisions, and atomically publishes the validated snapshot. A failure after append reports `recorded_not_applied`. Rebuild replays the ledger. A post-publication directory sync failure reports a durability warning rather than claiming rollback.
 
 Approve applies the exact action. Reject leaves it unapplied and suppresses it from the new-review count. Defer keeps it unresolved. Supersession preserves the prior event and reconstructs derived data from originals. Paired year endpoints must remain jointly approved or jointly unapplied. Decisions depend on all relevant match evidence, including provider, property, street-reference, and visit records. Unrelated evidence changes do not invalidate an approval.
 
@@ -50,9 +34,9 @@ The actual wrong-year and transposed-number proposals remain deferred. The addre
 
 All 44 tests, Ruff, mypy, and ten indexed acceptance lanes pass. Final machine-readable results are in `artifacts/P2/summary.json`. Test, lint, and type-check output is in `unit.log`, `ruff.log`, and `mypy.log` in that directory.
 
-- `scripts/verify_p2_independent.py` compares real query answers against independently inspected source records and recursively checks the public projection.
+- `scripts/verify_p2_independent.py` compares real query answers against independently inspected source records and recursively checks the public response.
 - `scripts/verify_p2_cli.py` runs real export, validate, dry-run, apply, repeat, supersede, and stale-source CLI operations in disposable snapshots. It verifies exact derived correction values and their reversal. The active database is unchanged.
-- `scripts/verify_p2_queries.py` calls the real query CLI on a sanitized snapshot. Apt 4 and #4 share history; unit 5 remains separate. A mathematically constructed half-mile point is included and a point just outside is excluded.
+- `scripts/verify_p2_queries.py` calls the real query CLI on a sanitized snapshot. Apt 4 and #4 share history. Unit 5 remains separate. A mathematically constructed half-mile point is included and a point just outside is excluded.
 - `scripts/verify_p2_review.py` is a sanitized integration demonstration with a fixture importer. It is not substituted for the separate real CLI proof.
 - Existing P1 tests continue to cover source accounting, duplicate import behavior, and failed snapshot preservation.
 
@@ -77,9 +61,9 @@ P1's archived parent import took a median 6.02 seconds, range 5.51 to 6.59 secon
 
 A separate cProfile run identifies repeated street-reference normalization as the largest projection cost, followed by SQLite inserts. Profile timings are not benchmark timings. The final budget verdict and measurements are copied into the summary receipt. Targets are 60 seconds per import, 512 MiB peak memory, and 500 ms query p95.
 
-## Review artifacts and remaining uncertainty
+## Review artifacts and P2 limitations
 
-[Proposal preview](../artifacts/P2/review/proposal-preview.png), [dry-run preview](../artifacts/P2/review/dry-run-preview.png), and [42-second sanitized playback](../artifacts/P2/review/sanitized-review.mp4) render saved integration receipts. They are labeled rendered playback, not native terminal footage. Real CLI commands, exit codes, and results are separately saved in `artifacts/P2/review/cli-workflow.json`. Operator review before any future merge remains outstanding.
+[Proposal preview](../artifacts/P2/review/proposal-preview.png), [dry-run preview](../artifacts/P2/review/dry-run-preview.png), and [42-second sanitized playback](../artifacts/P2/review/sanitized-review.mp4) render saved integration receipts. They are labeled rendered playback, not native terminal footage. Real CLI commands, exit codes, and results are separately saved in `artifacts/P2/review/cli-workflow.json`. Operator review was outstanding when this original report was written.
 
 - Three provider source links remain ambiguous. Do not force the model to the advertised provider count.
 - Property locality conflicts remain reviewable. Typos without supported reference matches retain missing coordinates.
@@ -88,11 +72,11 @@ A separate cProfile run identifies repeated street-reference normalization as th
 - Conservative job matching can under-merge. No hidden grader crosswalk is available.
 - Dry-run reports entity and interval effects, not a complete before/after answer transcript for every query.
 - Full rebuilds and document scans need measurement and indexing work at larger scale. No 10,000-provider capacity claim is made.
-- P3 availability, rankings, travel calculations, and P4 MCP serving are not implemented.
+- P3 availability and P4 MCP serving were outside this run. Travel calculations remain outside the current scope.
 
-Two `.cursor/skills/verify-house-account` files changed outside this P2 work and were preserved. The local decision trail is `artifacts/P2/decisions.tsv`. Independent same-model review found no remaining defect in the paired review and dependency changes. The reviewer noted draft documentation and unavailable transcript-level audit; this completed report and the appended trail resolve the documentation draft, without claiming a transcript audit.
+Two `.cursor/skills/verify-house-account` files changed outside this P2 work and were preserved. The local decision trail is `artifacts/P2/decisions.tsv`. Independent same-model review found no remaining defect in the paired review and dependency changes. The reviewer noted draft documentation and unavailable transcript-level audit. This completed report and the appended trail resolve the documentation draft, without claiming a transcript audit.
 
-## Final measured snapshot
+## Snapshot measured at the end of P2
 
 The snapshot retains 46,092 source records and 46,888 occurrences. Its canonical projection has 43 provider groups, 3,837 properties, 11,752 jobs, and 15,512 visits. All 176 input files remain unchanged. There are 289 active deferred proposals and 74 archived unreviewed proposal versions. The real decision ledger is empty.
 
