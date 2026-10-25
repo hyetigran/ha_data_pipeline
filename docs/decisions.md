@@ -2,7 +2,7 @@
 
 This log records design decisions and their implementation status. The execution records identify which acceptance checks have passed.
 
-P1, P2, and P2R are implemented and merged. Their execution reports retain the evidence and phase-specific authorization limits that applied at the time. D015 records the current authorization to implement and verify P3, including stale documentation fixes. Stop before P4. Publication and merge require a separate request.
+P1, P2, P2R, and P3 are implemented and merged. Historical entries retain the phase-specific authorization limits that applied at the time. D016 records the current P4 authorization and Codex demo choice. P4 must remain unmerged for operator review.
 
 ## D001. Defer travel-aware scheduling
 
@@ -214,3 +214,14 @@ D013's small-initial-design scope still applies. Use local supplied files, persi
 The [P3 plan](project-plan.md#compute-defensible-openings-and-provider-rankings-p3) defines unit, live, performance, and independent-review checks. This entry records authorization and scope, not a completed implementation or verification result.
 
 P3 implementation and verification are now recorded in [the P3 execution record](p3-execution.md). Current evidence includes 95 passing tests, ten passing CLI lanes, independent review, and bounded performance checks. No P4 implementation or production-sync claim follows from this completion.
+
+
+## D016. Implement local MCP delivery and demonstrate it through Codex
+
+The operator authorized P4 implementation and verification, including stale documentation fixes, and selected Codex as the connected demo client. The baseline is merged P3 at `313847db86a994095face0818c685ced5c56779e`. Leave the result unmerged for operator review of the actual agent interaction.
+
+Expose six bounded read-only tools over the existing canonical facts, history, availability, and ranking rules. Use local stdio, typed public responses, one consistent read transaction per call, safe errors, and explicit result limits. Startup may import missing derived state through maintenance before serving; tool calls cannot ingest, apply review decisions, run arbitrary SQL, or access arbitrary files.
+
+Preserve the grill-me decisions. Jobs, visits, estimates, and completed work remain distinct. Exact-home answers are limited to the supplied home; neighborhood answers use aggregates or block-level locations. Raw notes, contacts, personal calendar titles, and private review evidence remain local. Confidence is ordinal, travel is unmodeled, and provider capacity remains conservative. Continuous production sync, hosting, worker scheduling, travel optimization, and the seventh-source stretch remain deferred.
+
+Codex must actually discover and call the server to answer all six questions. Protocol tests alone do not establish this. Retain the real transcript, disclose a weak answer and its cause, and prepare the at-most-five-minute demo for operator review. Implementation and local verification are recorded in [the P4 execution record](p4-execution.md). The Codex demo is a labeled four-minute transcript replay with full verbatim answers alongside it. Operator interaction review and merge remain pending.

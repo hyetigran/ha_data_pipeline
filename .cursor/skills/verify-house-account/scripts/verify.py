@@ -41,7 +41,7 @@ def database_digest(database):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration', 'availability'])
+    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration', 'availability', 'mcp'])
     args = parser.parse_args()
     if args.feature == 'doctor':
         print(json.dumps(doctor()))
@@ -118,10 +118,18 @@ def main():
             assert report['schema_version'] == 2
             assert report['publication'] == 'transactional' and report['reconciliation']
             results['checks'].append('Report equals stdout; source counts match; reconciliation, schema v2, transactional publication, integrity, foreign keys, and mode 0600 pass.')
-            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': [], 'availability': []}[args.feature]
+            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': [], 'availability': [], 'mcp': []}[args.feature]
             for lane in lanes:
                 drive([sys.executable, str(ROOT / 'scripts/verify.py'), '--stage', 'P1', '--lane', str(lane),
                        '--output', str(evidence / f'lane-{lane}.json')], f'lane-{lane}')
+            if args.feature == 'mcp':
+                drive([sys.executable, str(ROOT / 'scripts/verify_p4.py'), '--data', str(ROOT / 'data'),
+                       '--database', str(database), '--output', str(evidence / 'p4')], 'mcp')
+                summary = json.loads((evidence / 'p4/summary.json').read_text())
+                assert summary['status'] == 'pass' and len(summary['tools_called']) == 6
+                assert summary['scratch_removed'] and summary['database_logically_unchanged']
+                assert summary['source_files_unchanged'] and summary['clean_shutdown']
+                results['checks'].append('Six real MCP tools match direct-query expectations; invalid inputs reject safely; data and cleanup invariants pass.')
             if args.feature == 'availability':
                 parent = Path(scratch) / 'parent'
                 parent.mkdir()

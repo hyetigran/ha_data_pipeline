@@ -1,6 +1,6 @@
 # Home services data layer and MCP
 
-**Status — October 24, 2026:** P1 ingestion, P2 reconciliation/history/review, the P2R relational redesign, and P3 availability/ranking are implemented locally. Schema version 2 uses entity-specific source tables, relational canonical facts and a persistent SQLite database. The diagrams describe the local implementation except pieces explicitly marked P4. MCP serving and continuous production sync remain future work.
+**Status — October 24, 2026:** P1 ingestion, P2 reconciliation/history/review, the P2R relational redesign, P3 availability/ranking, and P4 local MCP serving are implemented. Schema version 2 uses entity-specific source tables, relational canonical facts and a persistent SQLite database. P4 verification and the Codex interaction are recorded separately for operator review. Continuous production sync remains future work.
 
 ## Data flow
 
@@ -15,7 +15,7 @@ flowchart TD
     Reconcile --> Publish["Validate and publish transactionally<br/>persistent SQLite identities + canonical facts"]
     Publish --> Queries["Read-only query functions"]
     Queries --> Privacy["Public field allowlist<br/>block or ZIP defaults"]
-    Privacy --> MCP["Six purpose-specific MCP tools · P4"]
+    Privacy --> MCP["Six bounded read-only MCP tools"]
     MCP --> Agent["AI agent answers"]
 ```
 

@@ -4,14 +4,14 @@ Deliver a local, read-only MCP server that answers the six homeowner questions w
 The original challenge uses P1 through P4. P2R completed the minimal schema redesign between P2 and P3. The original two-day schedule is a historical estimate, not a fresh completion promise.
 Keep jobs separate from visits. Compute openings from working hours, occupied visits, and calendar blocks.
 Treat the data pack as the only source of customer facts.
-The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion, P2 reconciliation, history queries, local review, and the P2R schema redesign are implemented and merged. P3 implementation is now authorized. P4 remains deferred.
-This document records the project plan. P1 results are in [the P1 execution report](p1-execution.md). P2 results and documented verification adaptations are in [the P2 execution report](p2-execution.md). The [P2R execution report](p2r-execution.md) records the implemented relational model, persistent identities, and transactional publication. P3 checks below remain pending until evidence exists. P4 paths and commands remain proposed. Production sync contracts remain deferred. See [ARCHITECTURE.md](../ARCHITECTURE.md).
+The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion, P2 reconciliation, history queries, local review, and the P2R schema redesign are implemented and merged. P3 availability and rankings are implemented and merged in PR #3. P4 MCP serving and the Codex demo are now authorized, with the result kept unmerged for operator review.
+This document records the project plan. P1 results are in [the P1 execution report](p1-execution.md). P2 results and documented verification adaptations are in [the P2 execution report](p2-execution.md). The [P2R execution report](p2r-execution.md) records the implemented relational model, persistent identities, and transactional publication. P3 evidence is in [the P3 execution record](p3-execution.md). P4 implementation and local checks are recorded in [the P4 execution record](p4-execution.md); operator interaction review and merge remain pending. Production sync contracts remain deferred. See [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## How to read this
 
 One box is one unit of work. Every box names the evidence that checks it. Check a box only when its evidence exists. Keep logs under `artifacts/P1/` through `artifacts/P4/`.
 
-Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P2R, P3, and P4 form one dependent sequence; existing P1/P2 reports remain historical evidence. The operator owns landing. The current request authorizes P3 implementation, verification, and stale documentation fixes. Stop before P4. It does not authorize publication or merge. Earlier phase-specific stop instructions below record the boundaries in effect during those phases.
+Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P2R, P3, and P4 form one dependent sequence; existing P1/P2 reports remain historical evidence. The operator owns landing. The current request authorizes P4 implementation, verification, stale documentation fixes, and a Codex demo. Keep P4 unmerged for operator review. Earlier phase-specific stop instructions below record the boundaries in effect during those phases.
 
 Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
@@ -239,11 +239,9 @@ Implement these four dependent units in order. Each unit must have its evidence 
 
 ## Compute defensible openings and provider rankings (P3)
 
-**Status.** Implemented and locally verified. See [the P3 execution record](p3-execution.md) for the 95-test suite, ten live lanes, independent review, performance results, and verification adaptations. No P4 work or publication occurred. The checklist below retains the original acceptance contract.
+**Status.** Implemented and locally verified. See [the P3 execution record](p3-execution.md) for the 95-test suite, ten live lanes, independent review, performance results, and verification adaptations. P3 subsequently merged in PR #3. The checklist below retains the original acceptance contract.
 
 **Depends on.** The completed P2R exit gate, including the existing P2 behavior.
-
-**Status.** Authorized on October 24, 2026. Implement and verify availability and rankings against the merged P2R model. Correct stale documentation. Keep production sync and P4 MCP serving outside this change. Record completed checks only after their evidence exists.
 
 **Files.**
 
@@ -300,67 +298,69 @@ Implement these four dependent units in order. Each unit must have its evidence 
 
 ## Expose the tools and deliver the six-question demo (P4)
 
+**Status.** Implemented and locally verified with Codex as the demo client. See [the execution record](p4-execution.md) for evidence and tooling adaptations. The operator reviews the interaction before merge.
+
 **Depends on.** P3.
 
 **Files.**
 
-- [ ] Create `src/house_account/server.py`.
-- [ ] Create `src/house_account/responses.py`.
-- [ ] Create `tests/test_mcp.py`.
-- [ ] Create `tests/test_privacy.py`.
-- [ ] Create `evals/questions.json`.
-- [ ] Create `scripts/demo.py`.
-- [ ] Create `README.md`.
-- [ ] Create `docs/data-model.md`.
-- [ ] Create `docs/decisions.md`.
+- [x] Create `src/house_account/server.py`.
+- [x] Create `src/house_account/responses.py`.
+- [x] Create `tests/test_mcp.py`.
+- [x] Create `tests/test_privacy.py`.
+- [x] Create `evals/questions.json`.
+- [x] Create `scripts/demo.py`.
+- [x] Create `README.md`.
+- [x] Create `docs/data-model.md`.
+- [x] Create `docs/decisions.md`.
 
 **Build.**
 
-- [ ] Implement the six bounded tools in Appendix F. Use typed inputs, structured outputs, actionable errors, result limits, and explicit time semantics. Save the result in the P4 change and its verification log.
-- [ ] Open the query database read-only. Expose no write, SQL, raw-record, or arbitrary-file tool. Test database and source hashes before and after calls. Save the result in the P4 change and its verification log.
-- [ ] Implement one-command local startup as `uv run house-account --data ./data --as-of 2026-11-02`. Ingest locally if needed, then launch the stdio server with a read-only connection. Save the result in the P4 change and its verification log.
-- [ ] Write the exact agent MCP configuration and prerequisites in README.md. Validate initialization, discovery, tool calls, malformed arguments, and clean shutdown. Save the result in the P4 change and its verification log.
-- [ ] Run the six natural-language questions through an actual connected agent. Record selected tools, answers, provenance, limitations, and one weak answer with its root cause. Save the result in the P4 change and its verification log.
-- [ ] Write the one-to-two-page data model document, decision log, AI-use note, scale limitations, and week-two work list. Save the result in the P4 change and its verification log.
-- [ ] Record a video of at most five minutes. Include all six questions and the weak-answer explanation. Build a scored agent evaluation runner only if the core is complete. Save the result in the P4 change and its verification log.
+- [x] Implement the six bounded tools in Appendix F. Use typed inputs, structured outputs, actionable errors, result limits, and explicit time semantics. Save the result in the P4 change and its verification log.
+- [x] Open the query database read-only. Expose no write, SQL, raw-record, or arbitrary-file tool. Test database and source hashes before and after calls. Save the result in the P4 change and its verification log.
+- [x] Implement one-command local startup as `uv run house-account --data ./data --as-of 2026-11-02`. Ingest locally if needed, then launch the stdio server with a read-only connection. Save the result in the P4 change and its verification log.
+- [x] Write the exact agent MCP configuration and prerequisites in README.md. Validate initialization, discovery, tool calls, malformed arguments, and clean shutdown. Save the result in the P4 change and its verification log.
+- [x] Run the six natural-language questions through an actual connected agent. Record selected tools, answers, provenance, limitations, and one weak answer with its root cause. Save the result in the P4 change and its verification log.
+- [x] Write the one-to-two-page data model document, decision log, AI-use note, scale limitations, and week-two work list. Save the result in the P4 change and its verification log.
+- [x] Record a video of at most five minutes. Include all six questions and the weak-answer explanation. Build a scored agent evaluation runner only if the core is complete. Save the result in the P4 change and its verification log.
 
 **You see.**
 
-- [ ] A fresh local checkout starts with the documented command. A connected agent answers all six questions while source files remain unchanged and tool outputs contain no homeowner contact PII. Save `artifacts/P4/summary.json`.
+- [x] A fresh local checkout starts with the documented command. A connected agent answers all six questions while source files remain unchanged and tool outputs contain no homeowner contact PII. Save `artifacts/P4/summary.json`.
 
 **Verify, unit.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] tests/test_mcp.py and tests/test_privacy.py cover protocol contracts, read-only behavior, redaction, free-text injection, limits, and errors. Run `uv run pytest tests/test_mcp.py tests/test_privacy.py`. Save `artifacts/P4/unit.log`.
+- [x] tests/test_mcp.py and tests/test_privacy.py cover protocol contracts, read-only behavior, redaction, free-text injection, limits, and errors. Run `uv run pytest tests/test_mcp.py tests/test_privacy.py`. Save `artifacts/P4/final-unit.log`.
 
-**Verify, live.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked. Ten lanes on `inherit-parent` at the PR head, in batches within available concurrency.
+**Verify, live.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked. Ten evidence lanes map the local protocol, regression, privacy, and actual Codex checks. Independent available agents reviewed the product and answers; these are not ten separate agent runs.
 
-- [ ] Lane 1. Regression lane against trunk. Run the P3 direct-query suite and the corresponding MCP calls. Save `artifacts/P4/lane-1.json` and a supplementary terminal screenshot when available. Pass when MCP answers match direct queries and preserve privacy.
-- [ ] Lane 2. Ask question 1 through the connected agent. Save `artifacts/P4/lane-2.json` and a supplementary terminal screenshot when available. Pass when the answer groups nearby completed jobs by trade with the declared time window.
-- [ ] Lane 3. Ask question 2 through the connected agent. Save `artifacts/P4/lane-3.json` and a supplementary terminal screenshot when available. Pass when handymen have completed history in 75214 and a valid two-hour opening.
-- [ ] Lane 4. Ask question 3 through the connected agent. Save `artifacts/P4/lane-4.json` and a supplementary terminal screenshot when available. Pass when the answer lists the requested block schedule with permitted location detail.
-- [ ] Lane 5. Ask question 4 through the connected agent. Save `artifacts/P4/lane-5.json` and a supplementary terminal screenshot when available. Pass when Lone Star Plumbing resolves correctly and its next three openings include caveats.
-- [ ] Lane 6. Ask question 5 through the connected agent. Save `artifacts/P4/lane-6.json` and a supplementary terminal screenshot when available. Pass when the answer includes who, when, and work performed for only the requested home.
-- [ ] Lane 7. Ask question 6 through the connected agent. Save `artifacts/P4/lane-7.json` and a supplementary terminal screenshot when available. Pass when the recommendation explains ranking evidence and missing information.
-- [ ] Lane 8. Send invalid dates, excessive limits, and hostile source text. Save `artifacts/P4/lane-8.json` and a supplementary terminal screenshot when available. Pass when validation errors are useful and source text cannot change tool policy.
-- [ ] Lane 9. Inspect successful responses and error responses for seeded PII. Save `artifacts/P4/lane-9.json` and a supplementary terminal screenshot when available. Pass when names, phones, emails, raw notes, and personal event titles never appear.
-- [ ] Lane 10. Start from a fresh checkout and hash the sources before and after all tools. Save `artifacts/P4/lane-10.json` and a supplementary terminal screenshot when available. Pass when one-command startup works and source hashes remain unchanged.
+- [x] Lane 1. Regression lane against trunk. Run the P3 direct-query suite and the corresponding MCP calls. Save `artifacts/P4/lane-1.json` and a supplementary terminal screenshot when available. Pass when MCP answers match direct queries and preserve privacy.
+- [x] Lane 2. Ask question 1 through the connected agent. Save `artifacts/P4/lane-2.json` and a supplementary terminal screenshot when available. Pass when the answer groups nearby completed jobs by trade with the declared time window.
+- [x] Lane 3. Ask question 2 through the connected agent. Save `artifacts/P4/lane-3.json` and a supplementary terminal screenshot when available. Pass when handymen have completed history in 75214 and a valid two-hour opening.
+- [x] Lane 4. Ask question 3 through the connected agent. Save `artifacts/P4/lane-4.json` and a supplementary terminal screenshot when available. Pass when the answer lists the requested block schedule with permitted location detail.
+- [x] Lane 5. Ask question 4 through the connected agent. Save `artifacts/P4/lane-5.json` and a supplementary terminal screenshot when available. Pass when Lone Star Plumbing resolves correctly and its next three openings include caveats.
+- [x] Lane 6. Ask question 5 through the connected agent. Save `artifacts/P4/lane-6.json` and a supplementary terminal screenshot when available. Pass when the answer includes who, when, and work performed for only the requested home.
+- [x] Lane 7. Ask question 6 through the connected agent. Save `artifacts/P4/lane-7.json` and a supplementary terminal screenshot when available. Pass when the recommendation explains ranking evidence and missing information.
+- [x] Lane 8. Send invalid dates, excessive limits, and hostile source text. Save `artifacts/P4/lane-8.json` and a supplementary terminal screenshot when available. Pass when validation errors are useful and source text cannot change tool policy.
+- [x] Lane 9. Inspect successful responses and error responses for seeded PII. Save `artifacts/P4/lane-9.json` and a supplementary terminal screenshot when available. Pass when names, phones, emails, raw notes, and personal event titles never appear.
+- [x] Lane 10. Start from a fresh checkout and hash the sources before and after all tools. Save `artifacts/P4/lane-10.json` and a supplementary terminal screenshot when available. Pass when one-command startup works and source hashes remain unchanged.
 
 **Verify, perf.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] Metric. Measure warm MCP call p95 over 30 calls per tool, startup wall time, and peak resident memory. Record fixture hashes and machine details.
-- [ ] Probe. Run `uv run python scripts/benchmark.py --stage P4` at the parent and head, alternating runs after one warmup. Exclude agent-model latency from tool timings.
-- [ ] Baseline. Record parent measurements first. When parent lacks the operation, mark the baseline unavailable and measure the new work plus its complete user-visible operation on head.
-- [ ] Rule. Fail if a comparable head p95 exceeds the parent by more than 25 percent. Also fail if head exceeds the proposed budgets of 1 second per warm tool call, 60 seconds for first full import and startup, and 512 MiB peak memory. These are target budgets, not measured claims. Do not compute ratios for unlike operations.
+- [x] Metric. Measure warm MCP call p95 over 30 calls per tool, startup wall time, and peak resident memory. Record fixture hashes and machine details.
+- [x] Probe. Run `uv run python scripts/verify_p4.py --database <disposable-snapshot> --rounds 30 --output <new-evidence-dir>` after one warmup. The P3 parent has no MCP operation, so alternating comparable runs are unavailable. Exclude agent-model latency from tool timings.
+- [x] Baseline. Record parent measurements first. When parent lacks the operation, mark the baseline unavailable and measure the new work plus its complete user-visible operation on head.
+- [x] Rule. Fail if a comparable head p95 exceeds the parent by more than 25 percent. Also fail if head exceeds the proposed budgets of 1 second per warm tool call, 60 seconds for first full import and startup, and 512 MiB peak memory. These are target budgets, not measured claims. Do not compute ratios for unlike operations.
 
 **Review gate.** The operator reviews the agent interaction before merge.
 
-- [ ] Post screenshots of the six answers with links to `artifacts/P4/agent-transcript.json`.
-- [ ] Record the demo video as `artifacts/P4/demo.mp4`, at most five minutes.
+- [x] Provide labeled transcript cards and full verbatim HTML backed by `artifacts/P4/codex-final/agent-transcript.json`. These are replay cards, not live screenshots.
+- [x] Record the labeled transcript replay as `artifacts/P4/demo-review/demo-replay.mp4`, at most five minutes. The recorded duration is 240 seconds; this is not a live screen recording.
 - [ ] Give the operator the screenshots, video, and known weak answer. Keep the PR unmerged.
 
 **Merge.**
 
-- [ ] Record a clean verdict for the exact P4 head, parent SHA, and review dispositions. Append to the verified stack. The operator lands it.
+- [ ] Operator reviews the interaction and decides whether to merge. Product and answer reviews are retained in the execution record. Leave P4 unmerged.
 
 ## Close the program
 
@@ -391,7 +391,7 @@ P2R keeps full supplied-pack imports and publishes transactionally into persiste
 
 ## Appendix C. Risks
 
-The data pack is available and its raw counts and shapes are recorded. P2R counts and four query answers have recorded verification. The execution report explains semantic differences from P2. P3 availability and P4 end-to-end six-question answers still require implementation and independent validation. Raw counts are not unique real-world entity counts.
+The data pack is available and its raw counts and shapes are recorded. P2R counts and four query answers have recorded verification. The execution report explains semantic differences from P2. P3 availability is implemented and independently verified. P4 end-to-end six-question answers still require their own implementation and validation. Raw counts are not unique real-world entity counts.
 
 The source document's grader kit is not supplied. Build independent expected results from visible records and hand-labeled fixtures. Never claim agreement with hidden ground truth.
 
@@ -447,7 +447,7 @@ Read `how/SKILL.md` before changing ownership during execution. Use `interrogate
 | DataIssue | Source reference, issue code, affected fields, disposition. Count unresolved issues in coverage metadata. |
 | Opening | Derived start and end, provider, resource assumption, confidence, reasons, evidence references, calculation time and horizon. |
 
-The accepted physical contract is in [schema-columns-draft.md](schema-columns-draft.md). P2R implements the source and canonical schema in [schema.py](../src/house_account/schema.py). Opening calculation remains P3 work. Canonical IDs persist across new evidence, with merge redirects and ambiguous split resolution. Frequently queried facts use relational columns; raw payloads and variable evidence can remain JSON.
+The accepted physical contract is in [schema-columns-draft.md](schema-columns-draft.md). P2R implements the source and canonical schema in [schema.py](../src/house_account/schema.py). P3 implements bounded opening calculation. Canonical IDs persist across new evidence, with merge redirects and ambiguous split resolution. Frequently queried facts use relational columns; raw payloads and variable evidence can remain JSON.
 
 Keep source assertions even when they conflict. Select canonical values with field-specific rules and record why. Distinguish source update timestamps from ingestion time. Do not treat the latest ingestion as evidence of the latest business state.
 
@@ -590,4 +590,4 @@ The rubric is a coverage checklist, not a claim of completion. Evaluate the impl
 | Hidden traps and ground truth | Six named trap examples located; register documents additional candidate families. | Keep [trap register](trap-register.md) current. No 22/22 claim or hidden-answer agreement without evidence. The private grader kit is neither a dependency nor a source to access. |
 | Seventh source | Adapter boundary planned. | Pool-invoice PDF ingestion is an optional stretch only after six questions and core deliverables work. Do not build a speculative parser now. |
 
-**Priority.** Implement and verify P3 on the completed P2R model. Stop before P4 and the actual agent demo, which require separate authorization. Keep production-sync infrastructure, advanced fuzzy matching, worker-capacity modeling and travel optimization out of the critical path. The repository, concise model explanation, decision log and <=5-minute demo remain the required deliverables. [ARCHITECTURE.md](../ARCHITECTURE.md) is the concise model/flow overview; update its implementation-status paragraph after each stage rather than expanding it into a second execution plan.
+**Priority.** Implement and verify P4 on merged P3, using Codex for the actual connected-agent demo. Keep the result unmerged for operator review. Keep production-sync infrastructure, advanced fuzzy matching, worker-capacity modeling and travel optimization out of the critical path. The repository, concise model explanation, decision log and <=5-minute demo remain the required deliverables. [ARCHITECTURE.md](../ARCHITECTURE.md) is the concise model/flow overview; update its implementation-status paragraph after each stage rather than expanding it into a second execution plan.

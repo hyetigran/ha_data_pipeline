@@ -1,6 +1,6 @@
 # P3 execution record
 
-P3 implements local candidate availability and provider ranking on the merged P2R model. The parent is `c6c151ee3e95706ad178d2d661fc791f6106f616`. Work remains on `codex/p3-availability`. P4, publication, merging, travel optimization, and production synchronization are outside this run.
+P3 implements local candidate availability and provider ranking on the merged P2R model. The parent is `c6c151ee3e95706ad178d2d661fc791f6106f616`. This record describes the original P3 implementation run. P3 subsequently merged in PR #3 at `313847d`; the shipping branch was removed. P4, travel optimization, and production synchronization were outside that run.
 
 ## Delivered behavior
 

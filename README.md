@@ -1,8 +1,64 @@
-# Import the home services data pack
+# Query local home services through MCP
 
-The importer builds a private SQLite snapshot from all six supplied sources and the street reference. P2 adds canonical identities, history queries, and a local human review workflow. P3 adds candidate openings and evidence-based provider rankings. MCP tools remain P4 work.
+The importer builds a private SQLite snapshot from all six supplied sources and the street reference. P2 adds canonical identities, history queries, and a local human review workflow. P3 adds candidate openings and evidence-based provider rankings. P4 exposes six bounded read-only MCP tools over local stdio.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the current-versus-target design and diagrams, and [the project plan](docs/project-plan.md) for the implementation sequence and remaining grading evidence.
+
+## Start the MCP server
+
+Install Python 3.13 and `uv`, then put the supplied private pack in `data/`. From the repository root, run:
+
+```sh
+uv run --locked house-account --data ./data --as-of 2026-11-02
+```
+
+Startup imports a missing `var/house_account.sqlite` through the existing maintenance path, then serves MCP over stdin and stdout. A valid existing snapshot is reused. An invalid snapshot fails with a maintenance instruction. Refresh existing data explicitly with `ingest`; a tool call never imports or applies review decisions. Diagnostics go to stderr. This command waits for an MCP client rather than printing a human-readable answer.
+
+The server uses the fixed challenge reference date in America/Chicago. Evidence coverage remains bounded by the supplied schedules, independently of `--as-of`. To choose paths, use `--database` and `--ledger` at startup. No tool accepts a database path, arbitrary file path, or SQL.
+
+## Connect Codex
+
+Install Codex CLI and authenticate with `codex login`. After `uv sync --locked`, replace `/absolute/path/house_account` below with this checkout's absolute path. This registration command changes your Codex MCP configuration only when you run it:
+
+```sh
+codex mcp add house_account -- /absolute/path/house_account/.venv/bin/python -m house_account.cli --data /absolute/path/house_account/data --database /absolute/path/house_account/var/house_account.sqlite --ledger /absolute/path/house_account/review/decisions.jsonl --as-of 2026-11-02
+```
+
+Restart or start Codex, then ask one of the questions in [the demo question set](evals/questions.json). The equivalent stdio configuration is:
+
+```toml
+[mcp_servers.house_account]
+command = "/absolute/path/house_account/.venv/bin/python"
+args = ["-m", "house_account.cli", "--data", "/absolute/path/house_account/data", "--database", "/absolute/path/house_account/var/house_account.sqlite", "--ledger", "/absolute/path/house_account/review/decisions.jsonl", "--as-of", "2026-11-02"]
+startup_timeout_sec = 120
+```
+
+Pre-importing the snapshot avoids a client's first-start timeout. The recorded demo uses temporary per-invocation configuration and a disposable snapshot, so it does not change the operator's Codex configuration.
+
+| Tool | Purpose |
+| --- | --- |
+| `search_service_history` | Completed work near an address, grouped by provider and trade. |
+| `find_available_providers` | Completed trade history in a ZIP plus a sufficient candidate opening. |
+| `get_block_schedule` | Active appointments on a specified hundred block. |
+| `get_provider_profile` | Trades, declared and observed areas, bounded history, and openings. |
+| `get_property_history` | Who performed what work and when at the requested home. |
+| `recommend_provider` | Eligible providers with explained scores, exclusions, and duration assumptions. |
+
+Responses carry the snapshot revision, ingestion time, reference date, window, coverage, bounded evidence, and limitations. Collections disclose their total, limit, and truncation. Neighborhood responses do not reveal neighboring exact addresses. Business labels are untrusted data; they never authorize actions. Raw notes, homeowner contacts, private calendar titles, and review artifacts are not public fields.
+
+## Verify and capture the Codex demo
+
+Use a new evidence directory for each run:
+
+```sh
+uv run --locked python scripts/verify_p4.py --output artifacts/P4/protocol-run --rounds 30
+uv run --locked house-account ingest --data data --database artifacts/P4/demo-input/snapshot.sqlite --ledger artifacts/P4/demo-input/decisions.jsonl
+uv run --locked python scripts/demo.py --database artifacts/P4/demo-input/snapshot.sqlite --output artifacts/P4/codex-run
+```
+
+The protocol verifier owns and removes its temporary database. The demo runner reads the explicitly supplied disposable snapshot and retains real Codex events, tool results, answers, and cleanup receipts. It requires normal Codex authentication and network access for the agent. The MCP server itself is local. A successful capture still needs semantic review of the answers; exit status alone is insufficient.
+
+See [the data model](docs/data-model.md), [AI-use note](docs/ai-use.md), and [P4 execution record](docs/p4-execution.md) for evidence and remaining review items. P4 stays unmerged until the operator reviews the interaction.
 
 ## Run the importer
 
