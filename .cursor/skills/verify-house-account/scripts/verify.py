@@ -139,17 +139,17 @@ def main():
                 with tarfile.open(archive) as source:
                     source.extractall(parent, filter='data')
                 before = database_digest(database)
-                drive([sys.executable, str(ROOT / 'scripts/verify_p3.py'), '--database', str(database),
+                drive([sys.executable, str(Path(__file__).with_name('verify_availability.py')), '--database', str(database),
                        '--data', str(ROOT / 'data'), '--parent', str(parent),
                        '--output', str(evidence / 'p3')], 'availability')
-                summary = json.loads((evidence / 'p3/live-summary.json').read_text())
+                summary = json.loads((evidence / 'p3/maintained-summary.json').read_text())
                 assert summary['status'] == 'pass' and len(summary['lanes']) == 10
                 assert {lane['lane'] for lane in summary['lanes']} == set(range(1, 11))
                 assert all(lane['status'] == 'pass' for lane in summary['lanes'])
                 assert summary['scratch_removed'] and summary['database_logically_unchanged']
                 assert summary['source_files_unchanged'] == results['doctor']['input_files']
                 assert database_digest(database) == before
-                results['checks'].append('Ten P3 lanes pass against the archived P2R baseline; source files and database facts remain unchanged; nested scratch is removed.')
+                results['checks'].append('Ten maintained availability lanes pass with original P3 verdicts retained and P4 additive schedule fields checked against SQLite; source files and database facts remain unchanged; nested scratch is removed.')
             if args.feature == 'migration':
                 backup = Path(report['migration_backup'])
                 assert backup.resolve() == database.with_name(database.name + '.pre-v2.bak').resolve()
