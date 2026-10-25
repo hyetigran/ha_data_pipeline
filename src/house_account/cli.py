@@ -6,6 +6,8 @@ import os
 import sqlite3
 import sys
 import tempfile
+from contextlib import closing
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -42,8 +44,12 @@ def write_report(path: Path, report: dict[str, Any]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description='Import the supplied pack into a private local snapshot.')
-    subcommands = parser.add_subparsers(dest='command', required=True)
+    parser = argparse.ArgumentParser(description='Serve six read-only MCP tools, or maintain the local snapshot.')
+    parser.add_argument('--data', type=Path, default=Path('data'))
+    parser.add_argument('--database', type=Path, default=Path('var/house_account.sqlite'))
+    parser.add_argument('--ledger', type=Path, default=Path('review/decisions.jsonl'))
+    parser.add_argument('--as-of', type=date.fromisoformat, default=date(2026,11,2))
+    subcommands = parser.add_subparsers(dest='command')
     command = subcommands.add_parser('ingest')
     command.add_argument('--data', type=Path, default=Path('data'))
     command.add_argument('--database', type=Path, default=Path('var/house_account.sqlite'))
@@ -68,6 +74,19 @@ def main() -> int:
     query.add_argument('--service')
     arguments = parser.parse_args()
     try:
+        if arguments.command is None:
+            from .publication import SCHEMA_VERSION, schema_version
+            from .server import ServerSettings, create_server
+            from .storage import connect_readonly
+            database = arguments.database.resolve()
+            if not database.exists():
+                ingest(arguments.data,database,ledger=arguments.ledger)
+            with closing(connect_readonly(database)) as connection:
+                if schema_version(connection) != SCHEMA_VERSION or connection.execute('PRAGMA integrity_check').fetchone()[0] != 'ok' or connection.execute('PRAGMA foreign_key_check').fetchone() is not None or connection.execute('SELECT count(*) FROM snapshot').fetchone()[0] != 1:
+                    raise ValueError('invalid snapshot')
+                connection.execute('SELECT provider_id FROM provider_hour_declarations LIMIT 1')
+            create_server(ServerSettings(database,arguments.as_of)).run(transport='stdio')
+            return 0
         if arguments.command == 'review':
             from .review import apply_review, export_review, safe_paths
             safe_paths(arguments.data,arguments.database,arguments.file,arguments.ledger)
@@ -124,7 +143,7 @@ def main() -> int:
             print(json.dumps({'status':'recorded_not_applied','message':'Decisions recorded; previous snapshot preserved. Rebuild to recover.'}),file=sys.stderr)
             return 1
         print(json.dumps({'status': 'failed', 'error_type': type(exc).__name__,
-                          'message': 'Query failed; check the provider, supported service, dates, duration and horizon.' if arguments.command=='query' else 'Import failed; source data and any previous snapshot are preserved.'}), file=sys.stderr)
+                          'message': 'Query failed; check the provider, supported service, dates, duration and horizon.' if arguments.command=='query' else 'Startup failed; prepare a valid snapshot with the maintenance CLI.' if arguments.command is None else 'Import failed; source data and any previous snapshot are preserved.'}), file=sys.stderr)
         return 1
 
 

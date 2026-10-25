@@ -41,7 +41,7 @@ def database_digest(database):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration', 'availability'])
+    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration', 'availability', 'mcp'])
     args = parser.parse_args()
     if args.feature == 'doctor':
         print(json.dumps(doctor()))
@@ -118,10 +118,18 @@ def main():
             assert report['schema_version'] == 2
             assert report['publication'] == 'transactional' and report['reconciliation']
             results['checks'].append('Report equals stdout; source counts match; reconciliation, schema v2, transactional publication, integrity, foreign keys, and mode 0600 pass.')
-            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': [], 'availability': []}[args.feature]
+            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': [], 'availability': [], 'mcp': []}[args.feature]
             for lane in lanes:
                 drive([sys.executable, str(ROOT / 'scripts/verify.py'), '--stage', 'P1', '--lane', str(lane),
                        '--output', str(evidence / f'lane-{lane}.json')], f'lane-{lane}')
+            if args.feature == 'mcp':
+                drive([sys.executable, str(ROOT / 'scripts/verify_p4.py'), '--data', str(ROOT / 'data'),
+                       '--database', str(database), '--output', str(evidence / 'p4')], 'mcp')
+                summary = json.loads((evidence / 'p4/summary.json').read_text())
+                assert summary['status'] == 'pass' and len(summary['tools_called']) == 6
+                assert summary['scratch_removed'] and summary['database_logically_unchanged']
+                assert summary['source_files_unchanged'] and summary['clean_shutdown']
+                results['checks'].append('Six real MCP tools match direct-query expectations; invalid inputs reject safely; data and cleanup invariants pass.')
             if args.feature == 'availability':
                 parent = Path(scratch) / 'parent'
                 parent.mkdir()
@@ -131,17 +139,17 @@ def main():
                 with tarfile.open(archive) as source:
                     source.extractall(parent, filter='data')
                 before = database_digest(database)
-                drive([sys.executable, str(ROOT / 'scripts/verify_p3.py'), '--database', str(database),
+                drive([sys.executable, str(Path(__file__).with_name('verify_availability.py')), '--database', str(database),
                        '--data', str(ROOT / 'data'), '--parent', str(parent),
                        '--output', str(evidence / 'p3')], 'availability')
-                summary = json.loads((evidence / 'p3/live-summary.json').read_text())
+                summary = json.loads((evidence / 'p3/maintained-summary.json').read_text())
                 assert summary['status'] == 'pass' and len(summary['lanes']) == 10
                 assert {lane['lane'] for lane in summary['lanes']} == set(range(1, 11))
                 assert all(lane['status'] == 'pass' for lane in summary['lanes'])
                 assert summary['scratch_removed'] and summary['database_logically_unchanged']
                 assert summary['source_files_unchanged'] == results['doctor']['input_files']
                 assert database_digest(database) == before
-                results['checks'].append('Ten P3 lanes pass against the archived P2R baseline; source files and database facts remain unchanged; nested scratch is removed.')
+                results['checks'].append('Ten maintained availability lanes pass with original P3 verdicts retained and P4 additive schedule fields checked against SQLite; source files and database facts remain unchanged; nested scratch is removed.')
             if args.feature == 'migration':
                 backup = Path(report['migration_backup'])
                 assert backup.resolve() == database.with_name(database.name + '.pre-v2.bak').resolve()

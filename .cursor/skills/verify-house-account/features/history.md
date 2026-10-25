@@ -29,6 +29,8 @@ Preconditions: Launch and doctor pass with the unchanged supplied pack and an em
 
 ## Gotchas
 
+- CLI job `services` describes the whole job scope. `completion_supported_services` and each completion’s `supported_services` identify only work supported by retained completion evidence. Do not attribute all job services to one completion date.
+
 - Provider history defaults to three candidate openings that each fit two hours, within November 2 through December 3, 2026 (exclusive), at Chicago midnight. See [Availability and rankings](availability.md) for configurable searches.
 
 - Radius CLI uses a fixed half-mile radius and the November 2, 2024 through November 2, 2026 window. Block CLI uses November 2 through November 16, 2026. Boundaries are Chicago midnight and the end is exclusive.

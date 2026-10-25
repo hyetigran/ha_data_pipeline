@@ -289,7 +289,7 @@ def apply_review(data: Path, database: Path, file: Path, ledger: Path, *, dry_ru
                                        'removed_ids':sorted(before[table].keys()-after[table].keys()),
                                        'changed_ids':sorted(k for k in before[table].keys() & after[table].keys() if before[table][k]!=after[table][k])} for table in after},
                       'history_consequences':'Derived job/property changes listed above; original observations preserved.',
-                      'availability_consequences':'Corrected intervals and provider links will feed P3; availability is not implemented.',
+                      'availability_consequences':'Corrected intervals and provider links feed the derived availability and provider rankings on the next query.',
                       'ledger_revision':result['ledger_revision'],'stale_decisions':len(result['stale'])}
             if dry_run:
                 return impact

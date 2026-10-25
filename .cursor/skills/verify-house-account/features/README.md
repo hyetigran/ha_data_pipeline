@@ -11,6 +11,8 @@ Use [Launch and Doctor](../SKILL.md) with Python 3.13, locked dependencies, and 
 
 - [Availability and rankings](availability.md) covers candidate openings, eligibility, calendar rules, uncertainty, and ranking explanations through the P3 CLI.
 
-Run the six P1/P2 journeys and the P3 journey for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path. P4 MCP serving remains outside this map until implemented.
+- [Local MCP tools](mcp.md) covers discovery, all six tool calls, safe errors, read-only state and shutdown.
+
+Run the six P1/P2 journeys, the P3 journey, and the MCP journey for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path.
 
 The CLI defaults point at working database and review paths. The helper overrides these paths or runs existing P1 scripts from scratch. Keep command transcripts, exit codes, resulting state, and cleanup receipts. Run notes and private evidence remain uncommitted.

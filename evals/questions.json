@@ -1,0 +1,32 @@
+[
+  {
+    "id": "Q1",
+    "question": "What home services have been done within half a mile of 4512 Live Oak St, Dallas, TX 75204 in the last 24 months, grouped by trade?",
+    "expected_tool": "search_service_history"
+  },
+  {
+    "id": "Q2",
+    "question": "Which handymen have done work in zip 75214 and have an opening of at least 2 hours in the next 3 days?",
+    "expected_tool": "find_available_providers"
+  },
+  {
+    "id": "Q3",
+    "question": "What work is already scheduled on the 4500 block of Live Oak St in the next 14 days?",
+    "expected_tool": "get_block_schedule"
+  },
+  {
+    "id": "Q4",
+    "question": "Show me everything we know about Lone Star Plumbing: trades, service area, job history, and next 3 openings.",
+    "expected_tool": "get_provider_profile"
+  },
+  {
+    "id": "Q5",
+    "question": "Has any provider serviced 5823 Belmont Ave, Dallas, TX 75206 before? Who, when, and what was done?",
+    "expected_tool": "get_property_history"
+  },
+  {
+    "id": "Q6",
+    "question": "Which plumber near 75206 is the best fit for a water heater replacement this week, and why?",
+    "expected_tool": "recommend_provider"
+  }
+]
