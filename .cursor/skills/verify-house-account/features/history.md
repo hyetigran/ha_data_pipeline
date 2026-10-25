@@ -1,8 +1,8 @@
-# Canonical history queries
+# Verify canonical history queries
 
 Query a property's completed work, nearby provider experience, upcoming block visits, or a provider's history after reconciliation.
 
-## Sub-features
+## Check the expected behavior
 
 - `history-identity` checks that corroborated provider aliases share a canonical identity.
 - `history-property` separates four confirmed Belmont jobs from other or uncertain jobs.
@@ -11,25 +11,25 @@ Query a property's completed work, nearby provider experience, upcoming block vi
 - `history-provider` returns 262 completed Lone Star jobs and three chronological candidate openings with explicit availability status.
 - `history-privacy` checks forbidden private field names, email markers, and source-path markers in query output.
 
-## How to get to it (user POV)
+## Exercise the public commands
 
 Run `house-account query property '5823 Belmont Ave, Dallas, TX 75206' --database <snapshot>`.
 Run `house-account query radius '4512 Live Oak St, Dallas, TX 75204' --database <snapshot>`.
 Run `house-account query block '4512 Live Oak St, Dallas, TX 75204' --database <snapshot>`.
 Run `house-account query provider <canonical-provider-id> --database <snapshot>`.
 
-## Driving it with verify.py
+## Run the isolated checks
 
-Preconditions: Launch and doctor pass with the unchanged supplied pack and an empty disposable review ledger.
+Complete the setup and doctor checks in [Verify House Account](../SKILL.md) with the unchanged supplied pack and an empty disposable review ledger.
 
 - Run `UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py history`.
-- The helper imports the real pack, checks provider alias reconciliation, and drives all four public query commands. It compares property evidence IDs and block visit IDs with independently inspected fixture answers. The radius sum is 969 provider/trade job counts. It checks forbidden private field names and markers, plus unchanged logical database state.
+- The helper imports the real pack, checks provider alias reconciliation, and drives all four public query commands. It compares property evidence IDs and block visit IDs with independently inspected fixture answers. The radius sum is 969 job counts grouped by provider and trade. It checks forbidden private field names and markers, plus unchanged logical database state.
 - Supplemental `scripts/verify_p2_independent.py` checks source facts and query results through Python. These checks supplement the captured CLI commands.
 - Read `result.json`, `query-*.stdout`, `query-*.stderr`, and `independent.json` in the printed evidence directory. Require pass and `scratch_removed: true`.
 
-## Gotchas
+## Check the limits
 
-- CLI job `services` describes the whole job scope. `completion_supported_services` and each completion’s `supported_services` identify only work supported by retained completion evidence. Do not attribute all job services to one completion date.
+- CLI job `services` describes the whole job scope. `completion_supported_services` and each completion's `supported_services` identify only work supported by retained completion evidence. Do not attribute all job services to one completion date.
 
 - Provider history defaults to three candidate openings that each fit two hours, within November 2 through December 3, 2026 (exclusive), at Chicago midnight. See [Availability and rankings](availability.md) for configurable searches.
 

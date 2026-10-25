@@ -1,7 +1,11 @@
-# Retain field-level lineage for derived and contested facts
+# Field-level lineage
 
-Accepted as Q10 in the October 24, 2026 schema interview. Normalized, inferred, corrected and conflicting canonical facts need field-level provenance identifying their supporting assertions, rules and applicable review decisions. Unchanged raw facts may inherit record-level provenance rather than duplicating every mapping.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This permits explaining a reference-derived ZIP independently of a reviewed house-number correction. It adds provenance bookkeeping but avoids implying that every field came from the same source. The exact SQL relationship design remains open. This decision is not yet implemented.
+## Decision and reason
 
-Q22 accepted: field-specific selection rules and valid evidence-bound human corrections determine selected values; neither a globally preferred source nor most recent ingestion wins universally. Unsettled contradictions remain explicit, and declared coverage is distinct from observed history.
+A record's origin does not explain every derived field. A reference-derived postal code and a reviewed house-number correction have different supporting evidence.
+
+Q10 requires field-level lineage for normalized, inferred, corrected, and contested values. Unchanged raw facts can retain record-level provenance without a duplicate mapping for every field.
+
+Q22 selects values through field-specific rules and valid evidence-bound corrections. No source wins every conflict, and the latest import does not establish the latest business fact. Unresolved contradictions remain visible. Declared coverage remains distinct from observed history.

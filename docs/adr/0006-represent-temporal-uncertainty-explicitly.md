@@ -1,7 +1,13 @@
-# Represent temporal uncertainty explicitly
+# Time values and uncertainty
 
-Accepted as Q9 in the October 24, 2026 schema interview. Temporal values carry an explicit evidence state distinguishing known, missing, ambiguous and disputed assertions. Scheduled time, completion evidence and source status-update time remain distinct, with the original assertion and timezone interpretation preserved.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-A missing timestamp alone cannot distinguish the November 1 DST fold from an absent date or a disputed year. The physical representation must preserve partial dates and uncertainty without inventing instants. The exact column/check design remains open. This decision is not yet implemented.
+## Decision and reason
 
-Q16 subsequently accepted separate selected UTC instant, local date, evidence state (known/missing/ambiguous/disputed) and precision (instant/date/unknown) for each scheduled endpoint, with a timezone name. Enforce consistent combinations. An ambiguous or disputed time has no selected UTC instant; an independently established local date may survive. Candidate interpretations remain evidence. Date-only facts must not become fabricated midnight appointments. Exact timestamp-format validation and source-normalized representations remain implementation-design details.
+A missing timestamp cannot distinguish an absent date from a disputed year or an ambiguous daylight-saving transition. Q9 therefore separates the value from its evidence state.
+
+Q16 defines a selected UTC instant, an independently established local date, an evidence state, a precision, and a timezone for each scheduled endpoint. Evidence states are `known`, `missing`, `ambiguous`, and `disputed`. Precision is `instant`, `date`, or `unknown`.
+
+An ambiguous or disputed time has no selected UTC instant. A supported local date can remain. Alternate interpretations stay in evidence. Date-only facts do not become midnight appointments.
+
+Schedule time, completion time, and source status-update time remain distinct. SQL checks reject inconsistent combinations.

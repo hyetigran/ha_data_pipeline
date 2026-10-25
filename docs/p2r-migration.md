@@ -1,31 +1,49 @@
-# P2R migration and recovery
+# Upgrade and restore a legacy database
 
-P2R keeps one persistent SQLite database. Imports build a disposable candidate, seed its identity registry from the published database, validate the candidate, and publish facts and identity state in one transaction. Queries open a read transaction. Existing readers finish on their original revision; new transactions see the new revision.
+## Upgrade to schema version 2
 
-The source pack is immutable. Schema version 2 replaces the generic source-table layout and canonical JSON documents with entity-specific source assertions and relational facts. Raw payloads, variable evidence and review proposals remain private JSON. The generic adapter transport is validated through entity-specific Pydantic models at the storage boundary.
+1. Stop other maintenance writers.
+2. Preserve the source pack and the authoritative review ledger.
+3. Run `ingest` with the intended database and ledger paths.
 
-## Local upgrade
+```sh
+uv run --locked house-account ingest --data data --database var/house_account.sqlite --ledger review/decisions.jsonl
+```
 
-Run the existing `house-account ingest` command with the intended database and ledger paths. A recognized legacy database gets a one-time `<database>.pre-v2.bak` SQLite backup before publication. Unknown schema versions and changed DDL without a version change are refused. A failed candidate build or pre-commit publication leaves the old facts available. A retry can reuse a matching legacy backup; an unrelated backup is never overwritten.
+4. Confirm that the report identifies schema version `2` and transactional publication.
+5. Retain `<database>.pre-v2.bak` until you have reviewed the migration.
+6. Query the affected histories before adopting the new snapshot.
 
-Preserve the backup until the migration has been reviewed. SQLite WAL may contain committed state outside the main file: use SQLite's backup API for a live backup, not a copy of the main file alone. To restore, stop writers, close connections, and restore the backup into a separate database path using the backup API; validate it before switching the local CLI to that path. The frozen P2 query code in `artifacts/P2R/baseline/code/` can read the legacy backup; P2R queries require the relational schema.
+A recognized legacy database receives a SQLite backup before publication. Unknown schema versions and incompatible DDL cause a refusal. If a matching backup already exists, a retry can reuse it. The importer does not overwrite an unrelated backup.
 
-## Identity and review
+## Restore a backup
 
-Existing canonical IDs bootstrap the registry. Additional matching source members retain those IDs. A merge redirects retired IDs to the survivor. A split keeps the old reference ambiguous, even if a later merge reunites its descendants. Registry records can outlive current facts; a retired or absent provider does not return stale current data.
+1. Stop writers and close connections to the destination.
+2. Use SQLite's backup API to restore the backup into a separate database path.
+3. Check database integrity and foreign keys.
+4. Compare the restored facts with the recorded pre-migration snapshot.
+5. Point the appropriate query code at the restored path only after those checks pass.
 
-Review candidates use the live registry as their seed. A dry run allocates only within the candidate and leaves the published database and authoritative ledger unchanged. An applied decision is appended and fsynced to the ledger before database publication. These are separate durability boundaries: failure between them is reported as `recorded_not_applied`; rerun ingestion with the same ledger to recover. Rule version `reconciliation-v2` requires old decisions to be revalidated against current evidence. No pending real-world correction was approved as part of P2R verification.
+Do not copy only the main file from a live WAL database. Committed state can remain in the WAL. The frozen P2 code in `artifacts/P2R/baseline/code/` reads the legacy backup. Current queries require schema version `2`.
 
-## Intentional answer changes
+## Recover recorded review decisions
 
-Job lifecycle is independent of service completion. Fresh Nest job #1034 remains active with 46 completed visits and two upcoming visits. Estimates remain separate and never establish performed work. Results expose distinct jobs and completed visits separately. Completed-visit counts require independent visit-completion evidence (currently Jobber). HCP job timestamps and Workiz Done status contribute job-level completion; their projected schedule rows do not independently prove that an appointment occurred. Job-level completion does not fabricate a performed visit.
+If apply reports `recorded_not_applied`, rerun ingestion with the same ledger. Keep the ledger intact.
 
-The radius example changes from 971 to 969 service-attributed jobs. Two records describe “Patch & paint drywall.” They retain job completion evidence and multiple service assertions, but lack evidence assigning that completion to a particular service. They no longer receive automatic painting credit. Provider and exact-home history can still report their job-level completion. Trade groups may overlap and must not be summed as a general distinct-job total.
+```sh
+uv run --locked house-account ingest --data data --database var/house_account.sqlite --ledger review/decisions.jsonl
+```
 
-Blank units remain unknown, not affirmative evidence of no unit. Exact complete addresses with unknown units can still match other unknown-unit assertions under the existing rule; they do not automatically merge with known unit identifiers. This preserves the approved matching scope without adding a broad address uniqueness constraint.
+Export the proposals again if the rule version or source evidence changed. Revalidate old approvals against current evidence before applying them.
 
-The Nov 1, 2026 DST start retains local date `2026-11-01`, state `ambiguous`, and no selected UTC start. The two possible UTC interpretations remain recoverable from source evidence. The wrong-year interval remains disputed until reviewed. Declared hours and calendar definitions are stored separately, without recurrence expansion or availability calculations.
+## Verify migration behavior
 
-## Boundaries
+Run the maintained migration journey against the frozen private legacy baseline.
 
-Full supplied-pack imports are implemented. Live continuous ingestion, revision ordering, partial delivery/deletion contracts, remote authentication, availability, travel and MCP serving remain future work. Unmapped service text stays private and is surfaced as unclassified work. Approximate street interpolation is not rooftop geocoding. The private hidden grader crosswalks are unavailable, so verification cannot establish that every one of the 22 hidden traps has been found.
+```sh
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py migration
+```
+
+Require a passing result and confirmed scratch cleanup. Inspect the backup-restoration assertion in the retained receipt.
+
+For intended answer changes, identity behavior, and measured results, see the [P2R execution record](p2r-execution.md). The [data model](data-model.md) explains the current schema.

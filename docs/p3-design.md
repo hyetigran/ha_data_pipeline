@@ -1,6 +1,6 @@
 # Availability and recommendation policy
 
-P3 derives candidate openings from the published P2R facts. It does not book work, expose MCP tools, or implement production synchronization.
+P3 derives candidate openings from the published P2R facts. P3 does not book work or implement production synchronization. P4 later exposes these calculations through MCP tools.
 
 ## Domain and ownership
 
@@ -28,15 +28,15 @@ Responses expose business labels, fixed reason codes, and opaque evidence refere
 
 Two independent explorations compared a query-driven per-provider calculation with a provider evidence bundle and pure interval calculator. The selected design combines the small connection-taking query boundary with explicit working, busy, and unknown interval collections. An independent judge endorsed it with safeguards for recurrence limits, uncertain endpoints, and same-snapshot reads.
 
-No new database schema, repository class, persistent opening cache, worker-capacity model, or production-sync framework is needed. The existing stored evidence is sufficient for the bounded local feature. The Model the Domain principle informed the separate unknown intervals; Prove It Works requires real CLI answers as well as unit tests.
+No new database schema, repository class, persistent opening cache, worker-capacity model, or production-sync framework is needed. The existing stored evidence is sufficient for the bounded local feature. Separate unknown intervals keep missing evidence from appearing as free time. Real CLI checks supplement the unit tests.
 
 ## Confidence and ranking formulas
 
-Availability confidence starts at 80 to reflect conservative capacity and unmodeled travel. Unknown availability scores zero. Otherwise subtract 25 for any unknown periods, 15 for calendar/CRM interval disagreement, 5 for an overlapping tentative hold, 10 for limited source freshness, and 10 for undated unbooked backlog. Clamp at zero. Scores of at least 75 are high, 50 through 74 are moderate, and lower scores are low. Unknown availability has its own label. These thresholds describe this demo policy rather than measured reliability.
+Availability confidence starts at 80 to reflect conservative capacity and unmodeled travel. Unknown availability scores zero. Otherwise, the score loses 25 points for unknown periods and 15 for disagreement between calendar and CRM intervals. An overlapping tentative hold costs 5 points. Limited source freshness and undated unbooked backlog each cost 10 points. The minimum is zero. Scores of at least 75 are high, 50 through 74 are moderate, and lower scores are low. Unknown availability has its own label. These thresholds describe this demo policy rather than measured reliability.
 
 Freshness compares source evidence with the fixed reference date, not the requested future appointment date or the machine clock. An unresolved undated backlog does not automatically occupy the entire horizon. Scheduled work whose timing cannot be bounded can make the horizon unknown.
 
-Relevant-work points are four per distinct completed job with supported service attribution, capped at 40. Area points are 20 for both declared and observed coverage, 15 for observed coverage alone, or 10 for declared coverage alone. Opening-fit points are 25 times the fraction of the requested horizon remaining at the first feasible opening. Confidence points are 15 times the availability score divided by 100. Round fractional components to two decimals and break equal total scores by canonical provider ID.
+Relevant-work points are four per distinct completed job with supported service attribution, capped at 40. Area points are 20 for both declared and observed coverage, 15 for observed coverage alone, or 10 for declared coverage alone. Opening-fit points are 25 times the fraction of the requested horizon remaining at the first feasible opening. Confidence points are 15 times the availability score divided by 100. Fractional components round to two decimals. Canonical provider ID breaks ties.
 
 Historical duration estimation requires at least three distinct completed visits with positive, known scheduled endpoints and a single attributed service. It uses the rounded-up median scheduled duration and explicitly labels that evidence. It is not a measured hands-on-work duration. Without enough evidence, the four-hour fallback remains a disclosed demo assumption. Schedule-based exclusions carry the same duration explanation as eligible results.
 

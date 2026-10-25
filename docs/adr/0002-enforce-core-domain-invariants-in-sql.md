@@ -1,7 +1,9 @@
-# Enforce core domain invariants in SQL
+# SQL constraints for domain facts
 
-Accepted in the October 24, 2026 schema interview. Core relationships and controlled canonical values should be database-enforced rather than relying solely on the generic Python ingestion model. Python remains responsible for interpreting source formats and representing uncertainty; unrecognized raw values must survive as source evidence rather than becoming arbitrary canonical values.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This trades some schema and migration effort for stronger guarantees as adapters evolve. Exact tables, controlled vocabularies and unknown-value constraints remain to be decided; this does not authorize discarding source observations.
+## Decision and reason
 
-This is an accepted design decision, not an implemented change.
+Database constraints enforce core relationships and controlled canonical values. Python interprets source formats and represents uncertainty. Unknown raw values remain source evidence rather than extending canonical vocabularies.
+
+This choice adds schema and migration work. In return, an adapter cannot silently publish invalid parent links or unsupported canonical states. The executable constraints live in `src/house_account/schema.py` and `src/house_account/storage.py`.

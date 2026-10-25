@@ -1,39 +1,22 @@
-# Implement P1 with source-local identities
+# P1 execution record
 
-The user authorized P1 implementation on October 24, 2026. Stop before P2. Do not publish, push, open a PR, or merge. The repository has no commits, so no executable trunk baseline exists. Verification uses the original source manifest and the completed working tree rather than claiming a comparison with an earlier implementation.
+This record describes the original P1 run on October 24, 2026. The repository had no commits at that point. Verification compared the input manifest with the completed working tree. Later phases supersede some behavior below. [Delivery status](project-plan.md) records the current implementation.
 
-## Execution checklist
 
-- [x] Ground the design in the existing plan, decisions, source inspection, and unchanged pack inventory. No existing application requires a code walkthrough.
-- [x] Explore two architectural candidates in parallel. Compare an observation stream with adapter-owned relational batches.
-- [x] Select a typed observation boundary with explicit relational entities. Retain every occurrence separately from each unique source record. Storage owns constraints and publication.
-- [x] Implement source adapters, validation, storage, and the CLI.
-- [x] Exercise the real CLI against the full pack and targeted fixtures. Verify the ten P1 scenarios.
-- [x] Run lint, type checks, meaningful tests, and performance checks.
-- [x] Independently review privacy, provenance, and failure behavior. Resolve findings and rerun affected checks.
-- [x] Document results and stop before P2.
-- [x] Skip publication and merge. The user's instruction prohibits them.
-
-## Throughput checkpoint
-
-- Blocking first steps. Fix the observation and entity contract before parallel adapter work. Reproduce the input manifest before implementation.
-- Independent workstreams. One implementation owner controls coupled model, adapters, storage, and tests. The root independently verifies outcomes and writes evidence documentation.
-- Shared mutable state. Source files are immutable. Imports build isolated candidates. A maintenance lock prevents competing publication. Verification uses separate temporary databases.
-- Smallest safe decomposition. One code owner avoids schema drift across six adapters. Independent review follows the first runnable version, while the root checks acceptance assumptions.
 
 ## Design choice
 
-The observation-stream candidate has the smaller adapter contract and supports per-occurrence accounting. The relational-batch candidate makes entity relationships explicit. Combine the observation envelope with typed relational entities rather than putting unvalidated arbitrary dictionaries in the database layer.
+The observation-stream candidate has the smaller adapter contract and supports per-occurrence accounting. The relational-batch candidate makes entity relationships explicit. The implementation combines an observation envelope with typed relational entities.
 
-The two reviewers agreed that P1 identities must remain source-scoped, repeated occurrences must survive deduplication, and malformed source containers must abort publication. One suggested unresolved as an accepted-record flag. Use exclusive dispositions for the summary instead so accepted, duplicate, unresolved, and rejected add exactly to seen. Issue counts remain a separate diagnostic dimension.
+The two reviewers agreed that P1 identities must remain source-scoped, repeated occurrences must survive deduplication, and malformed source containers must abort publication. One suggested unresolved as an accepted-record flag. The summary uses exclusive dispositions. Accepted, duplicate, unresolved, and rejected counts add to seen. Issue counts remain a separate diagnostic dimension.
 
 P1 lane 10 means exact source-duplicate consolidation with evidence. Cross-source provider matching belongs to P2. Runtime recurrence expansion is a dependency probe only. Availability computation belongs to P3. MCP transport initialization is a compatibility probe only. The six tools belong to P4.
 
-The requested skill's default model families and cloud VM workflow are unavailable here. Design exploration and implementation use inherited-model agents and isolated local processes. Terminal screenshots are supplementary; JSON transcripts, database assertions, and command exit codes are the authoritative evidence.
+The requested skill's default model families and cloud VM workflow are unavailable here. Design exploration and implementation use inherited-model agents and isolated local processes. Terminal screenshots are supplementary. JSON transcripts, database assertions, and command exit codes are the authoritative evidence.
 
 ## Verification results
 
-P1 is implemented and verified against the supplied pack. P2 has not started. No commits, pushes, pull requests, or merges were made.
+The original P1 run passed against the supplied pack. P2 had not started, and this run did not publish code.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
@@ -42,12 +25,12 @@ P1 is implemented and verified against the supplied pack. P2 has not started. No
 | mypy | Passed across seven source files | `artifacts/P1/mypy.log` |
 | Ten live scenarios | All passed through CLI subprocesses and database assertions | `artifacts/P1/live.json` and individual lane files |
 | Fresh environment startup | Passed with no prior virtual environment or database, using cached pinned dependencies | `artifacts/P1/fresh-start.json` |
-| Independent repeat and failure checks | Stable IDs and counts; failures preserved the database SHA-256 | `artifacts/P1/root-failure-repeat.json` |
+| Independent repeat and failure checks | Stable IDs and counts. Failures preserved the database SHA-256 | `artifacts/P1/root-failure-repeat.json` |
 | Source preservation | All 176 input file hashes unchanged | `artifacts/P1/inventory.json` |
 | Final implementation identity | 18 file hashes matched after final verification | `artifacts/P1/implementation-manifest.json` |
 | Dependency compatibility | Real MCP stdio initialization and calendar recurrence probe passed | `artifacts/P1/mcp-probe.json` and `dependency-probe.json` |
 
-The final project-local snapshot is `var/house_account.sqlite`. Recreate it with `uv run --locked house-account ingest --data data --database var/house_account.sqlite --report artifacts/P1/import.json`. The snapshot contains private raw evidence and uses owner-only permissions. The input pack, generated database, and execution artifacts are excluded from Git.
+The run published `var/house_account.sqlite`. The [local verification guide](verify-local-system.md) contains reproduction commands. The snapshot contains private raw evidence and uses owner-only permissions. The input pack, generated database, and execution artifacts are excluded from Git.
 
 ## Source accounting
 
@@ -67,7 +50,7 @@ Six empty Housecall Pro estimate pages are validated and recorded explicitly. Th
 
 The 84 provider rows and 8,575 property rows are source-local identities, not estimates of unique real-world businesses or homes. P2 performs cross-source reconciliation. Workiz customer payload variants remain separate evidence instead of last-write-wins updates.
 
-## Failure and publication guarantees
+## Original P1 publication behavior
 
 A full repeat import preserves source IDs, content hashes, entity counts, and occurrence accounting. Ingestion timestamps and snapshot IDs change intentionally. A failure injected after 23,000 observations preserves the prior published database byte-for-byte. The root independently verified another failure after 20,000 observations and malformed source JSON with the same result.
 
@@ -85,7 +68,7 @@ This measures the supplied pack on macOS arm64 with Python 3.13.2 and ten logica
 
 A separate, untimed-for-comparison profile identified SQLite statement execution as the largest measured cost, followed by JSON encoding. The profile is not part of the five reported timings. See `artifacts/P1/benchmark.json` and `profile-summary.txt` for the measurements and conditions.
 
-## Remaining uncertainty and scope
+## Limits at the end of P1
 
 - Cross-source aliases, property matching, job reconciliation, and the human review file are P2 work.
 - The wrong-year and transposed-number records remain unchanged. The wrong-year record carries a temporal inconsistency issue.
@@ -97,5 +80,3 @@ A separate, untimed-for-comparison profile identified SQLite statement execution
 - The packaged manifest intentionally requires this supplied layout. Adding an account or source requires an explicit manifest and adapter registration update. Incremental synchronization is not implemented.
 - Locking uses POSIX `fcntl`. This implementation was verified on macOS. Windows support is not claimed.
 - Local tests replace the unavailable cloud VM and Cursor control-skill workflow. There is no executable trunk baseline or final commit SHA. Implementation hashes identify the tested files.
-
-Model the Domain shaped the separate job, estimate, and visit relationships. Boundary Discipline keeps source-specific parsing and empty-page classification in adapters. Make Operations Idempotent shaped stable source identities and replace-on-success snapshots. Prove It Works required real subprocess imports and assertions against the stored database.

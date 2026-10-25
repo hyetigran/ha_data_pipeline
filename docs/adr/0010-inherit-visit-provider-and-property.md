@@ -1,5 +1,11 @@
-# Derive visit provider and property through its parent
+# Visit ownership through one parent
 
-Accepted as Q13 in the October 24, 2026 schema interview. A canonical visit belongs to exactly one job or estimate, enforced in SQL. Its provider and property are obtained through that parent rather than independent copies on the visit. Worker assignments remain separate evidence.
+The decision was accepted on October 24, 2026. P2R implements the local model described here. The [P2R execution record](../p2r-execution.md) records verification.
 
-This eliminates inconsistent parent/visit ownership at the cost of an extra join and assumes a job or estimate belongs to one provider and at most one resolved property. Multi-provider or multi-property projects require an explicit future extension. Original source assertions remain preserved even when they conflict. No implementation has changed.
+## Decision and reason
+
+A canonical visit belongs to exactly one job or estimate. SQL enforces that relationship. The visit derives its provider and property through its parent instead of storing competing copies.
+
+Q13 accepts an extra join to prevent inconsistent ownership. Worker assignments remain evidence about workers, not a replacement for provider identity.
+
+The model assumes one provider and at most one resolved property per job or estimate. A project involving several providers or properties needs an explicit extension. Conflicting source assertions remain preserved.

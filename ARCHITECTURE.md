@@ -1,81 +1,71 @@
-# Home services data layer and MCP
+# House Account architecture
 
-**Status — October 24, 2026:** P1 ingestion, P2 reconciliation/history/review, the P2R relational redesign, P3 availability/ranking, and P4 local MCP serving are implemented. Schema version 2 uses entity-specific source tables, relational canonical facts and a persistent SQLite database. P4 verification and the Codex interaction are recorded separately for operator review. Continuous production sync remains future work.
+House Account turns source observations into evidence-backed service history and candidate schedules. It uses a local SQLite database so imports, review, and queries share one model without a separate database service.
 
-## Data flow
+P1 through P4 are implemented and merged. The local system has no live CRM connector, production synchronization worker, or remote authorization layer.
 
-```mermaid
-flowchart TD
-    Inputs["Six supplied sources<br/>Jobber · Housecall Pro · Workiz<br/>CSV · ICS · profiles"] --> Adapters["Source adapters"]
-    Ref["Street reference"] --> Normalize["Normalize source assertions"]
-    Adapters --> Raw["Private source records<br/>payloads · locators · hashes · source times"]
-    Raw --> Normalize
-    Normalize --> Reconcile["Reconcile identities and facts<br/>field rules · evidence · uncertainty"]
-    Review["Local human review<br/>approve · reject · defer"] --> Reconcile
-    Reconcile --> Publish["Validate and publish transactionally<br/>persistent SQLite identities + canonical facts"]
-    Publish --> Queries["Read-only query functions"]
-    Queries --> Privacy["Public field allowlist<br/>block or ZIP defaults"]
-    Privacy --> MCP["Six bounded read-only MCP tools"]
-    MCP --> Agent["AI agent answers"]
-```
+## Source observations and canonical facts
 
-Adapters interpret source formats; normalized assertions retain source-specific evidence. Reconciliation selects canonical facts without rewriting originals. Deterministic matches can apply automatically; ambiguous identities and inferred corrections require local review. Source records, field lineage and decision references explain answers internally. The agent receives safe facts and opaque evidence references, not raw records or arbitrary SQL access.
+Adapters interpret the six supplied source formats. They preserve original payloads, account-scoped identities, occurrence locations, content hashes, and source times. Normalized source tables retain each source's assertions.
 
-## Core schema
-
-Important relationships are shown below; supporting evidence and vocabulary tables are summarized afterward. Diagram labels abbreviate the physical canonical table names. The visit's parent is **exactly one** job or estimate; provider/property come through that parent.
-
-```mermaid
-erDiagram
-    PROVIDERS ||--o{ JOBS : performs
-    PROVIDERS ||--o{ ESTIMATES : proposes
-    PROPERTIES o|--o{ JOBS : locates
-    PROPERTIES o|--o{ ESTIMATES : locates
-    JOBS o|--o{ VISITS : schedules
-    ESTIMATES o|--o{ VISITS : schedules
-    JOBS ||--o{ JOB_SERVICES : describes
-    ESTIMATES ||--o{ ESTIMATE_SERVICES : describes
-    JOBS ||--o{ SERVICE_COMPLETIONS : supports
-    VISITS o|--o{ SERVICE_COMPLETIONS : identifies
-    PROVIDERS ||--o{ PROVIDER_ALIASES : known_as
-    PROVIDERS ||--o{ PROVIDER_TRADES : offers
-    PROVIDERS ||--o{ PROVIDER_EXCLUSIONS : excludes
-    PROVIDERS ||--o{ DECLARED_SERVICE_AREAS : declares
-```
-
-| Table family | Stored facts and rules |
-| --- | --- |
-| Providers / properties | Persistent IDs; business label; normalized address including unit state; qualified geocode. Missing property links remain explicit, not fabricated homes. |
-| Jobs / estimates | Provider, optional resolved property, lifecycle/state; job amount in exact minor units. An estimate is not performed work. |
-| Visits | One parent, scheduling state, scheduled endpoints with value/state/precision and timezone. Source worker assignments are evidence, not established independent crew capacity. |
-| Services / completions | Multiple classified services and safe descriptions per job/estimate. Completion evidence links to a job and optionally a visit; specific service credit requires evidence. |
-| Provider relationships | Aliases, trades, exclusions and declared ZIPs are related rows. Observed coverage is derived separately from service history. |
-| Source / lineage / review | Original records and occurrences, entity-specific normalized tables, source-to-canonical links, field derivations and private review evidence. |
-| Identity registry | Stable canonical IDs and membership, merge redirects and ambiguous split references. Retained across imports. |
-
-Searchable facts and relationships use SQL columns, checks and foreign keys. Raw payloads and variable evidence may remain JSON. Dictionaries constrain service/trade codes; safe descriptions use approved wording rather than exposed source text. The [column contract](docs/schema-columns-draft.md) contains value lists; executable constraints live in `src/house_account/schema.py` and `storage.py`.
-
-A job can remain active after completed visits. Fresh Nest job #1034 has 46 completed visits and two upcoming visits: it contributes historical evidence while still carrying future appointments. Count distinct jobs and completed visits separately; never fabricate a visit from job-level completion evidence. Cross-source corroboration must not inflate counts.
-
-## Availability is derived, not stored as a provider flag
+Reconciliation selects canonical identities and facts from those assertions. Deterministic rules can merge supported identities. Ambiguous matches and inferred corrections remain review proposals. Field lineage records the supporting observations, rules, and effective decisions.
 
 ```mermaid
 flowchart LR
-    Hours["Declared local hours<br/>qualifiers + timezone"] --> Calc["Working intervals minus<br/>union of occupied intervals"]
-    Visits["Active job and estimate visits"] --> Calc
-    Blocks["Opaque calendar occurrences<br/>including vacation and tentative holds"] --> Calc
-    Evidence["Coverage, uncertainty<br/>capacity and source conflicts"] --> Calc
-    Calc --> Openings["Candidate openings<br/>confidence score, label and reasons"]
+	Source[Private source observations] --> Normalize[Typed source assertions]
+	Normalize --> Canonical[Canonical facts and lineage]
+	Review[Evidence-bound review decisions] --> Canonical
 ```
 
-P3 expands recurrence only within the requested horizon, respects exclusive all-day ends, excludes transparent events, and retains out-of-area occupancy. Missing hours or uncertain intervals mean unknown availability, not free time. Capacity is conservative until crew semantics are established. Travel is unmodeled. Confidence is an explained ordinal assessment, not a measured probability. The CLI exposes this calculation through `query openings`, `query available`, and `query recommend`. See [the P3 policy](docs/p3-design.md).
+The separate source layer makes disagreements inspectable after reconciliation. A selected canonical value does not erase a conflicting observation.
 
-## Publication, privacy and delivery boundary
+## Jobs, visits, and completed work
 
-P2R stages/validates full local-file imports and publishes them transactionally into **one persistent SQLite database**, keeping authoritative identity state. A failed import leaves the prior published state usable. The private append-only review file remains authoritative; recovery distinguishes recorded decisions from database-applied decisions. Dry runs do not mutate either. Migration, interruption, pinned-reader and backup/restore checks are covered by the P2R verification. See [migration and recovery](docs/p2r-migration.md).
+A job describes an undertaking. A visit describes one appointment for a job or estimate. Each visit has exactly one parent and derives its provider and property through that parent.
 
-Queries use published facts and consistent read transactions. Neighborhood answers expose aggregates or block/ZIP-level detail; exact-property history is limited to the explicitly supplied home. No homeowner contacts, raw notes, personal event titles or internal file paths belong in ordinary tool responses. Production authorization for exact-home access remains outside the local demo.
+Service completions record evidence that work happened. A completed visit can support history while its recurring job remains active. A completed estimate does not establish performed service. Job-level completion does not fabricate a completed visit.
 
-Production sync must distinguish verified complete snapshots from partial changes, preserve source revisions, apply retries idempotently, and report per-source freshness. **No live connectors, queue, sync worker or full incremental protocol is part of P2R.** The six-source local core must not be described as production-sync ready.
+Jobs and estimates can list several services. A completion receives credit for a particular service only when evidence supports that link. This prevents a completed plumbing visit from proving that every other service listed on the job also happened.
 
-Implementation order and proof: **R1 schema → R2 normalization/completion → R3 identity/transactional imports → R4 SQL queries/verification → P3 openings/ranking → P4 MCP/demo.** See the [project plan](docs/project-plan.md), [decisions](docs/decisions.md), [glossary](CONTEXT.md) and [trap register](docs/trap-register.md). The hidden grader kit is not used; locating six named examples does not prove discovery of all 22 traps.
+Provider aliases, trades, exclusions, and declared areas use related rows. Observed service areas come from completed work. Property records preserve unresolved links, unknown units, and approximate geocode precision.
+
+The [data model](docs/data-model.md) explains these distinctions. The [column design record](docs/schema-columns-draft.md) records accepted semantics. Executable constraints live in `src/house_account/schema.py` and `src/house_account/storage.py`.
+
+## Persistent identities and publication
+
+An import builds and validates an isolated candidate. Publication updates derived facts and identity state in one transaction on the persistent database. A failed build leaves the prior snapshot available. Readers keep one revision for each read transaction.
+
+The identity registry survives imports. Merges retain redirects from retired IDs. Splits can leave an earlier reference ambiguous rather than silently selecting one descendant.
+
+The review ledger remains authoritative outside the SQLite transaction. Apply records a decision before database publication. If publication then fails, `recorded_not_applied` distinguishes that state from an unrecorded decision. Rebuilding with the same ledger recovers the intended facts.
+
+The [migration guide](docs/p2r-migration.md) covers upgrade and recovery. The [review guide](docs/review-reconciliation.md) covers decisions.
+
+## Candidate availability
+
+Availability is a calculation over declared hours and occupied time. It is not a provider flag stored during import.
+
+```mermaid
+flowchart LR
+	Hours[Declared routine hours] --> Calculate[Subtract occupied and unknown intervals]
+	Busy[Visits, estimates, and blocking calendar occurrences] --> Calculate
+	Calculate --> Result[Candidate openings and uncertainty]
+```
+
+Recurrence expands only within the requested horizon. All-day end dates are exclusive. Transparent events do not block time. Opaque tentative holds and out-of-area appointments do.
+
+Missing hours and uncertain intervals reduce what the system can establish. They do not become free time. Capacity remains conservative at provider level, and travel is unmodeled. The [scheduling policy](docs/p3-design.md) defines duration, ranking, and confidence rules.
+
+## Public answers and private evidence
+
+Queries read published facts through consistent read transactions. MCP response models select allowed fields rather than exposing source rows. Controlled service descriptions preserve useful work details without copying private notes.
+
+Neighborhood answers use aggregates or block locations. Exact-home history applies to the supplied home. Homeowner contacts, personal calendar titles, raw notes, review evidence, and internal paths remain private.
+
+Local tool access is trusted. The server does not verify that a caller owns the requested property. Remote authentication and authorization require separate implementation.
+
+## Production boundary
+
+Repeated full-pack imports do not establish production synchronization. Partial deliveries need explicit scope, revision, retry, deletion, and freshness rules. Those contracts appear in [the synchronization requirements](docs/sync-readiness.md).
+
+SQLite remains suitable for the measured local workload. Larger deployments require measurements of record volume, recurrence density, concurrent readers, and refresh cost. Provider count alone does not establish a database limit.

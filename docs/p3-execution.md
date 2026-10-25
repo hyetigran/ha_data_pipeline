@@ -1,6 +1,6 @@
 # P3 execution record
 
-P3 implements local candidate availability and provider ranking on the merged P2R model. The parent is `c6c151ee3e95706ad178d2d661fc791f6106f616`. This record describes the original P3 implementation run. P3 subsequently merged in PR #3 at `313847d`; the shipping branch was removed. P4, travel optimization, and production synchronization were outside that run.
+P3 implements local candidate availability and provider ranking on the merged P2R model. The parent is `c6c151ee3e95706ad178d2d661fc791f6106f616`. This record describes the original P3 implementation run. P3 subsequently merged in PR #3 at `313847d`. The shipping branch was removed. P4, travel optimization, and production synchronization were outside that run.
 
 ## Delivered behavior
 
@@ -12,8 +12,8 @@ No schema migration or new external service was needed. The three product module
 
 ## Verification
 
-- The full suite passes 95 tests, including 21 new availability/ranking tests. Ruff and mypy pass, with 20 source files checked.
-- All ten live CLI lanes pass on the final source. Receipts are in `artifacts/P3/final-live-3/`, including `live-summary.json` and individual lane files.
+- The original full suite passed 95 tests, including 21 new availability/ranking tests. Ruff and mypy pass, with 20 source files checked.
+- All ten live CLI lanes passed on the P3 source. Receipts are in `artifacts/P3/final-live-3/`, including `live-summary.json` and individual lane files.
 - The live verifier compares parent/current scheduled visits and checks new openings against independently read occupancy. An independent minute-grid calculation checks the ranking result without reusing the production interval algorithm.
 - The updated maintenance history journey also passes and confirms scratch removal. Its evidence is in `artifacts/verification/history-nm84gfyi/`.
 - The P2 independent history checks preserve four Belmont completed jobs, four active Live Oak visits, 262 completed Lone Star jobs, and 969 radius provider/trade job counts. Privacy checks pass.
@@ -28,7 +28,7 @@ The supplied unreviewed pack returns three handymen with relevant 75214 history 
 
 The default water-heater recommendation for 75206 this week returns no eligible provider. An independent optimistic calculation, even before calendar and uncertainty deductions, finds insufficient gaps. An explicit 120-minute request returns two eligible providers. That is a different duration request, not a silent fallback. Rejected candidates disclose their requested or inferred duration.
 
-The 40 profiles produce 43 canonical identities because ambiguous calendar and spreadsheet links remain separate. Actual Ray and Abrams answers retain unknown availability. Their observed calendar definitions are additionally imported into isolated known-hours fixtures for non-vacuous vacation, tentative-hold, and transparency checks. Those fixtures do not approve real identity proposals. Real-pack cross-source agreement is not asserted across unresolved links; corroboration/conflict classification has isolated behavioral coverage.
+The 40 profiles produce 43 canonical identities because ambiguous calendar and spreadsheet links remain separate. Actual Ray and Abrams answers retain unknown availability. Their observed calendar definitions are additionally imported into isolated known-hours fixtures for non-vacuous vacation, tentative-hold, and transparency checks. Those fixtures do not approve real identity proposals. Real-pack cross-source agreement is not asserted across unresolved links. Corroboration/conflict classification has isolated behavioral coverage.
 
 CLI transcripts replace supplementary terminal screenshots because screenshot capture was unavailable. The requested Cursor-specific model families, agent types, and specialized Comment Sicko check were unavailable. Available local independent agents supplied design exploration, review, and live verification. Manual review found no new comment or suppression issues. No unavailable specialized check is represented as having run.
 
@@ -38,13 +38,13 @@ Working-hour omissions, unknown durations, uncertain dates, conservative capacit
 
 Current status text now reflects implemented persistent SQLite publication and stable identity. Historical decision entries retain their decision-time meaning. The project verification map includes P3 and its isolated CLI journey. Existing deferred factual corrections remain deferred.
 
-P4's MCP server, client configuration, connected-agent responses, and demo video have not been implemented. No code was published or merged by this run.
+P4 was outside this original run. The [P4 execution record](p4-execution.md) describes the later MCP server and Codex demo.
 
 
 ## Performance
 
 The final benchmark runs one warmup and 30 measured rounds over a 30-day window for every one of the 43 canonical providers, plus availability search and recommendation. Each timed operation opens its read transaction and serializes the complete answer. All response hashes are deterministic and no operation errors. The parent has no availability/ranking operation, so there is no comparable baseline or speedup claim.
 
-The largest p95 is 142.5 ms for availability search. Ranking p95 is 128.4 ms. Peak process memory is 148.2 MiB. These pass the 1-second and 512-MiB budgets. Availability samples range from 133.3 to 156.9 ms; ranking samples range from 115.2 to 129.2 ms. Machine and source hashes, sample counts, and per-provider results are retained in `artifacts/P3/benchmark-final.json`.
+The largest p95 is 142.5 ms for availability search. Ranking p95 is 128.4 ms. Peak process memory is 148.2 MiB. These pass the 1-second and 512-MiB budgets. Availability samples range from 133.3 to 156.9 ms. Ranking samples range from 115.2 to 129.2 ms. Machine and source hashes, sample counts, and per-provider results are retained in `artifacts/P3/benchmark-final.json`.
 
 A separate excluded profiling run attributes most ranking time to SQLite queries and conversion of returned rows, followed by interval arithmetic. This is a local single-client measurement on the supplied pack, not a production-scale capacity claim. Profiling output is in `artifacts/P3/benchmark-final.profile.txt`.
