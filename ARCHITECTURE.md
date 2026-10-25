@@ -1,6 +1,6 @@
 # Home services data layer and MCP
 
-**Status — October 24, 2026:** P1 ingestion, P2 reconciliation/history/review and the P2R relational redesign are implemented locally. Schema version 2 uses entity-specific source tables, relational canonical facts and a persistent SQLite database. The diagrams describe the local implementation except pieces explicitly marked P3/P4. Availability, MCP serving and continuous production sync remain future work.
+**Status — October 24, 2026:** P1 ingestion, P2 reconciliation/history/review, the P2R relational redesign, and P3 availability/ranking are implemented locally. Schema version 2 uses entity-specific source tables, relational canonical facts and a persistent SQLite database. The diagrams describe the local implementation except pieces explicitly marked P4. MCP serving and continuous production sync remain future work.
 
 ## Data flow
 
@@ -61,14 +61,14 @@ A job can remain active after completed visits. Fresh Nest job #1034 has 46 comp
 
 ```mermaid
 flowchart LR
-    Hours["Declared local hours<br/>qualifiers + timezone"] --> Calc["Working intervals minus<br/>union of occupied intervals · P3"]
+    Hours["Declared local hours<br/>qualifiers + timezone"] --> Calc["Working intervals minus<br/>union of occupied intervals"]
     Visits["Active job and estimate visits"] --> Calc
     Blocks["Opaque calendar occurrences<br/>including vacation and tentative holds"] --> Calc
     Evidence["Coverage, uncertainty<br/>capacity and source conflicts"] --> Calc
     Calc --> Openings["Candidate openings<br/>confidence score, label and reasons"]
 ```
 
-P3 expands recurrence only within the requested horizon, respects exclusive all-day ends, excludes transparent events, and retains out-of-area occupancy. Missing hours or uncertain intervals mean unknown availability, not free time. Capacity is conservative until crew semantics are established. Travel is unmodeled. Confidence is an explained ordinal assessment, not a measured probability. This is still planned behavior.
+P3 expands recurrence only within the requested horizon, respects exclusive all-day ends, excludes transparent events, and retains out-of-area occupancy. Missing hours or uncertain intervals mean unknown availability, not free time. Capacity is conservative until crew semantics are established. Travel is unmodeled. Confidence is an explained ordinal assessment, not a measured probability. The CLI exposes this calculation through `query openings`, `query available`, and `query recommend`. See [the P3 policy](docs/p3-design.md).
 
 ## Publication, privacy and delivery boundary
 

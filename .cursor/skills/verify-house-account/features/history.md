@@ -8,7 +8,7 @@ Query a property's completed work, nearby provider experience, upcoming block vi
 - `history-property` separates four confirmed Belmont jobs from other or uncertain jobs.
 - `history-radius` returns the established provider and trade counts within half a mile.
 - `history-block` returns four active Live Oak visits and keeps uncertain candidates separate.
-- `history-provider` returns 262 completed Lone Star jobs and states that openings await P3.
+- `history-provider` returns 262 completed Lone Star jobs and three chronological candidate openings with explicit availability status.
 - `history-privacy` checks forbidden private field names, email markers, and source-path markers in query output.
 
 ## How to get to it (user POV)
@@ -28,6 +28,8 @@ Preconditions: Launch and doctor pass with the unchanged supplied pack and an em
 - Read `result.json`, `query-*.stdout`, `query-*.stderr`, and `independent.json` in the printed evidence directory. Require pass and `scratch_removed: true`.
 
 ## Gotchas
+
+- Provider history defaults to three candidate openings that each fit two hours, within November 2 through December 3, 2026 (exclusive), at Chicago midnight. See [Availability and rankings](availability.md) for configurable searches.
 
 - Radius CLI uses a fixed half-mile radius and the November 2, 2024 through November 2, 2026 window. Block CLI uses November 2 through November 16, 2026. Boundaries are Chicago midnight and the end is exclusive.
 - Trade groups overlap. The sum of 969 is a fixture assertion, not a count of globally unique jobs.

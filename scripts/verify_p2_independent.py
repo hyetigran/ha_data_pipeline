@@ -69,7 +69,8 @@ def verify(database: Path) -> dict:
     summary = provider_summary(database, provider)
     assert summary['results']['completed_distinct_jobs'] == 262
     assert set(summary['results']['service_zips']) == {'75206', '75214', '75204', '75219', '75223'}
-    assert summary['results']['opening_status'] == 'not_implemented_until_P3'
+    assert summary['results']['opening_status'] in {'known', 'partial'}
+    assert len(summary['results']['openings']) == 3
     radius = history_radius(database, '4512 Live Oak St, Dallas, TX 75204')
     # Two combined patch/paint jobs retain completion but lack service-specific attribution.
     assert sum(row['distinct_jobs'] for row in radius['results']) == 969

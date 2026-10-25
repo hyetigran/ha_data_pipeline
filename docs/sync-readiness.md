@@ -4,13 +4,13 @@ October 24, 2026. Production must support continuous source ingestion and syncin
 
 ## Current implementation
 
-`cli.ingest` enumerates the complete local data pack and calls `storage.write_snapshot`. The writer builds a fresh database, validates it, and atomically replaces the previous file. A file lock rejects another concurrent importer. Source-scoped keys and content hashes deduplicate repeated observations in a snapshot. A failed build preserves the last successful database.
+`cli.ingest` enumerates the complete local data pack and calls `storage.write_snapshot`. The writer builds and validates a staging database, then publishes its facts and identity state in a transaction on the persistent database. Routine imports preserve the database inode. A file lock rejects another concurrent importer. Source-scoped keys and content hashes deduplicate repeated observations in a snapshot. A failed build preserves the last successful published state.
 
-This supports repeated full imports of supplied files. It does not provide a continuous sync worker, API polling/webhook connectors, per-source checkpoints, a durable queue, incremental source-version history, out-of-order update handling or explicit remote-deletion semantics. A disappeared input record simply is not part of the new full projection; that is not a safe general policy for partial API responses. Current canonical IDs still depend on source membership, unlike the accepted persistent-ID target design.
+This supports repeated full imports of supplied files. It does not provide a continuous sync worker, API polling/webhook connectors, per-source checkpoints, a durable queue, incremental source-version history, out-of-order update handling or explicit remote-deletion semantics. A disappeared input record simply is not part of the new full projection; that is not a safe general policy for partial API responses. The persistent identity registry preserves canonical IDs when new evidence joins an entity. Reviewed merges retain redirects, and split references can resolve as ambiguous. The [P2R execution record](p2r-execution.md) and [migration notes](p2r-migration.md) document the verification and recovery behavior.
 
 ## Accepted direction
 
-ADR 0012 keeps one persistent SQLite database and transactional publication. Stage/validate work before publishing, preserve authoritative identities and last successful state, and test crash recovery and backup restoration. This decision is not yet implemented.
+[ADR 0012](adr/0012-use-persistent-sqlite-with-transactional-imports.md) is implemented for full local-file imports. P2R preserves authoritative identities and the last successful published state in one persistent SQLite database. Its verification includes crash recovery, pinned readers, and backup restoration. The private append-only review ledger remains authoritative outside the database transaction. Recovery distinguishes recorded decisions from database-applied decisions.
 
 Q25 is also accepted (ADR 0013): deliveries declare source/account, scope and completeness semantics. Verified complete-snapshot omission establishes disappearance only within its scope. Partial-batch omission establishes nothing. Scope disappearance, explicit deletion and cancellation are distinct; history remains preserved. Completeness requires evidence, not merely a boolean claim.
 
@@ -24,7 +24,7 @@ Q25 is also accepted (ADR 0013): deliveries declare source/account, scope and co
 - Distinguish source freshness from job/provider availability. A successful sync of one account must not imply that all accounts are current. Expose last successful update, coverage and failure state as appropriate.
 - Readers must see a consistent published generation while imports/review updates are serialized or otherwise coordinated. Preserve matching integrity when related changes arrive separately. Define whether invalid individual changes block the batch or enter quarantine without falsely advancing publication state.
 
-Candidate tables include source_connections, sync_runs, sync_checkpoints, source_record_versions and deletion/disappearance evidence, alongside persistent identity and canonical tables. Their exact names, columns, revision and publication semantics are proposals for the next interview round.
+Candidate tables include source_connections, sync_runs, sync_checkpoints, source_record_versions and deletion/disappearance evidence, alongside persistent identity and canonical tables. Their exact names, columns, revision, and publication semantics remain future production design work. P3 does not require these tables or another broad design interview.
 
 SQLite capacity depends on actual transaction size, writer contention, query workload and deployment. Do not claim either production suitability at 10,000 providers or a need to replace SQLite from provider count alone. Benchmark representative continuous ingestion plus concurrent reads and revisit the database engine when measured requirements warrant it.
 
@@ -43,4 +43,4 @@ Q26–Q29 are accepted design contracts, not implemented capabilities or impleme
 
 ## Scope control
 
-The initial redesign remains a local file-import system. Adopt the accepted domain schema and persistent transactional storage; do not add live connectors, queues, scheduling daemons or a generalized event-processing framework merely to anticipate production. Continuous sync remains a documented production requirement and later implementation phase. Preserve source/account keys, source timing/evidence and clear delivery boundaries so the future work has a defined starting point. Do not claim the small initial redesign alone delivers production syncing.
+The initial redesign remains a local file-import system. P2R implements the accepted domain schema and persistent transactional storage. The authorized P3 work derives availability and rankings from that model. Live connectors, queues, scheduling daemons, and a generalized event-processing framework remain deferred. Continuous sync remains a documented production requirement and later implementation phase. Preserve source/account keys, source timing/evidence and clear delivery boundaries so the future work has a defined starting point. Do not claim the small initial redesign alone delivers production syncing.

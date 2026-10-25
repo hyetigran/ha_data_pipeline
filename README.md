@@ -1,8 +1,8 @@
 # Import the home services data pack
 
-The importer builds a private SQLite snapshot from all six supplied sources and the street reference. P2 adds canonical identities, history queries, and a local human review workflow. Availability and MCP tools remain P3 and P4 work.
+The importer builds a private SQLite snapshot from all six supplied sources and the street reference. P2 adds canonical identities, history queries, and a local human review workflow. P3 adds candidate openings and evidence-based provider rankings. MCP tools remain P4 work.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the current-versus-target design and diagrams, and [the project plan](docs/project-plan.md) for the minimal pre-P3 redesign and remaining grading evidence.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the current-versus-target design and diagrams, and [the project plan](docs/project-plan.md) for the implementation sequence and remaining grading evidence.
 
 ## Run the importer
 
@@ -40,7 +40,7 @@ The importer keeps source-local provider, property, job, estimate, and visit ide
 
 A writer lock permits one import per database path. The importer validates a candidate, then publishes it into the persistent database in one transaction. WAL and full synchronous durability are enabled. Read transactions retain a consistent revision. Use SQLite backup APIs, not a lone main-file copy, for live backups. See [P2R migration and recovery](docs/p2r-migration.md).
 
-Calendar recurrence definitions, all-day exclusive endpoints, transparency, and tentative status remain available for P3. Ambiguous spreadsheet dates and missing durations remain unresolved. The identified year and address corrections are not applied. The local review workflow below handles those proposals.
+P3 expands calendar recurrence within a bounded horizon and respects all-day exclusive endpoints, transparency, and tentative status. Ambiguous spreadsheet dates and missing durations remain unresolved. The identified year and address corrections are not applied. The local review workflow below handles those proposals.
 
 See [the project plan](docs/project-plan.md), [decision log](docs/decisions.md), and [inspection findings](docs/data-pack-inspection.md) for scope and source limitations.
 
@@ -59,7 +59,7 @@ uv run --locked house-account query property '5823 Belmont Ave, Dallas, TX 75206
 uv run --locked house-account query provider CANONICAL_PROVIDER_ID
 ```
 
-The radius window defaults to November 2, 2024 through November 2, 2026. The block window defaults to November 2 through November 16, 2026. Boundaries are Chicago local midnight and the end is exclusive. Exact-property results separate confirmed completed history from other or uncertain jobs. Provider summaries expose history and explicitly report that openings await P3. Responses contain business labels, bounded service categories, opaque evidence references and coverage limitations. They exclude customer contacts, raw notes, personal calendar titles and source paths.
+The radius window defaults to November 2, 2024 through November 2, 2026. The block window defaults to November 2 through November 16, 2026. Boundaries are Chicago local midnight and the end is exclusive. Exact-property results separate confirmed completed history from other or uncertain jobs. Provider summaries expose history and the next three candidate openings, including explicit unknown or partial availability. Responses contain business labels, bounded service categories, opaque evidence references and coverage limitations. They exclude customer contacts, raw notes, personal calendar titles and source paths.
 
 Export proposals into the private local review file:
 
@@ -90,7 +90,7 @@ uv run --locked pytest
 uv run --locked python scripts/verify_p2_review.py
 ```
 
-The fixture demonstrates approve, reject, defer, repeat application, and supersession. P3 availability, travel estimates, and MCP tool serving are outside this phase.
+The fixture demonstrates approve, reject, defer, repeat application, and supersession. The P2 review workflow preserves its original scope. P3 adds availability separately; travel estimates and MCP tool serving remain deferred.
 
 The sanitized demonstration is an integration check with a fixture importer. Verify the real CLI against disposable copies and independently inspected source answers with these commands. The active snapshot and review decisions remain unchanged.
 
@@ -104,4 +104,36 @@ See [the P2 execution record](docs/p2-execution.md) for measured results and rem
 
 ## Relational redesign (P2R)
 
-See [the execution record](docs/p2r-execution.md), [architecture](ARCHITECTURE.md) and [migration notes](docs/p2r-migration.md). Jobs retain lifecycle independently of service completion. Estimates, services, completion evidence, temporal uncertainty and identity state are explicit SQL facts. Query output now includes separate completed-visit counts and qualified service dates. P3 remains unimplemented.
+See [the execution record](docs/p2r-execution.md), [architecture](ARCHITECTURE.md) and [migration notes](docs/p2r-migration.md). Jobs retain lifecycle independently of service completion. Estimates, services, completion evidence, temporal uncertainty and identity state are explicit SQL facts. Query output now includes separate completed-visit counts and qualified service dates. P3 consumes these facts for availability and ranking.
+
+
+## Find openings and recommendations (P3)
+
+After importing, run:
+
+```sh
+uv run --locked house-account query available 75214 --trade handyman --duration-minutes 120
+uv run --locked house-account query openings 'Lone Star Plumbing' --limit 3
+uv run --locked house-account query recommend 75206 --service water_heater
+```
+
+The fixed reference date is November 2, 2026 in America/Chicago. `available` defaults to the next three days, `recommend` to this week, and `openings` to the supplied schedule coverage through December 2. Override the horizon with aware ISO timestamps in `--start` and `--end`, up to 31 days. Override the duration with `--duration-minutes`, and cap results with `--limit`. Every interval includes its start and excludes its end.
+
+Responses distinguish unknown availability from a known schedule with no sufficient opening. Unknown weekdays and emergency-only hours do not establish routine availability. Active visits, estimate appointments, vacations, and opaque tentative calendar events consume time. Transparent and cancelled events do not. Work outside the reference postal codes still consumes time.
+
+All openings are candidates under a conservative provider-level capacity assumption. Travel is unmodeled. Confidence is an explained ordinal score, not a probability or booking guarantee. See [the scheduling policy](docs/p3-design.md) for evidence, duration, and ranking rules, and [the P3 execution record](docs/p3-execution.md) for verification results.
+
+On the supplied pack, the default water-heater recommendation can correctly return no eligible providers this week. A shorter explicit duration is a different request, not an automatic fallback to make the answer nonempty. The response explains each exclusion and duration assumption.
+
+Run the P3 checks with a disposable snapshot:
+
+```sh
+uv run pytest tests/test_availability.py tests/test_ranking.py
+mkdir -p artifacts/P3/parent-source
+git archive c6c151e | tar -x -C artifacts/P3/parent-source
+uv run python scripts/verify_p3.py --data data --output artifacts/P3/live
+uv run house-account ingest --data data --database artifacts/P3/perf/snapshot.sqlite --ledger artifacts/P3/perf/decisions.jsonl
+uv run python scripts/benchmark_p3.py --database artifacts/P3/perf/snapshot.sqlite
+```
+
+The live verifier owns temporary databases and removes them while retaining receipts. The benchmark reads the explicit disposable snapshot. Private artifacts remain ignored by Git. MCP serving and the connected-agent demo are not implemented by P3.

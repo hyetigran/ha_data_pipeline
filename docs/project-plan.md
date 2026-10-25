@@ -1,17 +1,17 @@
 # Build the home services MCP server plan
 
 Deliver a local, read-only MCP server that answers the six homeowner questions with traceable evidence and explicit uncertainty.
-The original challenge uses P1 through P4. Insert the minimal P2R schema redesign after existing P2 and before P3; re-estimate remaining effort rather than treating the original two-day schedule as a fresh completion promise.
+The original challenge uses P1 through P4. P2R completed the minimal schema redesign between P2 and P3. The original two-day schedule is a historical estimate, not a fresh completion promise.
 Keep jobs separate from visits. Compute openings from working hours, occupied visits, and calendar blocks.
 Treat the data pack as the only source of customer facts.
-The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion and P2 reconciliation, history queries, and local review are implemented. P2R, P3 and P4 remain unimplemented.
-This document records the project plan. P1 results are in [the P1 execution report](p1-execution.md). P2 results and documented verification adaptations are in [the P2 execution report](p2-execution.md). P2R, P3 and P4 paths and commands remain proposed. The accepted schema/sync interview changes describe a target design, not the running database. See [ARCHITECTURE.md](../ARCHITECTURE.md).
+The data pack is present under `data/`. Inspection found 176 files totaling 21,292,274 bytes. P1 ingestion, P2 reconciliation, history queries, local review, and the P2R schema redesign are implemented and merged. P3 implementation is now authorized. P4 remains deferred.
+This document records the project plan. P1 results are in [the P1 execution report](p1-execution.md). P2 results and documented verification adaptations are in [the P2 execution report](p2-execution.md). The [P2R execution report](p2r-execution.md) records the implemented relational model, persistent identities, and transactional publication. P3 checks below remain pending until evidence exists. P4 paths and commands remain proposed. Production sync contracts remain deferred. See [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ## How to read this
 
 One box is one unit of work. Every box names the evidence that checks it. Check a box only when its evidence exists. Keep logs under `artifacts/P1/` through `artifacts/P4/`.
 
-Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P2R, P3, and P4 form one dependent sequence; existing P1/P2 reports remain historical evidence. The operator owns landing. Planning does not authorize implementation, publication, scheduling, or merging.
+Use `/Users/tig/.codex/skills/pstack/poteto-mode/playbooks/autopilot-stack.md` as the execution playbook. P1, P2, P2R, P3, and P4 form one dependent sequence; existing P1/P2 reports remain historical evidence. The operator owns landing. The current request authorizes P3 implementation, verification, and stale documentation fixes. Stop before P4. It does not authorize publication or merge. Earlier phase-specific stop instructions below record the boundaries in effect during those phases.
 
 Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
@@ -190,7 +190,7 @@ Read the execution checklist in order. Appendices record design choices, the dat
 
 ## Minimal schema redesign before P3 (P2R)
 
-**Status.** Implemented under the subsequent explicit P2R authorization; final verification is recorded in [the execution record](p2r-execution.md). Q1–Q29 and the reduced-scope direction remain recorded in D006–D013 and ADRs 0001–0013. Historical P1/P2 results describe the old implementation. P3, publication and merge remain excluded.
+**Status.** Implemented and merged. Final P2R verification is recorded in [the execution record](p2r-execution.md). Q1–Q29 and the reduced-scope direction remain recorded in D006–D013 and ADRs 0001–0013. Historical P1/P2 results describe the old implementation. The P2R authorization excluded P3 and publication at that time. D015 records the current P3 authorization.
 
 **Scope.** Keep Python, SQLite, local supplied files, the existing CLI and local review-file workflow. Use entity-appropriate source tables and relational canonical facts. Preserve raw observations and selected field lineage; JSON remains appropriate for original payloads and variable evidence. No ORM migration, hosted database, live CRM connectors, queues, sync daemon, general event platform or new UI is required. The [architecture](../ARCHITECTURE.md), [schema layout](schema-redesign.md), [column contract](schema-columns-draft.md) and [sync requirements](sync-readiness.md) supply the design detail.
 
@@ -239,7 +239,11 @@ Implement these four dependent units in order. Each unit must have its evidence 
 
 ## Compute defensible openings and provider rankings (P3)
 
-**Depends on.** P2R exit gate (including the existing P2 behavior).
+**Status.** Implemented and locally verified. See [the P3 execution record](p3-execution.md) for the 95-test suite, ten live lanes, independent review, performance results, and verification adaptations. No P4 work or publication occurred. The checklist below retains the original acceptance contract.
+
+**Depends on.** The completed P2R exit gate, including the existing P2 behavior.
+
+**Status.** Authorized on October 24, 2026. Implement and verify availability and rankings against the merged P2R model. Correct stale documentation. Keep production sync and P4 MCP serving outside this change. Record completed checks only after their evidence exists.
 
 **Files.**
 
@@ -283,8 +287,8 @@ Implement these four dependent units in order. Each unit must have its evidence 
 
 **Verify, perf.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] Metric. Measure availability and ranking p95 wall time over 30 requests for all 40 providers and a 30-day window. Record fixture hashes and machine details.
-- [ ] Probe. Run `uv run python scripts/benchmark.py --stage P3` at the parent and head, alternating runs after one warmup. Exclude agent-model latency from tool timings.
+- [ ] Metric. Measure availability and ranking p95 wall time over 30 requests for every canonical provider and a 30-day window. The supplied 40 profiles currently yield 43 canonical identities because unresolved links remain separate. Record fixture hashes and machine details.
+- [ ] Probe. Run `uv run python scripts/benchmark_p3.py --database <disposable-snapshot>` on head after one warmup. The P2R parent has no comparable availability operation, so record that baseline as unavailable. Exclude agent-model latency from tool timings.
 - [ ] Baseline. Record parent measurements first. When parent lacks the operation, mark the baseline unavailable and measure the new work plus its complete user-visible operation on head.
 - [ ] Rule. Fail if a comparable head p95 exceeds the parent by more than 25 percent. Also fail if head exceeds the proposed budgets of 1 second per query and 512 MiB peak memory. These are target budgets, not measured claims. Do not compute ratios for unlike operations.
 
@@ -383,11 +387,11 @@ PostgreSQL with PostGIS remains a week-two option when spatial query volume, con
 
 Six named tools map directly to the six required question types. Shared query functions avoid repeating domain rules. Generic query languages and one tool per database table would increase agent decision work.
 
-Keep full supplied-pack imports in the core, but publish transactionally into persistent SQLite after P2R. Stable identities must survive imports. Production continuous sync is required eventually; Q25–Q29 define complete/partial delivery, ordering, retries, failure isolation and freshness contracts. Live connectors, incremental processing, queues and sync orchestration remain deferred.
+P2R keeps full supplied-pack imports and publishes transactionally into persistent SQLite. Its identity registry preserves stable IDs across imports. Production continuous sync is required eventually; Q25–Q29 define complete/partial delivery, ordering, retries, failure isolation and freshness contracts. Live connectors, incremental processing, queues and sync orchestration remain deferred.
 
 ## Appendix C. Risks
 
-The data pack is available and its raw counts and shapes are recorded. P2 counts and four query answers have recorded verification; P2R may change them for documented semantic reasons. P3 availability and P4 end-to-end six-question answers still require implementation and independent validation. Raw counts are not unique real-world entity counts.
+The data pack is available and its raw counts and shapes are recorded. P2R counts and four query answers have recorded verification. The execution report explains semantic differences from P2. P3 availability and P4 end-to-end six-question answers still require implementation and independent validation. Raw counts are not unique real-world entity counts.
 
 The source document's grader kit is not supplied. Build independent expected results from visible records and hand-labeled fixtures. Never claim agreement with hidden ground truth.
 
@@ -443,7 +447,7 @@ Read `how/SKILL.md` before changing ownership during execution. Use `interrogate
 | DataIssue | Source reference, issue code, affected fields, disposition. Count unresolved issues in coverage metadata. |
 | Opening | Derived start and end, provider, resource assumption, confidence, reasons, evidence references, calculation time and horizon. |
 
-The accepted physical contract is in [schema-columns-draft.md](schema-columns-draft.md); names/checks not yet converted to DDL remain design details. Canonical IDs persist across new evidence, with merge redirects and ambiguous split resolution. Frequently queried facts use relational columns; raw payloads and variable evidence can remain JSON.
+The accepted physical contract is in [schema-columns-draft.md](schema-columns-draft.md). P2R implements the source and canonical schema in [schema.py](../src/house_account/schema.py). Opening calculation remains P3 work. Canonical IDs persist across new evidence, with merge redirects and ambiguous split resolution. Frequently queried facts use relational columns; raw payloads and variable evidence can remain JSON.
 
 Keep source assertions even when they conflict. Select canonical values with field-specific rules and record why. Distinguish source update timestamps from ingestion time. Do not treat the latest ingestion as evidence of the latest business state.
 
@@ -555,7 +559,7 @@ A review decision persists across identical imports. Changed source content or a
 
 Conflicting approved corrections to the same field, incompatible merges, and dangling references fail validation. Apply no partial snapshot when those checks fail. A reviewer cannot use approval to bypass immutable identity or referential-integrity constraints without a separate explicitly supported correction action.
 
-To reverse a decision, export a new decision entry with `supersedes_decision_id`. The human supplies a replacement decision and reason. Never delete ledger history. Rebuild from original observations and the effective decision set so rejected or deferred replacement decisions undo the earlier derived merge or correction. Revalidate dependent decisions and require review if their assumptions no longer hold. Keep canonical IDs deterministic for the same sources and effective decisions.
+To reverse a decision, export a new decision entry with `supersedes_decision_id`. The human supplies a replacement decision and reason. Never delete ledger history. Rebuild from original observations and the effective decision set so rejected or deferred replacement decisions undo the earlier derived merge or correction. Revalidate dependent decisions and require review if their assumptions no longer hold. Preserve the P2R identity registry through reconstruction, including merge redirects and ambiguous split references.
 
 Use the observed Lakewood Air job J8OMKP and Ray's spreadsheet row 175 as the first correction proposals. The proposed year and house-number corrections remain deferred until a human approves them. The user request to build this workflow does not itself approve those corrections.
 
@@ -581,9 +585,9 @@ The rubric is a coverage checklist, not a claim of completion. Evaluate the impl
 | No giant query(sql) tool | Six named contracts; explicit SQL/raw-record tool prohibition. | P4 test discovery/selection, tight inputs and useful errors through an actual agent. |
 | Availability is not merely no bookings | Declared hours, coverage and conservative capacity policy. | P3 verify missing hours, vacation, recurring blocks, tentative/transparent events, out-of-area jobs, incomplete intervals and emergency qualifiers. |
 | No silent dedupe | Crosswalk, provenance and private review workflow. | P2R preserves field/evidence links and decision replay, with stable identity; unresolved merges/corrections remain explicit. |
-| Matching tests, not just README | Last recorded suite: 52 tests, including matching/review/DST coverage. | P2R reruns adapted tests and independent real-pack checks; P3/P4 add their own evidence. Do not claim the old suite verifies the new schema. |
+| Matching tests, not just README | The P2R execution report records 73 passing tests and independent full-pack checks. | P3/P4 add their own evidence. Historical suite counts do not verify later changes. |
 | PII is addressed | Private evidence and allowlisted public responses. | P4 enforce no raw notes, contacts or personal calendar titles through tools/errors/log examples; production exact-home authorization remains a disclosed limitation. |
 | Hidden traps and ground truth | Six named trap examples located; register documents additional candidate families. | Keep [trap register](trap-register.md) current. No 22/22 claim or hidden-answer agreement without evidence. The private grader kit is neither a dependency nor a source to access. |
 | Seventh source | Adapter boundary planned. | Pool-invoice PDF ingestion is an optional stretch only after six questions and core deliverables work. Do not build a speculative parser now. |
 
-**Priority.** Finish the bounded P2R gate, then P3, then P4 and the actual agent demo. Keep production-sync infrastructure, advanced fuzzy matching, worker-capacity modeling and travel optimization out of the critical path. The repository, concise model explanation, decision log and <=5-minute demo remain the required deliverables. [ARCHITECTURE.md](../ARCHITECTURE.md) is the concise model/flow overview; update its implementation-status paragraph after each stage rather than expanding it into a second execution plan.
+**Priority.** Implement and verify P3 on the completed P2R model. Stop before P4 and the actual agent demo, which require separate authorization. Keep production-sync infrastructure, advanced fuzzy matching, worker-capacity modeling and travel optimization out of the critical path. The repository, concise model explanation, decision log and <=5-minute demo remain the required deliverables. [ARCHITECTURE.md](../ARCHITECTURE.md) is the concise model/flow overview; update its implementation-status paragraph after each stage rather than expanding it into a second execution plan.

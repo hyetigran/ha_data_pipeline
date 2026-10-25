@@ -28,7 +28,7 @@ def _address(connection: sqlite3.Connection, address: Any):
 
 
 def _envelope(connection: sqlite3.Connection, results: Any) -> dict[str,Any]:
-    return {'results':results,'coverage':{'properties_missing_coordinates':connection.execute('SELECT count(*) FROM canonical_properties WHERE latitude IS NULL').fetchone()[0],'source_scope':'nine target postal codes; absence is not evidence of no experience','completed_visit_count_basis':'Independent visit completion evidence; job-level completion and projected schedules do not establish performed visits','unknown_spreadsheet_intervals':connection.execute("SELECT count(*) FROM source_records WHERE source='spreadsheet' AND kind='job'").fetchone()[0]},'limitations':['Coordinates are approximate street-segment interpolation.','Uncertain identities remain separate.','Travel and availability are not modeled in P2.','Date-only completions count only when their entire local date lies in the requested window.','Trade groups can overlap; their distinct job counts are not additive.'],'snapshot_id':connection.execute('SELECT id FROM snapshot').fetchone()[0]}
+    return {'results':results,'coverage':{'properties_missing_coordinates':connection.execute('SELECT count(*) FROM canonical_properties WHERE latitude IS NULL').fetchone()[0],'source_scope':'nine target postal codes; absence is not evidence of no experience','completed_visit_count_basis':'Independent visit completion evidence; job-level completion and projected schedules do not establish performed visits','unknown_spreadsheet_intervals':connection.execute("SELECT count(*) FROM source_records WHERE source='spreadsheet' AND kind='job'").fetchone()[0]},'limitations':['Coordinates are approximate street-segment interpolation.','Uncertain identities remain separate.','Travel is not modeled; candidate availability uses a separate bounded query.','Date-only completions count only when their entire local date lies in the requested window.','Trade groups can overlap; their distinct job counts are not additive.'],'snapshot_id':connection.execute('SELECT id FROM snapshot').fetchone()[0]}
 
 
 def _job(connection: sqlite3.Connection, row: dict[str,Any]) -> dict[str,Any]:
@@ -104,12 +104,17 @@ def block_schedule(database: Path,address: Any,start: str='2026-11-02T06:00:00+0
 
 def provider_summary(database: Path,provider_id: str) -> dict[str,Any]:
     with connect_readonly(database) as connection:
+        from .availability import openings
+        from .availability import provider_id as find_provider
         from .registry import resolve_identity
+        from .time_policy import DEFAULT_END, REFERENCE, request_window
         resolved=resolve_identity(connection,provider_id,'provider')
         if resolved['status']=='ambiguous':
             return _envelope(connection,{'identity_status':'ambiguous','requested_id':provider_id,'candidate_ids':resolved['ids']})
         if resolved['status']=='resolved':
             provider_id=cast(list[str],resolved['ids'])[0]
+        provider_id=find_provider(connection,provider_id)
+        schedule=openings(connection,provider_id,request_window(REFERENCE,DEFAULT_END,120))
         provider=connection.execute('SELECT display_name FROM canonical_providers WHERE id=?',(provider_id,)).fetchone()
         if not provider:
             raise ValueError('unknown or retired canonical provider')
@@ -121,4 +126,4 @@ def provider_summary(database: Path,provider_id: str) -> dict[str,Any]:
         refs=[r[0] for r in connection.execute("SELECT source_id FROM canonical_crosswalk WHERE kind='provider' AND canonical_id=?",(provider_id,))]
         zips=[r[0] for r in connection.execute('SELECT postal_code FROM provider_declared_service_areas WHERE provider_id=? ORDER BY postal_code',(provider_id,))]
         observed=[r[0] for r in connection.execute("SELECT DISTINCT p.postal_code FROM canonical_jobs j JOIN canonical_properties p ON p.id=j.property_id JOIN service_completions c ON c.job_id=j.id WHERE j.provider_id=? AND c.service_date_state='known' AND p.postal_code IS NOT NULL ORDER BY p.postal_code",(provider_id,))]
-        return _envelope(connection,{'provider_id':provider_id,'business_name':provider[0],'service_zips':zips,'observed_service_zips':observed,'history':history,'uncertain_date_history':uncertain_history,'trades':[r[0] for r in connection.execute('SELECT trade_code FROM provider_trades WHERE provider_id=?',(provider_id,))],'distinct_jobs':len(rows),'completed_distinct_jobs':len(history),'completed_visits':sum(j['completed_visits'] for j in history),'source_count':len(refs),'evidence_refs':refs,'openings':None,'opening_status':'not_implemented_until_P3'})
+        return _envelope(connection,{'provider_id':provider_id,'business_name':provider[0],'service_zips':zips,'observed_service_zips':observed,'history':history,'uncertain_date_history':uncertain_history,'trades':[r[0] for r in connection.execute('SELECT trade_code FROM provider_trades WHERE provider_id=?',(provider_id,))],'distinct_jobs':len(rows),'completed_distinct_jobs':len(history),'completed_visits':sum(j['completed_visits'] for j in history),'source_count':len(refs),'evidence_refs':refs,'openings':schedule['openings'],'opening_status':schedule['status'],'availability':schedule})

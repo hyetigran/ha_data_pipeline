@@ -9,8 +9,10 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import tarfile
 import tempfile
 from contextlib import closing
+from itertools import pairwise
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -39,7 +41,7 @@ def database_digest(database):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration'])
+    parser.add_argument('feature', choices=['doctor', 'import', 'inspect', 'replacement', 'history', 'review', 'migration', 'availability'])
     args = parser.parse_args()
     if args.feature == 'doctor':
         print(json.dumps(doctor()))
@@ -116,10 +118,30 @@ def main():
             assert report['schema_version'] == 2
             assert report['publication'] == 'transactional' and report['reconciliation']
             results['checks'].append('Report equals stdout; source counts match; reconciliation, schema v2, transactional publication, integrity, foreign keys, and mode 0600 pass.')
-            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': []}[args.feature]
+            lanes = {'import': [1], 'inspect': [2, 3, 4, 5, 6, 7, 10], 'replacement': [8], 'history': [], 'review': [], 'migration': [], 'availability': []}[args.feature]
             for lane in lanes:
                 drive([sys.executable, str(ROOT / 'scripts/verify.py'), '--stage', 'P1', '--lane', str(lane),
                        '--output', str(evidence / f'lane-{lane}.json')], f'lane-{lane}')
+            if args.feature == 'availability':
+                parent = Path(scratch) / 'parent'
+                parent.mkdir()
+                archive = Path(scratch) / 'parent.tar'
+                drive(['git', '-C', str(ROOT), 'archive', '--format=tar', '--output', str(archive),
+                       'c6c151ee3e95706ad178d2d661fc791f6106f616'], 'parent-archive')
+                with tarfile.open(archive) as source:
+                    source.extractall(parent, filter='data')
+                before = database_digest(database)
+                drive([sys.executable, str(ROOT / 'scripts/verify_p3.py'), '--database', str(database),
+                       '--data', str(ROOT / 'data'), '--parent', str(parent),
+                       '--output', str(evidence / 'p3')], 'availability')
+                summary = json.loads((evidence / 'p3/live-summary.json').read_text())
+                assert summary['status'] == 'pass' and len(summary['lanes']) == 10
+                assert {lane['lane'] for lane in summary['lanes']} == set(range(1, 11))
+                assert all(lane['status'] == 'pass' for lane in summary['lanes'])
+                assert summary['scratch_removed'] and summary['database_logically_unchanged']
+                assert summary['source_files_unchanged'] == results['doctor']['input_files']
+                assert database_digest(database) == before
+                results['checks'].append('Ten P3 lanes pass against the archived P2R baseline; source files and database facts remain unchanged; nested scratch is removed.')
             if args.feature == 'migration':
                 backup = Path(report['migration_backup'])
                 assert backup.resolve() == database.with_name(database.name + '.pre-v2.bak').resolve()
@@ -182,7 +204,11 @@ def main():
                 assert answers['block']['uncertain_candidates']
                 assert sum(row['distinct_jobs'] for row in answers['radius']['results']) == 969
                 assert answers['provider']['results']['completed_distinct_jobs'] == 262
-                assert answers['provider']['results']['opening_status'] == 'not_implemented_until_P3'
+                assert answers['provider']['results']['opening_status'] in {'known', 'partial'}
+                openings = answers['provider']['results']['openings']
+                assert len(openings) == 3
+                assert all(opening['start_utc'] < opening['end_utc'] for opening in openings)
+                assert all(left['end_utc'] <= right['start_utc'] for left, right in pairwise(openings))
                 import runpy
                 reference = runpy.run_path(str(ROOT / 'scripts/verify_p2_independent.py'))
                 for answer in answers.values():
