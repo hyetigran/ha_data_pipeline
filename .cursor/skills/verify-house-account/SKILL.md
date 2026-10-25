@@ -1,11 +1,11 @@
 ---
 name: verify-house-account
-description: Verify House Account's P1 import CLI and private SQLite snapshots using real subprocesses, stored-state checks, and durable evidence; use after import changes or during verification maintenance.
+description: Verify House Account P1 ingestion and P2 reconciliation, history queries, local review, and schema migration through real CLI commands with isolated state and retained evidence.
 ---
 
 # Verify House Account
 
-The primary surface is the noninteractive `house-account ingest` CLI. The secondary surface is read-only SQLite inspection. P2 reconciliation, approval, availability, and MCP tools are planned, not live surfaces. Read [the feature map](features/README.md) before choosing coverage.
+Use the [feature map](features/README.md) to select coverage. The application exposes `ingest`, four `query` commands, and `review export`, `validate`, and `apply`. Read-only SQLite inspection supplies a second view of persisted facts. P3 availability and P4 MCP serving remain unimplemented.
 
 ## Launch
 
@@ -16,13 +16,19 @@ UV_CACHE_DIR=/tmp/house-account-uv-cache uv sync --locked
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py doctor
 ```
 
-The supplied private pack must already exist under `data/`, with `README.md`, `sources/`, and `reference/`. It is gitignored and cannot be reconstructed from this checkout. Doctor prints `status: ready`, the checkout's module path, Python version, and input file count (176 at creation). It validates the expected file manifest, not fixed contents. Missing/private pack access is a blocker; never fabricate a passing substitute. No credentials, network services, server ports, or migrations are required. Every drive creates an empty temporary directory and the real importer creates the SQLite schema and imports seed content from the supplied pack.
+The supplied private pack must exist under `data/`, with `README.md`, `sources/`, and `reference/`. It is ignored by Git and cannot be reconstructed from the checkout. Doctor checks the manifest and hashes the files. Missing pack access blocks the run. Do not fabricate passing substitutes.
 
-Use fresh noninteractive subprocesses as the existing `scripts/verify.py` harness does; a PTY adds no interaction to this JSON-only CLI. Each helper run owns a unique database path, so runs can coexist. Never use `var/house_account.sqlite` for verification, modify the pack, or run dependency synchronization concurrently. Processes exit after each command; teardown is automatic in the helper's `finally`/temporary-directory scope.
+Each feature command creates an empty temporary directory and uses it as the subprocess working directory. The real importer creates the schema, imports the pack, reconciles identities, and publishes the database. All direct imports supply an explicit scratch ledger. Existing P1 scripts inherit the scratch working directory, so their default review ledger is also isolated. Never use `var/house_account.sqlite` or the working `review/` directory for verification.
+
+The migration journey additionally requires `artifacts/P2R/baseline/house_account.sqlite`. It copies that frozen legacy database into scratch through SQLite's backup API. Missing or already-upgraded baselines block that journey.
+
+These are noninteractive CLI processes. No server, port, authentication, or PTY is required. Each process must exit before the next drive. Runs own unique database paths and can coexist, but the maintenance coordinator drives features serially. Do not run dependency synchronization concurrently.
 
 ## Doctor
 
-The read-only command above checks Python 3.13, verifies the imported CLI belongs to this checkout, and inventories/hashes the pack. The helper runs it before every CLI drive. On any surprise, run doctor again before proceeding. A healthy doctor does not establish that changed input contents satisfy the adapters: the real import must also succeed. For a failed drive, inspect its evidence, fix harness drift only if appropriate, and start a fresh helper run. Never reuse a failed scratch database.
+Run the doctor command above before driving. It checks Python 3.13, confirms the CLI import resolves to this checkout, and validates the pack manifest. Expect `status: ready`, a module path in this checkout, and an input-file count. The original supplied pack contains 176 files.
+
+The helper runs doctor before each direct CLI command and each delegated P1 lane. P1 lanes may internally issue multiple imports against the same isolated fixture. On any unexpected failure, doctor again before retrying, inspect the retained error, and start a fresh helper run. A healthy doctor does not prove that input contents satisfy the adapters. The real import must also succeed.
 
 ## Drive
 
@@ -30,20 +36,33 @@ The read-only command above checks Python 3.13, verifies the imported CLI belong
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py import
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py inspect
 UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py replacement
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py history
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py review
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify.py migration
 ```
 
-These are independent complete journeys. Each begins with the public `python -m house_account.cli ingest --data <repo>/data --database <scratch>/snapshot.sqlite --report <evidence>/import.json`, checks report/stdout consistency, owner-only permissions, SQLite integrity/foreign keys, and persisted counts. They then reuse real CLI lanes from `scripts/verify.py`: import uses 1; inspect uses 2–7 and 10; replacement uses 8 plus public CLI failures. The existing lane 9 uses an internal fault-injection function; it is supplemental testing only, not proof of a user journey. Public failures use a missing input directory (exit 1) and a directory as report destination (exit 2).
+Each journey checks the real import report, stored source-table counts, reconciliation output, schema version 2, transactional publication, owner-only file permissions, and SQLite integrity and foreign keys.
+
+The P1 journeys reuse `scripts/verify.py` lanes 1, 2 through 7, 8, and 10. Lane 9 uses internal fault injection and remains supplemental. The history journey drives all four public query commands and compares fixed pack answers. `scripts/verify_p2_independent.py` adds source-fact checks but does not replace CLI proof. The review journey edits only disposable human-decision fields and copied source data. The migration journey verifies the legacy backup can restore all original logical facts.
 
 ## Evidence
 
-Each drive prints its unique absolute evidence directory under `artifacts/verification/<feature>-<random>/`. `result.json` includes actions, exact commands, exit codes, doctor output, persisted aggregate counts, status, and cleanup result. Per-action stdout/stderr, the import report, and lane JSON files remain there. Read them after each drive; a missing lane result or nonzero helper exit is not a pass. Capture the action and its result, and verify persisted side effects through read-only SQLite queries. No mocks, internal setters, or test-only endpoints substitute for the real user path. There is no dry-run mode; these commands really write isolated snapshots. If adding such a mode, verify its file/network/ref effects instead of trusting its name.
+Each journey prints a unique directory under `artifacts/verification/<feature>-<random>/`. Keep that directory after cleanup. `result.json` records the feature, commands, exit codes, assertions, doctor output, aggregate counts, status, and scratch cleanup. Per-action stdout and stderr, the import report, and P1 lane reports remain beside it.
 
-Keep all evidence local and gitignored: do not copy raw customer rows or private databases into PRs. Reports contain aggregate counts and hashes; retain those rather than payloads. Proof of one mapped feature does not imply coverage of the other features or every possible failure branch. Additional changed user paths require additional captured actions.
+Exercise the public user path and verify both the action and persisted result. Read SQLite through an explicit read transaction for unchanged-state checks. A main-file hash can miss committed WAL contents. The helper's logical digest includes schema, data, and user_version. Use it for comparing the same database around rejected or preview actions, not for canonical equivalence across independently rebuilt databases.
+
+Review validation and dry-run build candidates and create lock files. Verify that published logical state and ledger bytes remain unchanged, and candidate directories are removed. Do not infer zero writes from the name dry-run. The helper uses real local commands without mocks. Network behavior is not an asserted property of these checks.
+
+Keep evidence local and ignored by Git. Do not upload raw customer rows, private database files, review documents, or ledgers. The helper removes those scratch files and retains command receipts and aggregate assertions. Fixed baseline counts require the supplied pack with no applied decisions. If input content changes, investigate failed prerequisites instead of weakening the journey.
 
 ## Cleanup
 
-The helper waits for each child, times it out after 180 seconds if needed, and removes its own temporary directory on normal completion, exceptions, and keyboard interruption. It never starts a background service. `result.json` must show `scratch_removed: true`; explicitly check that the printed evidence path and files still exist after exit. Never delete evidence during cleanup or kill by process name. After an external hard kill, inspect the recorded `scratch` path and recorded commands, confirm no run-owned process is active, then remove only that scratch directory. Shared dependency caches and the installed environment are retained; they are not app instances.
+The helper waits for each child. After 180 seconds or interruption, it terminates only that child's process group, including nested imports. Every child receives a TMPDIR inside the run's scratch directory. Temporary databases, ledgers, copied packs, and candidate files are removed on completion or failure. Evidence stays outside scratch.
+
+Require `scratch_removed: true` in result.json and check the evidence files still exist after exit. Never kill by process name. After an external hard kill, inspect the recorded scratch path and commands, confirm no run-owned process remains, and remove only that scratch directory. Dependency caches and the environment stay installed.
 
 ## Helpers
 
-The executable `scripts/verify.py` within this skill supports `doctor`, `import`, `inspect`, and `replacement`, invoked above through uv's Python environment. The repository's `scripts/verify.py` supplies existing assertion lanes. Keep product code and that external harness out of maintenance edits: this skill's directory is the maintenance scope. No source changes or public publishing are needed to run verification. Maintenance may ship one PR of proven skill corrections once this repository has an initial commit and configured remote; otherwise report the shipping blocker without claiming a PR exists.
+The executable `scripts/verify.py` in this skill accepts `doctor`, `import`, `inspect`, `replacement`, `history`, `review`, and `migration`. Invoke it through uv as shown above. It owns the disposable state and evidence. Existing repository scripts supply unchanged P1 lanes and independent P2 assertions.
+
+Maintenance edits only this skill directory. Report product defects without changing application code or external verification scripts. Before a PR, confirm its base includes the product implementation exercised by the run. A local uncommitted P2 implementation cannot be represented as verified behavior on a P1-only remote base. Preserve proven skill changes locally and report the shipping blocker if the base is unavailable.

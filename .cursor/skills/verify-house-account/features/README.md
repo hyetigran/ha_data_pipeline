@@ -1,9 +1,14 @@
 # House Account verification map
 
-Baseline: Python 3.13, locked dependencies, the supplied private `data/` pack, and a successful doctor from [the skill](../SKILL.md). Each recipe imports into its own empty temporary directory and preserves evidence in `artifacts/verification/`. No auth or running server is required. Never point verification at the user's working database.
+Use [Launch and Doctor](../SKILL.md) with Python 3.13, locked dependencies, and the private supplied pack. Every feature uses disposable database and ledger paths. Evidence survives under `artifacts/verification/`.
 
-- [Import and reporting](import.md): build a private snapshot and account for all supplied sources.
-- [Inspect source evidence](inspect.md): distinguish jobs, estimates, visits, duplicates, unresolved fields, and provenance.
-- [Replace and recover](replacement.md): repeat imports and distinguish failed import from failed report publication.
+- [Import and reporting](import.md) covers source accounting and canonical reconciliation during import.
+- [Inspect source evidence](inspect.md) covers source-local visits, estimates, duplicates, unresolved values, and provenance.
+- [Replace and recover](replacement.md) covers repeat import, read-transaction revisions, failed input, and failed report publication.
+- [Canonical history queries](history.md) covers property, radius, block, and provider commands and their privacy boundary.
+- [Reconciliation review](review.md) covers export, validation, previews, decisions, repetition, supersession, and stale evidence.
+- [Migrate and restore a legacy snapshot](migration.md) covers schema-v2 upgrade and backup restoration with the frozen private baseline.
 
-Run all three helper commands for maintenance coverage. CLI entry is `house-account ingest` (equivalent to `python -m house_account.cli ingest`); inspection uses read-only SQLite. Defaults target `data/` and `var/house_account.sqlite`; recipes deliberately supply explicit isolated paths. Record commands, outputs, exits, and stored-state assertions, not just a final success message. A missing pack is a concrete prerequisite failure; changed fixtures that fail fixed baseline assertions must be investigated, not silently skipped. Planned P2–P4 surfaces are excluded until implemented. Run notes belong in scratch/evidence, not Git.
+Run all six journeys for maintenance coverage. Missing data or the frozen migration baseline is an explicit blocked prerequisite. Do not mark a different journey as proof of an unreachable path. P3 availability and P4 MCP serving remain outside this map until implemented.
+
+The CLI defaults point at working database and review paths. The helper overrides these paths or runs existing P1 scripts from scratch. Keep command transcripts, exit codes, resulting state, and cleanup receipts. Run notes and private evidence remain uncommitted.
