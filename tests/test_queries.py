@@ -41,3 +41,13 @@ def test_half_mile_boundary_and_privacy(tmp_path):
     result = json.dumps(property_history(db,'4501 Example St #4, Dallas, TX 75214'))
     for forbidden in ['214555','raw_json','fixture.json','phone','customer','instructions']:
         assert forbidden not in result
+
+
+def test_full_texas_state_name_preserves_property_history(tmp_path):
+    database = tmp_path / 'db'
+    build(database, tmp_path / 'ledger')
+    expected = property_history(database, '4501 Example St Apt 4, Dallas, TX 75214')
+    assert expected['results']['distinct_jobs'] == 2
+    for state in ('Texas', 'texas', 'TEXAS'):
+        actual = property_history(database, f'4501 Example St Apt 4, Dallas, {state} 75214')
+        assert actual == expected

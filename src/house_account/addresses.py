@@ -54,7 +54,7 @@ def normalize(value: Any, segments: list[dict[str, Any]]) -> Address:
             else:
                 city = locality
         if len(parts) > 2:
-            match = re.search(r'([A-Za-z]{2})\s*(\d{5})?', parts[2])
+            match = re.search(r'\b(Texas|[A-Za-z]{2})\b\s*(\d{5})?', parts[2], re.IGNORECASE)
             if match:
                 state, postal = match[1], match[2] or ''
     else:
