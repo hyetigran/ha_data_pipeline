@@ -1,31 +1,54 @@
-# Home services challenge requirements
+# Gauntlet Challenge: Home Services Data Layer + MCP Server
 
-This reference summarizes the supplied challenge brief. The six questions below retain their original wording. The [delivery plan](docs/project-plan.md) records the implementation scope and status.
+## Context
 
-## Product contract
+Turn messy home service job data from several sources into one clean model, then expose it through an MCP server an AI agent can query.
 
-HouseAccount combines provider data so an agent can answer questions about completed work, upcoming jobs, and availability. The challenge requires adapters for every supplied source, one canonical model, duplicate resolution, provenance, and a local MCP server.
+- HouseAccount connects homeowners with trusted local service providers (handymen, plumbers, HVAC, cleaners, and more).
+- Providers run their businesses in many different tools: field service CRMs, spreadsheets, shared calendars. Every tool stores jobs differently.
+- We want one answer to a homeowner's real questions: who near me has done this kind of work, what is already scheduled on my street, and who can come this week.
+- AI agents (ours and our partners') will ask those questions. The MCP server is how they ask.
 
-The server is read-only. It does not book work, take payments, send messages, or call live CRM APIs. Agent chat is the interface. A separate product UI is outside scope.
+We care as much about how you think as what you ship.
 
-## Supplied data
+## The challenge
 
-The brief describes six source families, 40 providers, about 8,000 historical jobs, roughly 3,600 homes, and about 3,800 upcoming jobs. These are advertised approximations, not normalized entity counts. The [inspection report](docs/data-pack-inspection.md) contains measured counts and the inventory command.
+Build a working pipeline from raw provider data to an agent-ready MCP server, covering three data types: past jobs, upcoming jobs, and availability.
 
-Historical coverage spans two years in nine Dallas postal codes. Upcoming schedules include out-of-area work. The challenge reference date is November 2, 2026. A supplied street reference supports approximate geocoding without an external service.
+1. **Ingest.** Pull in every source in the data pack. Write each source as its own adapter so a new source can be added without touching the core.
+2. **Normalize.** Design one canonical model for providers, homeowner properties, jobs, and availability. Resolve duplicates across sources. Keep track of where every record came from.
+3. **Expose.** Stand up an MCP server with tools an AI agent can call to answer the questions in this brief. Tool names, parameters, and descriptions are part of the work.
+4. **Explain.** Write up the decisions you made, what you skipped, and what you would build next.
 
-| Source | Format | Relevant differences |
-| --- | --- | --- |
-| Jobber | Nested JSON | Clients, properties, jobs, recurring visits, and UTC timestamps |
-| Housecall Pro | Paged JSON | Jobs, estimates, unzoned local schedules, and integer-cent amounts |
-| Workiz | JSON | Source-specific statuses and free-text job types |
-| Spreadsheet | CSV | Loose addresses and dates, repeated rows, and missing values |
-| Calendar | ICS | Personal events, all-day blocks, and recurrence |
-| Provider profiles | JSON | Declared service areas, hours, crew sizes, and trades |
+We are deliberately not giving you a schema, a stack, or a definition of availability. Those choices are part of what we are evaluating.
 
-The brief identifies provider duplicates, address variants, cancelled or unresolved jobs, and homeowner contact information as expected normalization problems. Additional traps are undisclosed.
+## The data
 
-## Required agent questions
+You get a synthetic data pack: 6 sources, 40 providers, about 8,000 jobs of history across roughly 3,600 Dallas-area homes, plus about 3,800 jobs scheduled in the next 30 days. History covers 2 years in 9 target zip codes. Schedules are complete, including work outside those zips.
+
+Treat "today" as 2026-11-02 so everyone's availability answers line up. A street reference file is included, so no outside geocoder is needed.
+
+| Source                           | Format          | What it holds                                   | What makes it hard                                                           |
+| -------------------------------- | --------------- | ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| CRM A (modeled on Jobber)        | Nested JSON     | Clients, properties, jobs, visits               | One job can have many visits. Recurring work. UTC timestamps.                |
+| CRM B (modeled on Housecall Pro) | Paged REST JSON | Customers, jobs, estimates, schedule            | Estimates mixed in with jobs. Local times with no time zone. Money in cents. |
+| CRM C (modeled on Workiz)        | REST JSON       | Jobs with status codes                          | Its own status vocabulary. Free-text job types.                              |
+| Spreadsheet export               | CSV             | A solo handyman's job log                       | Free-text addresses, loose dates, duplicate rows, blank cells.               |
+| Calendar feed                    | ICS             | Two providers' calendars                        | Personal events mixed in. All-day blocks. Recurring events.                  |
+| Provider profiles                | JSON            | Declared service area, hours, crew size, trades | Sometimes disagrees with what the calendar and CRM show.                     |
+
+Known traps, on purpose:
+
+- The same provider shows up in more than one source.
+- The same home shows up under several providers with different address spellings ("Apt 4" vs "#4", "St" vs "Street", missing zip).
+- Jobs get cancelled, rescheduled, or left in limbo.
+- Records include homeowner names, phones, and emails.
+
+There are a few traps we did not list. Finding them counts.
+
+## Questions the server must answer
+
+An agent connected to your MCP server should answer all six correctly. How you split them into tools is up to you.
 
 1. What home services have been done within half a mile of 4512 Live Oak St, Dallas, TX 75204 in the last 24 months, grouped by trade?
 2. Which handymen have done work in zip 75214 and have an opening of at least 2 hours in the next 3 days?
@@ -34,43 +57,62 @@ The brief identifies provider duplicates, address variants, cancelled or unresol
 5. Has any provider serviced 5823 Belmont Ave, Dallas, TX 75206 before? Who, when, and what was done?
 6. Which plumber near 75206 is the best fit for a water heater replacement this week, and why?
 
-Question 6 has no single prescribed answer. The evaluation considers the ranking method and its explanation.
+Question 6 has no single right answer. We want to see how you rank and how you explain the ranking.
 
-## Required behavior
+## Requirements and guardrails
 
-- Each record has source provenance, ingestion time, and match confidence.
-- Homeowner PII stays private by default. The implementation defines and justifies location detail exposed to agents.
-- Dallas time handling includes unzoned timestamps and daylight-saving transitions.
-- The system runs locally with one command.
-- Tool descriptions support agent selection and parameter use.
-- Source files remain unchanged.
+The server is read-only and privacy-aware by default. Everything else is your call.
+
+### Must have
+
+- Read-only. No tool writes back to any source.
+- Every record carries provenance: which source, when ingested, and how confident you are in any match or merge.
+- Homeowner PII never leaves the server by default. Decide what an agent can see (street, block, zip) and defend it.
+- Times are correct for Dallas (Central time), including records that arrive with no time zone.
+- Runs locally with one command. Any language, any storage.
+- Tool descriptions are written for an LLM, not a human developer.
+
+### Out of scope
+
+- Booking, payments, or messaging.
+- A user interface. An agent chat is the interface.
+- Live API calls to real CRMs. Use the data pack only.
 
 ## Deliverables
 
-The original deadline was the end of day two.
+Submit four things by the end of day 2.
 
-| Deliverable | Required contents |
-| --- | --- |
-| Repository | Code, one-command setup, and normalization tests |
-| Data model document | Canonical schema, duplicate policy, availability definition, and rationale in one or two pages |
-| Demo video | At most five minutes, all six connected-agent questions, and one explained weak or wrong answer |
-| Decision log | Choices, omissions, limits at 10,000 providers, and proposed week-two work |
+| Deliverable            | What we expect                                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Repo                   | Code, one-command setup, tests for the normalization logic.                                                           |
+| Data model doc         | Your canonical schema, how you resolve duplicates, how you define availability, and why. One to two pages.            |
+| Demo video (5 min max) | An agent connected to your server answering all six questions. Show at least one wrong or weak answer and explain it. |
+| Decision log           | What you chose, what you cut, what breaks at 10,000 providers, and what you would build in week 2.                    |
 
-## Evaluation weights
+## How we evaluate
 
-| Area | Weight | Evaluation focus |
-| --- | ---: | --- |
-| Data model | 25% | One model for all sources with clear boundaries |
-| Normalization and matching | 20% | Stated matching method, confidence, and trap detection |
-| MCP tool design | 20% | Correct tool selection, bounded parameters, and useful errors |
-| Availability reasoning | 15% | Conflict handling and stated uncertainty |
-| Privacy and provenance | 10% | Private defaults and traceable answers |
-| Communication | 10% | Accurate claims and explicit limitations |
+Judgment counts for more than polish. A smaller system with sharp reasoning beats a big one with none.
 
-## Optional extensions
+| Area                       | Weight | What good looks like                                                                                  |
+| -------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| Data model                 | 25%    | One clear model that handles all six sources without special cases leaking into it.                   |
+| Normalization and matching | 20%    | Duplicates resolved with a stated method and confidence. Traps found, including ones we did not list. |
+| MCP tool design            | 20%    | Tools an agent picks correctly on the first try. Clear names, tight parameters, useful errors.        |
+| Availability reasoning     | 15%    | A defensible definition that handles conflicting sources and says how sure it is.                     |
+| Privacy and provenance     | 10%    | Sensible PII defaults. Every answer traceable to its source.                                          |
+| Communication              | 10%    | Honest write-up. Knows what is weak and says so.                                                      |
 
-The brief permits one stretch goal after the core works: scripted agent evaluation, a seventh-source adapter, incremental synchronization, or server-enforced access tiers. It does not require all four.
+## Stretch goals
 
-## Logistics
+Only after the core works. Pick one, not all.
 
-AI tools are allowed with a note about their use and mistakes. Ryan is the contact for challenge questions. The supplied pack is synthetic. Real customer data and live CRM calls are outside the challenge.
+- **Eval harness.** A scripted set of agent questions with expected answers, run against your server, with a pass rate.
+- **New source in under an hour.** We hand you a seventh source on day 2. Show how fast your adapter pattern absorbs it.
+- **Incremental sync.** Re-ingest a changed source without rebuilding everything. Handle a job that moved from upcoming to completed.
+- **Access tiers.** Two levels of detail (internal vs partner) enforced by the server, not the agent.
+
+## Logistics and rules
+
+- **AI tools:** use anything you want. Include a short note on how you used AI and where it got things wrong.
+- **Questions:** ask Ryan.
+- **Data:** the pack is synthetic. Do not use real customer data or call real CRM APIs.
