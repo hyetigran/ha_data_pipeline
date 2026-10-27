@@ -1,5 +1,40 @@
 # Start House Account and connect Codex
 
+## One-command setup
+
+Supported environments: macOS and Linux, including WSL2 on Windows. Prerequisites are Git to clone, a POSIX shell, `curl`, internet access, and the separately supplied data pack. No Python, Node.js, Homebrew, `uv`, or Codex CLI installation is required beforehand. Codex authentication is required when starting the agent session, not when registering the server.
+
+Clone and enter the repository:
+
+```sh
+git clone https://github.com/hyetigran/ha_data_pipeline.git
+cd ha_data_pipeline
+```
+
+Place the supplied pack in `data/`, then run:
+
+```sh
+sh setup.sh
+```
+
+The script installs missing `uv` and Codex CLI tools using their official installers, installs Python 3.13 and locked dependencies, imports the data, and registers `house_account` with Codex. It updates that named registration and leaves unrelated registrations alone. A dependency or import failure stops before registration. A registration failure leaves the imported database available; rerun setup after resolving the error.
+
+The private pack is not downloaded or committed. To use an extracted pack elsewhere, pass `--data "/path/to/supplied-pack"`, optionally with `--uat`. Relative data paths resolve from the directory where you invoke setup. Missing pack files stop setup before installation.
+
+Missing tools install into the user executable directory, normally `~/.local/bin`. The Codex installer may update shell configuration. Existing tools on PATH are reused. The installers follow the [uv installation options](https://docs.astral.sh/uv/reference/installer/) and [official Codex installation instructions](https://github.com/openai/codex#installing-and-running-codex-cli).
+
+Expect `Setup complete.`, the database path, and paths to the import report and registration receipt. Open a new Codex session. Ask it to use the `house_account` tools with November 2, 2026 as the reference date.
+
+For UAT from a fresh database, run:
+
+```sh
+sh setup.sh --uat
+```
+
+Each run creates a new snapshot and empty review-ledger path under `var/uat/run-*`. No existing snapshot is deleted. The same `house_account` registration points at the new UAT database. Run `sh setup.sh` to switch back to the regular database. The script also works when invoked by absolute path from another directory.
+
+The commands below describe the individual operations for troubleshooting. They are not required after successful setup.
+
 ## Prepare the checkout
 
 1. Install Python 3.13 and `uv`.

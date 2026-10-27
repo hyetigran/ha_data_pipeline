@@ -4,6 +4,27 @@ House Account answers home-service history and scheduling questions from a priva
 
 P1, P2, P2R, P3, and P4 are implemented. [PR #4](https://github.com/hyetigran/ha_data_pipeline/pull/4) merged P4 as `ea66e76`. Production synchronization, remote access control, travel estimates, and worker-level scheduling remain outside this release.
 
+## One-command setup
+
+On macOS or Linux (Windows: WSL2), clone the repository:
+
+```sh
+git clone https://github.com/hyetigran/ha_data_pipeline.git
+cd ha_data_pipeline
+```
+
+Place the separately supplied pack in `data/`, then run:
+
+```sh
+sh setup.sh
+```
+
+This installs missing `uv` and Codex CLI tools using their official installers, installs Python 3.13 and locked dependencies, imports the pack, and adds or updates the `house_account` Codex MCP registration using absolute paths. Git, a POSIX shell, `curl`, and internet access are prerequisites. No preinstalled Python, Node.js, or Homebrew is required. Open a new Codex session afterward and sign in if prompted. The setup command finishes without leaving a server running; Codex launches it when connecting.
+
+If the pack is elsewhere, use `sh setup.sh --data "/path/to/supplied-pack"`. The pack is excluded from GitHub; cloning alone cannot supply it. Paths are resolved from the checkout and your arguments, with no machine-specific paths in the setup script.
+
+For a fresh UAT snapshot and empty review ledger, run `sh setup.sh --uat`. Each UAT run creates a new directory under `var/uat/` and updates the same MCP registration. Existing databases and review decisions remain intact. Run normal setup again to point Codex back at the regular snapshot.
+
 ## Task guides
 
 The guides cover local operation and verification.
