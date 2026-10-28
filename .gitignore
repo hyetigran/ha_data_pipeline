@@ -13,3 +13,6 @@ var/
 review/
 artifacts/
 data/
+
+# Machine-local Claude MCP configuration
+.mcp.json

@@ -13,23 +13,31 @@ git clone https://github.com/hyetigran/ha_data_pipeline.git
 cd ha_data_pipeline
 ```
 
-Place the separately supplied pack in `data/`, then run:
+Place the separately supplied pack in `data/`, then choose your client:
 
 ```sh
-sh setup.sh
+sh setup.sh --client codex
+sh setup.sh --client claude
+sh setup.sh --client none
 ```
 
-This installs missing `uv` and Codex CLI tools using their official installers, installs Python 3.13 and locked dependencies, imports the pack, and adds or updates the `house_account` Codex MCP registration using absolute paths. Git, a POSIX shell, `curl`, and internet access are prerequisites. No preinstalled Python, Node.js, or Homebrew is required. Open a new Codex session afterward and sign in if prompted. The setup command finishes without leaving a server running; Codex launches it when connecting.
+Run one of those commands. All modes install Python 3.13 and locked application dependencies and import the data. Setup installs missing `uv` and only the selected agent client through official installers. Git, a POSIX shell, `curl`, and internet access are prerequisites; the Claude installer also requires Bash. No preinstalled Python, Node.js, or Homebrew is required.
 
-If the pack is elsewhere, use `sh setup.sh --data "/path/to/supplied-pack"`. The pack is excluded from GitHub; cloning alone cannot supply it. Paths are resolved from the checkout and your arguments, with no machine-specific paths in the setup script.
+- `codex` adds or updates the user-level `house_account` registration. Open a new Codex session afterward.
+- `claude` adds or updates only `house_account` in the checkout's `.mcp.json`, preserving other servers. Open Claude Code in that checkout and approve the project MCP server.
+- `none` is the default. It installs no agent client, changes no client configuration, and prints the executable, arguments, and equivalent launch command. Import the exported `mcp-config.json` into another client that supports local stdio MCP. Client-specific configuration formats may differ.
 
-For a fresh UAT snapshot and empty review ledger, run `sh setup.sh --uat`. Each UAT run creates a new directory under `var/uat/` and updates the same MCP registration. Existing databases and review decisions remain intact. Run normal setup again to point Codex back at the regular snapshot.
+Sign in to the selected client if prompted. Every mode prints the path to its generated `mcp-config.json`. The setup command exits; the client launches the server when connecting. Switching clients leaves previous client registrations intact.
+
+If the pack is elsewhere, append `--data "/path/to/supplied-pack"` using its actual path. The pack is excluded from GitHub; cloning alone cannot supply it. No machine-specific paths are hardcoded in setup.
+
+For fresh UAT, run `sh setup.sh --client codex --uat` or select `claude` or `none`. Each run creates a new directory under `var/uat/`. Existing databases and review decisions remain intact. Rerun with the same client without `--uat` to select the regular snapshot.
 
 ## Task guides
 
 The guides cover local operation and verification.
 
-- [Start House Account and connect Codex](docs/start-local-server.md).
+- [Set up House Account and connect an MCP client](docs/start-local-server.md).
 - [Query service history and candidate openings](docs/query-local-data.md).
 - [Review reconciliation proposals](docs/review-reconciliation.md).
 - [Upgrade and restore a legacy database](docs/p2r-migration.md).
