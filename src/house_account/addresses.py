@@ -5,7 +5,7 @@ import re
 from dataclasses import asdict, dataclass
 from typing import Any
 
-SUFFIXES = {'street':'st','avenue':'ave','boulevard':'blvd','drive':'dr','lane':'ln','road':'rd','court':'ct','place':'pl','parkway':'pkwy','circle':'cir','terrace':'ter'}
+SUFFIXES = {'street':'st','avenue':'ave','boulevard':'blvd','drive':'dr','lane':'ln','road':'rd','court':'ct','place':'pl','parkway':'pkwy','circle':'cir','terrace':'ter','trail':'trl'}
 
 
 def words(value: Any) -> str:
@@ -44,9 +44,21 @@ class Address:
 def normalize(value: Any, segments: list[dict[str, Any]]) -> Address:
     original = value
     if isinstance(value, str):
-        parts = value.split(',')
+        parts = [part.strip() for part in value.split(',')]
         street, unit = parts[0], ''
         city, state, postal = '', '', ''
+        unit_field = r'(?:(?:apt\.?|unit|suite|#)\s*[\w-]+|[A-Za-z]|\d+[A-Za-z]?(?:-[A-Za-z0-9]+)?)'
+        inline_unit = re.search(r'(?:\bapt\.?|\bunit|\bsuite|#)\s*[\w-]+\s*$',street,re.IGNORECASE)
+        if len(parts)==4 and not inline_unit and re.fullmatch(unit_field,parts[1],re.IGNORECASE):
+            unit = parts.pop(1)
+        if len(parts)==2 and not inline_unit:
+            unit_city = re.fullmatch(r'('+unit_field+r')\s+dallas',parts[1],re.IGNORECASE)
+            if unit_city:
+                unit, parts[1] = unit_city[1], 'Dallas'
+        if len(parts)==1:
+            trailing_city = re.fullmatch(r'(.+\s(?:st\.?|street|ave\.?|avenue|rd\.?|road|dr\.?|drive|ln\.?|lane|ct\.?|court|blvd\.?|boulevard|trl\.?|trail))\s+dallas',street,re.IGNORECASE)
+            if trailing_city:
+                street, city = trailing_city[1], 'Dallas'
         if len(parts) > 1:
             locality = parts[1].strip()
             if re.fullmatch(r'\d{5}(?:-\d{4})?', locality):
@@ -54,7 +66,7 @@ def normalize(value: Any, segments: list[dict[str, Any]]) -> Address:
             else:
                 city = locality
         if len(parts) > 2:
-            match = re.search(r'\b(Texas|[A-Za-z]{2})\b\s*(\d{5})?', parts[2], re.IGNORECASE)
+            match = re.fullmatch(r'(Texas|[A-Za-z]{2})(?:\s+(\d{5})(?:-\d{4})?)?', parts[2], re.IGNORECASE)
             if match:
                 state, postal = match[1], match[2] or ''
     else:

@@ -1,5 +1,7 @@
 # Data trap register
 
+**Current follow-up:** [October 27 expanded investigation](trap-discovery-2026-10-27.md) adds T31–T34, broader evidence for existing entries, and a P1–P4 coverage assessment. It finds service-classification defects, additional DST metadata ambiguity, and stronger calendar-link evidence. The historical rows below retain their original audit-time meaning.
+
 This register records the October 24, 2026 audit of the P2 working tree. Handling and remaining-work columns describe that historical state. P3 and P4 later implemented availability and MCP checks. Their [execution records](README.md#execution-records) describe current coverage. The audit changed no source data, live database, or review decisions.
 
 The user supplied this grader excerpt: "22 seeded traps, 18 of them unlisted," with six examples. We located concrete evidence for **all six named examples**, including the previously unverified November 1 DST job. This register also records other observed pitfalls. **Its IDs are our audit IDs, not the grader's IDs. We cannot certify all 22 hidden seeds without the seed manifest or an equivalent independent crosswalk.** Several rows can describe one seed, and a row can contain multiple instances. We deliberately do not force the register to contain exactly 22 rows.

@@ -1,0 +1,18 @@
+# Machine-maintained files are exempt from the authored-file token budget.
+uv.lock token-limit-exempt
+*.lock token-limit-exempt
+package-lock.json token-limit-exempt
+pnpm-lock.yaml token-limit-exempt
+yarn.lock token-limit-exempt
+Cargo.lock token-limit-exempt
+go.sum token-limit-exempt
+*.generated.* token-limit-exempt
+*.gen.* token-limit-exempt
+*_pb2.py token-limit-exempt
+*_pb2_grpc.py token-limit-exempt
+generated/** token-limit-exempt
+vendor/** token-limit-exempt
+src/house_account/pack_manifest.json token-limit-exempt
+schemas/reconciliation-review.schema.json token-limit-exempt
+docs/data-pack-inventory.json token-limit-exempt
+docs/trap-audit-summary.json token-limit-exempt

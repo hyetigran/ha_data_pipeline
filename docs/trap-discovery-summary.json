@@ -1,0 +1,437 @@
+{
+  "audit_date": "2026-10-27",
+  "analytical_snapshot": "2026-11-02T06:00:00Z",
+  "verified_hidden_seed_count": null,
+  "all_22_verified": false,
+  "named_examples_with_evidence": 6,
+  "scope": "All six supplied source families plus street reference; families and candidates are not grader seed identities. No corrections approved.",
+  "files": 176,
+  "file_hashes_match_historical_audit": true,
+  "manifest_sha256": "c4ad29369486c5912697ae1d3c7e2bbde63474ac889810e37cf5d20703b99f79",
+  "observations": 46888,
+  "unique_observations": 46092,
+  "checks": {
+    "json_files": 170,
+    "json_timestamp_strings": 65956,
+    "address_assertions_including_calendar_locations": 8827,
+    "independent_job_money_comparisons": 11616,
+    "job_visit_intervals": 14823
+  },
+  "counts": {
+    "abrams_calendar_crm_same_start": 36,
+    "completed_visit_after_snapshot": 1,
+    "completion_and_schedule_different_utc_date": 109,
+    "crm_recurrence_with_explicit_visits": 95,
+    "done_status_updated_before_appointment": 1,
+    "four_part_calendar_address": 1,
+    "invalid_or_ambiguous_raw_timestamp": 9,
+    "job_linked_to_estimate": 357,
+    "job_with_mixed_visit_states": 78,
+    "ray_calendar_csv_candidates": 16,
+    "repeated_first_last_name_token": 241,
+    "reschedule_text": 403,
+    "same_business_property_day_multiple_jobs": 26,
+    "service_classification_conflict": 5,
+    "shared_contact_street_variant_candidate": 135,
+    "shared_contact_transposed_house_number_candidate": 1,
+    "street_spelling_or_parsing_candidate": 121,
+    "street_with_unseparated_city": 24,
+    "unmapped_service_label": 68,
+    "unresolved_address_without_close_street": 141,
+    "workiz_contact_variants": 478
+  },
+  "projection_checks": {
+    "jobs_with_unknown_component": 3651,
+    "jobs_with_only_unknown_services": 3576,
+    "completed_jobs_with_only_unknown_services": 2165,
+    "gutter_provider_completed_jobs_classified_cleaning": 72,
+    "review_proposals_by_kind": {
+      "provider_match": 3,
+      "property_match": 283,
+      "field_correction": 3
+    }
+  },
+  "evidence_is_sampled": true,
+  "evidence": {
+    "abrams_calendar_crm_same_start": [
+      {
+        "file": "sources/calendars/abrams_plumbing_google_calendar.ics",
+        "locator": "VEVENT:0",
+        "uid": "t4qugp2btmzc8gz00sejo63mim@google.com",
+        "crm_file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "crm_locator": "/jobs/35/schedule",
+        "same_end": true,
+        "same_property": false,
+        "differing_address_fields": [
+          "number",
+          "street",
+          "city",
+          "state",
+          "postal_code"
+        ],
+        "calendar_has_location": false
+      },
+      {
+        "file": "sources/calendars/abrams_plumbing_google_calendar.ics",
+        "locator": "VEVENT:1",
+        "uid": "wluuyn8hhxxfnwyr0py1s5kayb@google.com",
+        "crm_file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "crm_locator": "/jobs/33/schedule",
+        "same_end": true,
+        "same_property": true,
+        "differing_address_fields": [],
+        "calendar_has_location": true
+      }
+    ],
+    "completed_visit_after_snapshot": [
+      {
+        "file": "sources/workiz/lakewood_air/jobs.json",
+        "locator": "/data/101",
+        "scheduled": "2026-11-10 10:00:00"
+      }
+    ],
+    "completion_and_schedule_different_utc_date": [
+      {
+        "file": "sources/jobber/green_acres_lawn_dallas.json",
+        "locator": "/data/jobs/nodes/6/visits/nodes/0"
+      },
+      {
+        "file": "sources/jobber/green_acres_lawn_dallas.json",
+        "locator": "/data/jobs/nodes/7/visits/nodes/0"
+      }
+    ],
+    "crm_recurrence_with_explicit_visits": [
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/3",
+        "visits": 53,
+        "recurring_until": null
+      },
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/5",
+        "visits": 53,
+        "recurring_until": null
+      }
+    ],
+    "done_status_updated_before_appointment": [
+      {
+        "file": "sources/workiz/lakewood_air/jobs.json",
+        "locator": "/data/101",
+        "scheduled": "2026-11-10 10:00:00",
+        "updated": "2025-11-11 14:00:00"
+      }
+    ],
+    "four_part_calendar_address": [
+      {
+        "file": "sources/calendars/abrams_plumbing_google_calendar.ics",
+        "locator": "VEVENT:2",
+        "geocoded": false
+      }
+    ],
+    "invalid_or_ambiguous_raw_timestamp": [
+      {
+        "file": "sources/housecall_pro/dallas_drain_pros/jobs_page_2.json",
+        "locator": "/jobs/42/schedule/scheduled_start",
+        "raw": "2026-11-01T01:30:00"
+      },
+      {
+        "file": "sources/housecall_pro/dallas_drain_pros/jobs_page_2.json",
+        "locator": "/jobs/42/work_timestamps/on_my_way_at",
+        "raw": "2026-11-01T01:05:00"
+      }
+    ],
+    "job_linked_to_estimate": [
+      {
+        "file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "locator": "/jobs/35",
+        "estimate_id": "est_5e01bb7e1010ef79bfeac6007dda5bc6"
+      },
+      {
+        "file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "locator": "/jobs/55",
+        "estimate_id": "est_c281070826f8dcd129b85e66b3beee40"
+      }
+    ],
+    "job_with_mixed_visit_states": [
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/3",
+        "job_status": "active",
+        "states": {
+          "COMPLETED": 46,
+          "CANCELLED": 5,
+          "UPCOMING": 2
+        }
+      },
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/5",
+        "job_status": "active",
+        "states": {
+          "COMPLETED": 48,
+          "CANCELLED": 3,
+          "UPCOMING": 2
+        }
+      }
+    ],
+    "ray_calendar_csv_candidates": [
+      {
+        "file": "sources/calendars/rays_fixit_google_calendar.ics",
+        "locator": "VEVENT:0",
+        "uid": "ieojrkh2xipxi2lqvaulssudlm@google.com",
+        "start_local": "2026-10-13T12:45:00-05:00",
+        "end_local": "2026-10-13T14:15:00-05:00",
+        "candidates": [
+          {
+            "row": 190,
+            "date": "2026-10-13",
+            "time": "12:45pm",
+            "csv_service": "patch & paint drywall",
+            "calendar_service": "other",
+            "same_street": true,
+            "same_unit": true,
+            "contact_label_hint": true,
+            "same_house_number": true
+          }
+        ]
+      },
+      {
+        "file": "sources/calendars/rays_fixit_google_calendar.ics",
+        "locator": "VEVENT:1",
+        "uid": "1eeuolau8d0zf6qch7lxn8ywy3@google.com",
+        "start_local": "2026-10-30T11:15:00-05:00",
+        "end_local": "2026-10-30T12:15:00-05:00",
+        "candidates": [
+          {
+            "row": 193,
+            "date": "10/30",
+            "time": "11:15am",
+            "csv_service": "TV mount",
+            "calendar_service": "other",
+            "same_street": true,
+            "same_unit": true,
+            "contact_label_hint": true,
+            "same_house_number": true
+          }
+        ]
+      }
+    ],
+    "repeated_first_last_name_token": [
+      {
+        "file": "sources/workiz/bright_line_electric/jobs.json",
+        "locator": "/data/5"
+      },
+      {
+        "file": "sources/workiz/bright_line_electric/jobs.json",
+        "locator": "/data/25"
+      }
+    ],
+    "reschedule_text": [
+      {
+        "file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "locator": "/jobs/55/notes"
+      },
+      {
+        "file": "sources/housecall_pro/abrams_plumbing/jobs_page_1.json",
+        "locator": "/jobs/89/notes"
+      }
+    ],
+    "same_business_property_day_multiple_jobs": [
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/98/visits/nodes/0",
+        "jobs": 2,
+        "cross_account": false,
+        "members": [
+          {
+            "file": "sources/jobber/fresh_nest_cleaning.json",
+            "locator": "/data/jobs/nodes/98/visits/nodes/0",
+            "job": "2c858e48a18819d5a1261f25ee4bf6da8c3d80e30f3ba9d6558190286b6480c4",
+            "start": "2026-11-04T14:00:00+00:00"
+          },
+          {
+            "file": "sources/jobber/fresh_nest_cleaning.json",
+            "locator": "/data/jobs/nodes/100/visits/nodes/0",
+            "job": "d5e04a2078112b987feda66db14ae31032e25605237e6a333042854795c321bd",
+            "start": "2026-11-04T17:00:00+00:00"
+          }
+        ]
+      },
+      {
+        "file": "sources/jobber/honey_do_pros_dfw.json",
+        "locator": "/data/jobs/nodes/447/visits/nodes/0",
+        "jobs": 2,
+        "cross_account": false,
+        "members": [
+          {
+            "file": "sources/jobber/honey_do_pros_dfw.json",
+            "locator": "/data/jobs/nodes/447/visits/nodes/0",
+            "job": "ab32da35f35476a013557570f07d7e514821da5b38d6b6b9e1f65ed95fcfbff2",
+            "start": "2026-11-19T21:30:00+00:00"
+          },
+          {
+            "file": "sources/jobber/honey_do_pros_dfw.json",
+            "locator": "/data/jobs/nodes/449/visits/nodes/0",
+            "job": "677afcf2451385135e954bbda157f9b330ee8187e8548e51650e81e0d1373dc3",
+            "start": "2026-11-19T21:00:00+00:00"
+          }
+        ]
+      }
+    ],
+    "service_classification_conflict": [
+      {
+        "file": "sources/workiz/clear_flow_gutters/jobs.json",
+        "locator": "/data/0",
+        "label": "Gutter clean out",
+        "jobs": 34,
+        "mapped": [
+          "cleaning"
+        ]
+      },
+      {
+        "file": "sources/workiz/clear_flow_gutters/jobs.json",
+        "locator": "/data/17",
+        "label": "Gutter cleaning",
+        "jobs": 31,
+        "mapped": [
+          "cleaning"
+        ]
+      }
+    ],
+    "shared_contact_street_variant_candidate": [
+      {
+        "file": "sources/jobber/north_texas_comfort.json",
+        "locator": "/data/jobs/nodes/463",
+        "other_file": "sources/jobber/rapid_rooter_tx.json",
+        "other_locator": "/data/jobs/nodes/513",
+        "streets": [
+          "cottonwood trl",
+          "cottonwood trail"
+        ]
+      },
+      {
+        "file": "sources/jobber/big_d_handyman.json",
+        "locator": "/data/jobs/nodes/3",
+        "other_file": "sources/jobber/lakewood_home_repair.json",
+        "other_locator": "/data/jobs/nodes/2",
+        "streets": [
+          "greenville ave",
+          "greevnille ave"
+        ]
+      }
+    ],
+    "shared_contact_transposed_house_number_candidate": [
+      {
+        "file": "sources/jobber/fresh_nest_cleaning.json",
+        "locator": "/data/jobs/nodes/36",
+        "other_file": "sources/spreadsheet/rays_fixit_job_log.csv",
+        "other_locator": "row:175",
+        "numbers": [
+          5823,
+          5832
+        ],
+        "street": "belmont ave"
+      }
+    ],
+    "street_spelling_or_parsing_candidate": [
+      {
+        "file": "sources/jobber/big_d_handyman.json",
+        "locator": "/data/clients/nodes/37/properties/nodes/0",
+        "street": "wroth st",
+        "candidates": [
+          "worth st"
+        ],
+        "source": "jobber",
+        "supplied_postal": "75223"
+      },
+      {
+        "file": "sources/jobber/fresh_coat_lakewood.json",
+        "locator": "/data/clients/nodes/7/properties/nodes/0",
+        "street": "tokaoln dr",
+        "candidates": [
+          "tokalon dr"
+        ],
+        "source": "jobber",
+        "supplied_postal": ""
+      }
+    ],
+    "street_with_unseparated_city": [
+      {
+        "file": "sources/spreadsheet/rays_fixit_job_log.csv",
+        "locator": "row:15",
+        "geocoded": false
+      },
+      {
+        "file": "sources/spreadsheet/rays_fixit_job_log.csv",
+        "locator": "row:27",
+        "geocoded": false
+      }
+    ],
+    "unmapped_service_label": [
+      {
+        "file": "sources/jobber/north_texas_comfort.json",
+        "locator": "/data/jobs/nodes/119",
+        "label": "AC not cooling",
+        "jobs": 74,
+        "mapped": [
+          "other"
+        ]
+      },
+      {
+        "file": "sources/jobber/green_acres_lawn_dallas.json",
+        "locator": "/data/jobs/nodes/9",
+        "label": "Aeration",
+        "jobs": 41,
+        "mapped": [
+          "other"
+        ]
+      }
+    ],
+    "unresolved_address_without_close_street": [
+      {
+        "file": "sources/jobber/fresh_coat_lakewood.json",
+        "locator": "/data/clients/nodes/89/properties/nodes/0",
+        "street": "saddle ridge rd",
+        "supplied_postal": ""
+      },
+      {
+        "file": "sources/jobber/green_acres_lawn_dallas.json",
+        "locator": "/data/clients/nodes/75/properties/nodes/0",
+        "street": "cottonwood trl",
+        "supplied_postal": ""
+      }
+    ],
+    "workiz_contact_variants": [
+      {
+        "file": "sources/workiz/bright_line_electric/jobs.json",
+        "locator": "/data/0",
+        "account": "EK2V0PNE",
+        "client_id": 5000,
+        "versions": 2,
+        "normalized_phones": 1,
+        "names": 1,
+        "normalized_emails": 1,
+        "differing_values_after_phone_email_normalization": false
+      },
+      {
+        "file": "sources/workiz/bright_line_electric/jobs.json",
+        "locator": "/data/1",
+        "account": "EK2V0PNE",
+        "client_id": 5001,
+        "versions": 3,
+        "normalized_phones": 1,
+        "names": 1,
+        "normalized_emails": 1,
+        "differing_values_after_phone_email_normalization": false
+      }
+    ]
+  },
+  "verification": {
+    "full_suite_passed": 132,
+    "runtime_code_changed": false,
+    "source_data_changed": false
+  },
+  "full_private_receipt": "artifacts/trap-audit-2026-10-27/discovery.json",
+  "reproduction": "See docs/trap-discovery-2026-10-27.md"
+}

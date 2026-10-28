@@ -118,3 +118,5 @@ Generate a fresh inventory and trap audit. Keep the tracked historical receipts 
 ```
 
 Compare the new results with [the inspection report](data-pack-inspection.md) and [the historical trap register](trap-register.md). Investigate differences before changing expected counts.
+
+For broader discovery, including service classification, raw timestamp ambiguity, contact/address variants, and calendar corroboration, run `scripts/investigate_traps.py`. The [expanded investigation](trap-discovery-2026-10-27.md#verification-and-reproducibility) gives scratch-snapshot commands and the limits of each search. Neither audit establishes a 22/22 grader-seed count.

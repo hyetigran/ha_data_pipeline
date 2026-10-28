@@ -155,3 +155,13 @@ Typed public responses preserve completion attribution, coverage, uncertainty, a
 The actual Codex capture covers all six questions. The four-minute video replays captured interaction and includes an earlier weak answer. It is not a live screen recording.
 
 The initial request kept P4 unmerged for review. Later authorization required maintenance verification before merge. That pass corrected only the verification skill and passed all eight journeys. PR #4 then merged as `ea66e76`. [The P4 execution record](p4-execution.md) records the implementation and review limits.
+
+## D017. Conservative normalization repairs after the trap audit
+
+On October 27, 2026, the user authorized confirmed service-classification and address-parsing fixes, regression tests, and a comparison of all six required answers, without publishing or merging.
+
+Use explicit aliases for clear service phrases and declared trade context for labels with competing interpretations. Specific service terms precede generic leak/cleaning/repair tokens. Vague wording stays unknown. Compound work retains separate scope where the domain distinguishes services; normalization does not grant completion attribution to every service in a completed job.
+
+Normalize supported trailing-city and separate-unit address forms, preserving units and original text. Exact formatting equivalence can join a property; spelling corrections, conflicting locality, disputed dates, and identity matches still require review. Reference coverage limits geocoding even when parsing succeeds.
+
+Verification uses isolated before/after snapshots and actual MCP calls. Existing source data, review files, and the running database remain unchanged. [The comparison](normalization-fixes-2026-10-27.md) records the answer changes, tests, and remaining unknowns.

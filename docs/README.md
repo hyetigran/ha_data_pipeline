@@ -22,6 +22,8 @@ The project implements P1 through P4. The [delivery status](project-plan.md) lis
 | Measured source formats and counts | [Data pack inspection](data-pack-inspection.md) |
 | Accepted interview column contract | [Canonical column design](schema-columns-draft.md) |
 | Historical normalization audit | [Data trap register](trap-register.md) |
+| Expanded discovery and current trap coverage | [October 27 trap investigation](trap-discovery-2026-10-27.md) |
+| Normalization repairs and six-answer changes | [October 27 fixes](normalization-fixes-2026-10-27.md) |
 | Live verification coverage | [Feature map](../.cursor/skills/verify-house-account/features/README.md) |
 
 ## Explanations

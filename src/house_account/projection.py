@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import sqlite3
 from datetime import datetime
 from typing import Any
@@ -143,8 +142,7 @@ def project(connection: sqlite3.Connection, sources: dict, providers: dict, prop
         mapped = set()
         for member in members:
             raw_service = data[member].get('service')
-            for part in re.split(r'\s+(?:and|&)\s+|[+;]',raw_service or ''):
-                category = privacy.service(part)
+            for category in privacy.service_codes(raw_service,provider_trades.get(pid,[])):
                 if category == 'other':
                     category = 'unknown'
                 trade = privacy.TRADES.get(category,category)
