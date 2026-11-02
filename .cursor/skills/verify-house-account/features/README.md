@@ -1,9 +1,10 @@
 # House Account verification map
 
-The verification helper covers eight features through disposable databases and ledgers. Each run retains evidence under `artifacts/verification/`. [Verify House Account](../SKILL.md) contains setup, commands, and cleanup requirements.
+The verification helper covers nine features through disposable databases and ledgers. Each run retains evidence under `artifacts/verification/`. [Verify House Account](../SKILL.md) contains setup, commands, and cleanup requirements.
 
 | Feature | Coverage | Additional prerequisite |
 | --- | --- | --- |
+| [Setup](setup.md) | Local install, snapshot preparation, configuration export, and isolated UAT runs | Cached dependencies for offline setup |
 | [Import](import.md) | Accounting, reports, reconciliation, and schema publication | None |
 | [Inspect](inspect.md) | Visits, estimates, duplicates, unresolved values, and provenance | None |
 | [Replacement](replacement.md) | Repeat import, reader revisions, and publication failures | None |

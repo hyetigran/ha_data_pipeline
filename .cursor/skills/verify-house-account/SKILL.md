@@ -22,7 +22,7 @@ Each feature command creates an empty temporary directory and uses it as the sub
 
 The migration journey additionally requires `artifacts/P2R/baseline/house_account.sqlite`. It copies that frozen legacy database into scratch through SQLite's backup API. Missing or already-upgraded baselines block that journey.
 
-These are noninteractive CLI processes. No server, port, authentication, or PTY is required. Wait for each process to exit before starting the next feature. Runs own unique database paths and can coexist, but the maintenance coordinator drives features serially. Do not run dependency synchronization concurrently.
+These are noninteractive CLI processes. No pre-existing server, port, authentication, or PTY is required. The MCP journey starts its own stdio server. Wait for each process to exit before starting the next feature. Runs own unique database paths and can coexist, but the maintenance coordinator drives features serially. Do not run dependency synchronization concurrently.
 
 ## Check readiness
 
@@ -46,6 +46,18 @@ UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-hou
 Each journey checks the real import report, stored source-table counts, reconciliation output, schema version 2, transactional publication, owner-only file permissions, and SQLite integrity and foreign keys.
 
 The P1 journeys reuse `scripts/verify.py` lanes 1, 2 through 7, 8, and 10. Lane 9 uses internal fault injection and remains supplemental. The history journey drives all four public query commands and compares fixed pack answers. `scripts/verify_p2_independent.py` adds source-fact checks but does not replace CLI proof. The review journey edits only disposable human-decision fields and copied source data. The migration journey verifies the legacy backup can restore all original logical facts. The availability journey archives P2R commit `c6c151ee3e95706ad178d2d661fc791f6106f616` from local Git history and runs all ten P3 lanes through the skill-owned availability wrapper under the same timeout and cleanup boundary. The wrapper retains the original verdict and separately verifies P4's additive block labels and services against stored facts while requiring unchanged baseline row facts and occupied-time exclusion. Missing baseline history blocks that journey. The MCP journey starts the real stdio server. It checks all six tools against direct queries, safe errors, source and database invariants, and shutdown.
+
+## Verify local setup
+
+Run the isolated setup helper after the feature checks above:
+
+```sh
+UV_CACHE_DIR=/tmp/house-account-uv-cache uv run python .cursor/skills/verify-house-account/scripts/verify_setup.py
+```
+
+It copies current source into a temporary checkout and drives real setup with `--client none`. It checks missing-pack failure, normal import and configuration export, and two isolated `--uat` runs. It uses installed Python and cached dependencies in offline mode. Missing cache entries block this journey. It never requests client installation or registration. See [Setup](features/setup.md) for expected results and coverage limits.
+
+The helper health-checks before each child, retains command captures under `artifacts/verification/setup-*`, and applies the same 180-second process-group timeout and scratch cleanup rules. Require a passing result and verified cleanup, including the rejected missing-pack attempt.
 
 ## Inspect the evidence
 
