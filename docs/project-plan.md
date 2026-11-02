@@ -11,6 +11,7 @@ This reference replaces the original execution checklist. It records the phase b
 | P2R | Relational schema, explicit completion evidence, persistent identity, and transactional publication. | [P2R execution record](p2r-execution.md). |
 | P3 | Candidate openings and provider recommendations. Merged in PR #3. | [P3 execution record](p3-execution.md). |
 | P4 | Six read-only MCP tools and the actual Codex demo. Merged in PR #4. | [P4 execution record](p4-execution.md). |
+| Post-P4 maintenance | Service-classification and address-parsing repairs (T31, T32, T34). Merged in `7a784a5`; published to the Codex UAT snapshot on November 2, 2026. | [Normalization fixes](normalization-fixes-2026-10-27.md). |
 
 All phases are implemented. Production synchronization, remote authorization, crew scheduling, travel optimization, and a seventh-source parser remain deferred.
 
@@ -129,6 +130,7 @@ The following documents define the detailed contracts.
 - [Command reference](command-reference.md) defines current operations and response meanings.
 - [Scheduling policy](p3-design.md) defines duration, confidence, and ranking formulas.
 - [Decisions](decisions.md) preserve authorization history and rejected alternatives.
+- [Normalization fixes](normalization-fixes-2026-10-27.md) record the post-P4 repairs and their answer changes.
 - [Verification guide](verify-local-system.md) provides current reproduction commands.
 
 The old checklist counter in `plan-validation.txt` is a captured result for the original planning format. It is not a validation of this revised reference.

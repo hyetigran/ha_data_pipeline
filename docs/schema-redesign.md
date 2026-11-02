@@ -6,17 +6,17 @@ The operator accepted the domain decisions during the October 24, 2026 interview
 
 ## Three representations
 
-Original source records retain private payloads, account keys, hashes, and occurrence locations. Normalized source tables preserve entity-specific assertions. Canonical tables select supported identities and facts.
+Original source records, normalized source tables, and canonical tables stay separate. The [data model](data-model.md#observations-identities-and-facts) describes each layer.
 
 The extra source layer adds schema work but keeps disagreements inspectable after reconciliation. Frequently queried facts use SQL columns and relationships. Raw payloads and variable evidence can remain JSON.
 
 ## Core relationships
 
-Providers have related aliases, trades, exclusions, service areas, and working-hour declarations. Declared coverage remains separate from completed-work evidence.
+Providers have related aliases, trades, exclusions, and service areas. Working-hour declarations stay with each source profile. Declared coverage remains separate from completed-work evidence.
 
 Jobs and estimates require a provider and permit an explicitly unresolved property link. A visit has exactly one job or estimate parent. Its provider and property follow that parent.
 
-A job can list several services and retain an active lifecycle after completed visits. `service_completions` records performed-work evidence separately. Service attribution connects a completion to supported work rather than crediting every listed service.
+A job can list several services and retain an active lifecycle after completed visits. `service_completions` records performed-work evidence separately. The [data model](data-model.md#work-and-completion-evidence) states the attribution rule.
 
 Temporal facts retain selected values, local dates, precision, and evidence states. Date-only facts do not become invented instants. Missing money remains distinct from zero. Unknown units do not automatically match known units.
 
@@ -24,13 +24,13 @@ Temporal facts retain selected values, local dates, precision, and evidence stat
 
 Field lineage connects selected values to source assertions, rules, and effective review decisions. A global source priority or latest arrival does not resolve every conflict.
 
-The persistent identity registry retains IDs when new evidence joins an entity. Merges keep redirects. Splits can leave old references ambiguous.
+The persistent identity registry retains IDs when new evidence joins an entity. The [data model](data-model.md#observations-identities-and-facts) describes merges and splits.
 
 The first separate-store identity proposal was not accepted. One persistent SQLite database now coordinates derived facts and identity publication. The authoritative review ledger remains a separate durability boundary with explicit replay recovery.
 
 ## Publication and migration
 
-An import seeds a candidate with existing identity state, validates the candidate, and publishes it transactionally. Failed builds preserve the last successful snapshot. Readers keep a consistent revision for each transaction.
+An import seeds a candidate with existing identity state, then validates and publishes it as described in the [data model](data-model.md#publication-and-review).
 
 Legacy migration preserves a private backup and prior canonical memberships. Restoration uses SQLite's backup API. The [migration guide](p2r-migration.md) provides the procedure.
 

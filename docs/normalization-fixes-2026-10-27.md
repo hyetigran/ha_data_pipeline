@@ -1,6 +1,6 @@
 # Normalization fixes and six-answer comparison
 
-Implemented locally on October 27, 2026. No commit, publication, or merge was performed. The running database and existing review files were not modified; verification rebuilt isolated snapshots. The six questions use the challenge's November 2, 2026 reference date. All local times below are Dallas/Central.
+Implemented locally on October 27, 2026. As of that day, no commit, publication, or merge was performed; the fixes later merged in `7a784a5` and were published on November 2. The running database and existing review files were not modified; verification rebuilt isolated snapshots. The six questions use the challenge's November 2, 2026 reference date. All local times below are Dallas/Central.
 
 ## What changed
 

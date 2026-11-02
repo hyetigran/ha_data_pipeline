@@ -20,7 +20,7 @@ Evidence that service work was performed, which can exist while its associated j
 
 ## Service category
 
-A controlled classification of the work performed, distinct from the provider's broader trade.
+A controlled classification of the work performed, distinct from the provider's broader trade. Exact aliases classify clear labels first. Labels with competing meanings use the provider's declared trades, and a few compound labels map to two categories. Anything else stays unknown rather than guessed.
 
 ## Service description
 
@@ -36,7 +36,7 @@ The number of individual visits confirmed completed in a requested window. Job-l
 
 ## Unknown lifecycle
 
-A job lifecycle that the available source evidence cannot establish. It is distinct from a known active, finished, or cancelled state.
+A job lifecycle that the available source evidence cannot establish. It is distinct from the known states: open, active, pending approval, completed, and cancelled.
 
 ## Provider alias
 
@@ -68,7 +68,7 @@ A confirmed instance or assertion of performed service associated with a job and
 
 ## Unresolved property link
 
-A job's or estimate's property relationship that the available evidence has not established. Missing, unmatched, and conflicting address evidence are different reasons for an unresolved link.
+A job's or estimate's property relationship that the available evidence has not established. Missing, unresolved, and conflicting address evidence are different reasons for an unestablished link. Unresolved means address evidence exists but matches no single property.
 
 ## Visit parent
 
@@ -84,11 +84,15 @@ A distinct description and classification of work proposed in an estimate. Finis
 
 ## Known absence of a unit
 
-An affirmative determination that a property has no separate unit identifier. It differs from a source that simply omitted the unit.
+An affirmative determination that a property has no separate unit identifier. It differs from a source that simply omitted the unit. The schema allows this state, but the current import never produces it: a property without a unit is recorded as unknown.
 
 ## Missing amount
 
 An amount the available evidence does not establish. It is distinct from a known zero charge.
+
+## Disputed amount
+
+An amount on which the sources disagree. No single value is asserted.
 
 ## Service attribution
 

@@ -164,4 +164,4 @@ Use explicit aliases for clear service phrases and declared trade context for la
 
 Normalize supported trailing-city and separate-unit address forms, preserving units and original text. Exact formatting equivalence can join a property; spelling corrections, conflicting locality, disputed dates, and identity matches still require review. Reference coverage limits geocoding even when parsing succeeds.
 
-Verification uses isolated before/after snapshots and actual MCP calls. Existing source data, review files, and the running database remain unchanged. [The comparison](normalization-fixes-2026-10-27.md) records the answer changes, tests, and remaining unknowns.
+Verification uses isolated before/after snapshots and actual MCP calls. Existing source data, review files, and the running database remain unchanged. [The comparison](normalization-fixes-2026-10-27.md) records the answer changes, tests, and remaining unknowns. The fixes later merged to `main` in `7a784a5`. On November 2, 2026, they were published to the configured Codex UAT snapshot through [the refresh procedure](refresh-snapshot.md); all review proposals remain deferred.

@@ -15,4 +15,6 @@ The verification helper covers eight features through disposable databases and l
 
 Every feature requires Python 3.13, locked dependencies, and the supplied private pack. Missing prerequisites block the affected journey. Passing another journey does not cover that path.
 
+The check IDs on each feature page, such as `history-identity`, are descriptive names for the expected behavior. The helper does not print them, so they do not appear in receipts. Only the review journey prints step labels, which start with `review-`.
+
 The helper overrides working database and review paths. Receipts contain commands, exit codes, resulting state, and cleanup results. Private evidence and run notes remain uncommitted.

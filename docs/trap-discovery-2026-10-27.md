@@ -22,7 +22,7 @@ Examples:
 | Workiz `uptown_odd_jobs/jobs.json`, `/data/86`, job `DY127B` | `assemble IKEA` | Handyman trade, unknown service |
 | Workiz `white_rock_handyman/jobs.json`, `/data/158`, job `DBDMNP` | `Hang TV + hide wires` | Handyman trade, unknown service |
 
-Other labels include `Tankless conversion`, `EV charger install`, `Hydro jet`, `fridge not cooling`, and `tv install 65in`. Some are clear aliases; others such as `changeout` require provider/trade context. Splitting `Patch & paint drywall` also creates an unknown `Patch` component alongside a recognized painting component. Therefore 68 labels does not mean 68 completely unclassified services.
+Other labels include `Tankless conversion`, `EV charger install`, `Hydro jet`, `fridge not cooling`, and `tv install 65in`. Some are clear aliases; others such as `changeout` require provider/trade context. Splitting `Patch & paint drywall` also creates an unknown `Patch` component alongside a recognized painting component. Therefore 68 labels does not mean 68 completely unclassified services. *Fixed October 27: `Patch & paint drywall` is now one compound with handyman and painting scope.*
 
 **Impact:** service-specific history and recommendations can miss relevant completed work. Broad provider trade credit can survive while precise service credit is missing. `unmapped_service` is recorded, but that is not equivalent to solving the query.
 
@@ -36,7 +36,7 @@ Evidence: `sources/workiz/clear_flow_gutters/jobs.json`, `/data/0`, `/data/17`, 
 
 **Impact:** gutter experience is undercounted and general-cleaning experience is wrongly attributed. Existing ingestion and query tests pass despite this defect.
 
-**Needed:** prioritize specific service phrases, validate against provider context, and test the resulting history/ranking behavior. This audit documents the defect without changing the classifier.
+**Needed:** prioritize specific service phrases, validate against provider context, and test the resulting history/ranking behavior. This audit documents the defect without changing the classifier. *Fixed October 27: specific terms such as `gutter` now precede `clean`. See [the fixes](normalization-fixes-2026-10-27.md).*
 
 ### T33 — Customer name fields can disagree while contact identity agrees
 
@@ -54,9 +54,9 @@ There are also **241 job rows** where nonempty `FirstName` equals `LastName`, ac
 
 Abrams calendar `VEVENT:2` has a four-part address shaped as `street, unit, city, state ZIP`. The current three-part parser treats the unit as the city and loses the actual locality. The matching HCP job is `sources/housecall_pro/abrams_plumbing/jobs_page_1.json`, `/jobs/32`; its structured address preserves the unit and ZIP+4. Both records have the same interval. This is a distinct concern from safely keeping different apartment units separate.
 
-The broader contact/address search also finds `Cottonwood Trail` versus `Cottonwood Trl`, an abbreviation absent from the current suffix table. These locations are outside the supplied geocoder's target area; normalizing the suffix would not manufacture coordinates there.
+The broader contact/address search also finds `Cottonwood Trail` versus `Cottonwood Trl`, an abbreviation then absent from the suffix table. These locations are outside the supplied geocoder's target area; normalizing the suffix would not manufacture coordinates there. *Fixed October 27: `Trail` and `Trl` now normalize alike, and these addresses still get no coordinates.*
 
-**Needed:** narrow parsing rules for trailing city and four-part addresses, with unit-preservation tests. Keep address identity and geocoding coverage separate.
+**Needed:** narrow parsing rules for trailing city and four-part addresses, with unit-preservation tests. Keep address identity and geocoding coverage separate. *Fixed October 27 for trailing-city, separate-unit and four-part forms. See [the fixes](normalization-fixes-2026-10-27.md).*
 
 ## Expanded evidence for existing register entries
 
@@ -84,9 +84,9 @@ Additional DST locators, all relative to `sources/workiz/`:
 | `lakewood_air/jobs.json` | `/data/296/CreatedDate` | `9EWHXB` |
 | `overhead_hero_garage_doors/jobs.json` | `/data/267/CreatedDate` | `V70V6N` |
 
-## Current coverage of the original register
+## Coverage of the original register at this audit
 
-This table updates the original P2-era handling assessment. Passing tests establish the stated behavior, not hidden-answer correctness.
+This table updates the original P2-era handling assessment, as of October 27 before the fixes. Rows T09–T11 and T16–T18 changed afterwards; see [the fixes](normalization-fixes-2026-10-27.md). Passing tests establish the stated behavior, not hidden-answer correctness.
 
 | Register IDs | Current coverage | Remaining gap |
 | --- | --- | --- |
@@ -95,9 +95,9 @@ This table updates the original P2-era handling assessment. Passing tests establ
 | T03, T19, T21 time ambiguity | Ambiguous visit instants are rejected; incomplete intervals create uncertainty; zone-aware arithmetic tested. | Additional metadata fields identified above need explicit quality reporting. |
 | T04, T22–T24 calendars | P3 supports exclusive all-day blocks, bounded recurrence, opaque tentative holds, transparent events, and unlocated busy time. | Real calendar-to-profile links still need review. Correct interval logic cannot compensate for an unresolved provider identity. |
 | T06, T12 duplicate imports | Exact HCP page overlap and CSV duplicate rows deduplicate while retaining observations. | Fuzzy/changed-ID duplicates remain candidates. |
-| T09–T11 properties | Basic suffix/case/ZIP/unit normalization and reference interpolation work; missing units do not justify merging with known units. | Broad spelling candidates and T34 parsing failures remain unresolved. |
+| T09–T11 properties | Basic suffix/case/ZIP/unit normalization and reference interpolation work; missing units do not justify merging with known units. | Broad spelling candidates remain unresolved. T34 parsing failures were fixed on October 27. |
 | T13–T15 spreadsheet uncertainty | Ambiguous dates, missing ends, cancellation, and payment-versus-completion distinctions remain explicit. | Calendar-backed correction proposals, service mismatches, and replacement relationships need review/work. |
-| T16–T18 lifecycle | Jobs, visits, estimates and completion evidence are separate; pending approval is not completed work; scheduled estimates occupy time. | Vocabulary coverage for performed service remains weak (T31/T32). |
+| T16–T18 lifecycle | Jobs, visits, estimates and completion evidence are separate; pending approval is not completed work; scheduled estimates occupy time. | Vocabulary coverage for performed service was weak (T31/T32); fixed on October 27 for the clear aliases. Vague labels stay unknown. |
 | T20 money | 11,616 nonempty unique job amounts independently recomputed with Decimal; all agree with adapter minor units. | This check does not cover every estimate option, balance, or visit invoice field. |
 | T25 provider links | Three provider-match proposals remain; fresh snapshot has 43 canonical providers. | New calendar corroboration has not been added to the operational review proposals. |
 | T26 hours | Four M-F shorthand declarations remain unparsed; emergency-only hours do not become routine 24/7 availability. | Conservative unknown availability is safe but loses useful answers. |
@@ -136,8 +136,8 @@ Use a genuinely new directory so an existing review ledger is not mistaken for t
 
 ## Work order suggested by the evidence
 
-1. Repair T32's specific misclassification and add query-level regression coverage. Expand T31's clear service aliases with provider context and negative cases.
-2. Fix T34's narrowly identified address parsing cases. Generate evidence-backed street corrections from the broader candidate set; do not auto-approve them.
+1. **Done October 27.** Repair T32's specific misclassification and add query-level regression coverage. Expand T31's clear service aliases with provider context and negative cases.
+2. **Partly done October 27.** Fix T34's narrowly identified address parsing cases (done). Generate evidence-backed street corrections from the broader candidate set; do not auto-approve them (still open: the review workflow has no street-correction proposal kind).
 3. Present the new Abrams/Ray corroboration through the existing local review workflow. Then resolve supported date/time/address fields without treating calendar presence as completion.
 4. Reduce contact-format review noise and flag actual name contradictions separately. Report ambiguous metadata timestamps without incorrectly blocking unrelated future appointments.
 5. Re-run the six required questions and availability checks after any approved changes. Compare corrected answers with the unreviewed baseline.

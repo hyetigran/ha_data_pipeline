@@ -1,6 +1,6 @@
 # Data trap register
 
-**Current follow-up:** [October 27 expanded investigation](trap-discovery-2026-10-27.md) adds T31–T34, broader evidence for existing entries, and a P1–P4 coverage assessment. It finds service-classification defects, additional DST metadata ambiguity, and stronger calendar-link evidence. The historical rows below retain their original audit-time meaning.
+**Current follow-up:** [October 27 expanded investigation](trap-discovery-2026-10-27.md) adds T31–T34, broader evidence for existing entries, and a P1–P4 coverage assessment. It finds service-classification defects, additional DST metadata ambiguity, and stronger calendar-link evidence. The classification and address-parsing defects were [fixed on October 27](normalization-fixes-2026-10-27.md) and published to the Codex UAT snapshot on November 2. The historical rows below retain their original audit-time meaning.
 
 This register records the October 24, 2026 audit of the P2 working tree. Handling and remaining-work columns describe that historical state. P3 and P4 later implemented availability and MCP checks. Their [execution records](README.md#execution-records) describe current coverage. The audit changed no source data, live database, or review decisions.
 

@@ -25,17 +25,15 @@ A job describes an undertaking. A visit describes one appointment for a job or e
 
 Service completions record evidence that work happened. A completed visit can support history while its recurring job remains active. A completed estimate does not establish performed service. Job-level completion does not fabricate a completed visit.
 
-Jobs and estimates can list several services. A completion receives credit for a particular service only when evidence supports that link. This prevents a completed plumbing visit from proving that every other service listed on the job also happened.
+Jobs and estimates can list several services. A completion credits only the services its evidence supports, so a completed plumbing visit does not prove every listed service happened. The [data model](docs/data-model.md#work-and-completion-evidence) states the current rule.
 
 Provider aliases, trades, exclusions, and declared areas use related rows. Observed service areas come from completed work. Property records preserve unresolved links, unknown units, and approximate geocode precision.
 
-The [data model](docs/data-model.md) explains these distinctions. The [column design record](docs/schema-columns-draft.md) records accepted semantics. Executable constraints live in `src/house_account/schema.py` and `src/house_account/storage.py`.
+The [data model](docs/data-model.md) explains these distinctions. The [column design record](docs/schema-columns-draft.md) records accepted semantics. Executable constraints live in `src/house_account/schema.py`, `src/house_account/storage.py`, and `src/house_account/registry.py`.
 
 ## Persistent identities and publication
 
-An import builds and validates an isolated candidate. Publication updates derived facts and identity state in one transaction on the persistent database. A failed build leaves the prior snapshot available. Readers keep one revision for each read transaction.
-
-The identity registry survives imports. Merges retain redirects from retired IDs. Splits can leave an earlier reference ambiguous rather than silently selecting one descendant.
+Each import builds an isolated candidate and publishes it in one transaction, and canonical IDs persist across imports. The data model covers [publication](docs/data-model.md#publication-and-review) and [identity](docs/data-model.md#observations-identities-and-facts) rules.
 
 The review ledger remains authoritative outside the SQLite transaction. Apply records a decision before database publication. If publication then fails, `recorded_not_applied` distinguishes that state from an unrecorded decision. Rebuilding with the same ledger recovers the intended facts.
 
@@ -60,7 +58,7 @@ Missing hours and uncertain intervals reduce what the system can establish. They
 
 Queries read published facts through consistent read transactions. MCP response models select allowed fields rather than exposing source rows. Controlled service descriptions preserve useful work details without copying private notes.
 
-Neighborhood answers use aggregates or block locations. Exact-home history applies to the supplied home. Homeowner contacts, personal calendar titles, raw notes, review evidence, and internal paths remain private.
+The data model's [privacy boundary](docs/data-model.md#privacy-boundary) lists what answers may include and what stays private. Internal paths also stay private.
 
 Local tool access is trusted. The server does not verify that a caller owns the requested property. Remote authentication and authorization require separate implementation.
 
@@ -68,4 +66,4 @@ Local tool access is trusted. The server does not verify that a caller owns the 
 
 Repeated full-pack imports do not establish production synchronization. Partial deliveries need explicit scope, revision, retry, deletion, and freshness rules. Those contracts appear in [the synchronization requirements](docs/sync-readiness.md).
 
-SQLite remains suitable for the measured local workload. Larger deployments require measurements of record volume, recurrence density, concurrent readers, and refresh cost. Provider count alone does not establish a database limit.
+SQLite remains suitable for the measured local workload. [Scale and deferred work](docs/data-model.md#scale-and-deferred-work) lists what a larger deployment must measure.
