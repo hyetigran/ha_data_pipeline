@@ -8,6 +8,7 @@ The project implements P1 through P4. The [delivery status](project-plan.md) lis
 | --- | --- |
 | Prepare the local database and connect Codex | [Start the local server](start-local-server.md) |
 | Query completed work and candidate openings | [Query local data](query-local-data.md) |
+| Rebuild an existing snapshot after a code change | [Refresh an existing snapshot](refresh-snapshot.md) |
 | Review proposed identity or field corrections | [Review reconciliation decisions](review-reconciliation.md) |
 | Upgrade or restore a legacy database | [Migrate the local database](p2r-migration.md) |
 | Reproduce live checks and the demo | [Verify the local system](verify-local-system.md) |

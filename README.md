@@ -40,6 +40,7 @@ The guides cover local operation and verification.
 - [Set up House Account and connect an MCP client](docs/start-local-server.md).
 - [Query service history and candidate openings](docs/query-local-data.md).
 - [Review reconciliation proposals](docs/review-reconciliation.md).
+- [Refresh an existing snapshot](docs/refresh-snapshot.md) after a code change.
 - [Upgrade and restore a legacy database](docs/p2r-migration.md).
 - [Verify the application and capture a Codex demo](docs/verify-local-system.md).
 - [Enable the staged-file token limit](docs/commit-hooks.md).

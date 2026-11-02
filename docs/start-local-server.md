@@ -80,7 +80,7 @@ uv run --locked house-account --data ./data --as-of 2026-11-02
 
 Expect the process to wait for an MCP client. Protocol messages use stdin and stdout. Diagnostics use stderr.
 
-If the database is missing, startup imports it before serving. To refresh an existing snapshot, run `ingest` explicitly. To select other paths, pass `--database` and `--ledger` to startup.
+If the database is missing, startup imports it before serving. To refresh an existing snapshot, follow [Refresh an existing snapshot](refresh-snapshot.md). To select other paths, pass `--database` and `--ledger` to startup.
 
 ## Register the server with Codex
 

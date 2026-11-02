@@ -21,6 +21,8 @@ The `ingest` subcommand validates the supplied file layout, builds a candidate, 
 | `1` | Import failed. The previous published snapshot remains available. |
 | `2` | Publication succeeded, but the report write failed with `published_report_failed`. |
 
+`ingest` seeds canonical IDs from the existing target database. A refresh within schema version `2` creates no backup. `--ledger` always defaults to `review/decisions.jsonl`, so pass the target's own ledger. See [Refresh an existing snapshot](refresh-snapshot.md).
+
 The database uses owner-only permissions. A maintenance lock allows one writer per database path. WAL mode and full synchronous durability support transactional publication. A read transaction keeps one revision until it ends. A SQLite backup includes committed WAL contents. A copy of the main file alone might not.
 
 ## History queries
