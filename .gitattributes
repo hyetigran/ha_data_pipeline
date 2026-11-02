@@ -16,3 +16,20 @@ src/house_account/pack_manifest.json token-limit-exempt
 schemas/reconciliation-review.schema.json token-limit-exempt
 docs/data-pack-inventory.json token-limit-exempt
 docs/trap-audit-summary.json token-limit-exempt
+
+# Vendored upstream skill examples; provenance is recorded in each UPSTREAM.md.
+.agents/skills/big-review/references/big-review.html token-limit-exempt
+.agents/skills/data-product/references/data-products.html token-limit-exempt
+.agents/skills/impact/references/impact.html token-limit-exempt
+.agents/skills/incident/references/incident.html token-limit-exempt
+.agents/skills/pr-review/references/pr-review.html token-limit-exempt
+.agents/skills/profile/references/profile.html token-limit-exempt
+.agents/skills/quality/references/quality.html token-limit-exempt
+.agents/skills/toolkit/references/architecture.html token-limit-exempt
+.agents/skills/toolkit/references/calls.html token-limit-exempt
+.agents/skills/toolkit/references/catalog.html token-limit-exempt
+.agents/skills/toolkit/references/index.html token-limit-exempt
+.agents/skills/toolkit/references/lineage.html token-limit-exempt
+.agents/skills/toolkit/references/model.html token-limit-exempt
+.agents/skills/toolkit/references/quality.html token-limit-exempt
+.agents/skills/toolkit/references/runs.html token-limit-exempt
