@@ -44,3 +44,4 @@ The [verification guide](docs/verify-local-system.md) lists the longer feature j
 
 - `.agents/skills/`: 16 data engineering workflows adapted for Codex, including `profile`, `metadata`, `contract`, `quality`, `reconcile`, `impact`, `incident`, `docs`, and `knowledge-refresh`.
 - `.cursor/skills/verify-house-account/`: live verification journeys for each feature.
+- `.claude/skills/verify-availability-openings/`: bounded exhaustive check that openings never cover busy or unknown time. Run it after any change to `union`, `subtract`, or `openings`.
